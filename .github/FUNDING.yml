@@ -1,0 +1,9 @@
+# These are supported funding model platforms
+
+github: BambiSleepChat # GitHub Sponsors-enabled organization
+patreon: bambisleepchat # BambiSleepChat Patreon memberships
+custom: [
+    "https://brandynette.xxx/",
+    "https://www.reddit.com/r/BambiSleepChat/",
+    "https://bambisleep.info/",
+  ] # Custom sponsorship URLs
