@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brandynette Video Player - Port 6969</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+    </style>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+
+      function VideoPlayer({ videoSrc, title }) {
+        const [isPlaying, setIsPlaying] = useState(false);
+        const [currentTime, setCurrentTime] = useState(0);
+        const [duration, setDuration] = useState(0);
+        const [volume, setVolume] = useState(1);
+        const [loading, setLoading] = useState(true);
+        const [error, setError] = useState(null);
+
+        const videoRef = React.useRef(null);
+
+        useEffect(() => {
+          const video = videoRef.current;
+          if (!video) return;
+
+          const handleLoadedMetadata = () => {
+            setDuration(video.duration);
+            setLoading(false);
+          };
+
+          const handleTimeUpdate = () => setCurrentTime(video.currentTime);
+          const handlePlay = () => setIsPlaying(true);
+          const handlePause = () => setIsPlaying(false);
+          const handleEnded = () => setIsPlaying(false);
+          const handleError = () => {
+            setError('Failed to load video');
+            setLoading(false);
+          };
+
+          video.addEventListener('loadedmetadata', handleLoadedMetadata);
+          video.addEventListener('timeupdate', handleTimeUpdate);
+          video.addEventListener('play', handlePlay);
+          video.addEventListener('pause', handlePause);
+          video.addEventListener('ended', handleEnded);
+          video.addEventListener('error', handleError);
+
+          return () => {
+            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            video.removeEventListener('timeupdate', handleTimeUpdate);
+            video.removeEventListener('play', handlePlay);
+            video.removeEventListener('pause', handlePause);
+            video.removeEventListener('ended', handleEnded);
+            video.removeEventListener('error', handleError);
+          };
+        }, [videoSrc]);
+
+        const togglePlay = () => {
+          const video = videoRef.current;
+          if (video.paused) {
+            video.play();
+          } else {
+            video.pause();
+          }
+        };
+
+        const handleSeek = (e) => {
+          const video = videoRef.current;
+          const rect = e.currentTarget.getBoundingClientRect();
+          const percent = (e.clientX - rect.left) / rect.width;
+          video.currentTime = percent * duration;
+        };
+
+        const handleVolumeChange = (e) => {
+          const newVolume = parseFloat(e.target.value);
+          setVolume(newVolume);
+          videoRef.current.volume = newVolume;
+        };
+
+        const formatTime = (time) => {
+          const minutes = Math.floor(time / 60);
+          const seconds = Math.floor(time % 60);
+          return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        };
+
+        if (error) {
+          return React.createElement('div', { style: { color: 'red', padding: '2rem', textAlign: 'center' } }, error);
+        }
+
+        return React.createElement('div', { style: { background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '1rem', margin: '1rem' } },
+          React.createElement('div', { style: { position: 'relative', background: 'black', borderRadius: '8px', overflow: 'hidden', marginBottom: '1rem' } },
+            React.createElement('video', {
+              ref: videoRef,
+              src: videoSrc,
+              style: { width: '100%', height: 'auto', maxHeight: '70vh', display: 'block', cursor: 'pointer' },
+              onClick: togglePlay
+            }),
+            loading && React.createElement('div', {
+              style: {
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                color: 'white',
+                textAlign: 'center'
+              }
+            }, 'Loading video...')
+          ),
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(0,0,0,0.8)', color: 'white', borderRadius: '8px' } },
+            React.createElement('button', {
+              onClick: togglePlay,
+              disabled: loading,
+              style: { background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer', padding: '0.5rem' }
+            }, isPlaying ? '⏸️' : '▶️'),
+            React.createElement('div', {
+              style: { flex: 1, height: '6px', background: 'rgba(255,255,255,0.3)', borderRadius: '3px', cursor: 'pointer' },
+              onClick: handleSeek
+            },
+              React.createElement('div', {
+                style: {
+                  height: '100%',
+                  background: '#667eea',
+                  width: `${(currentTime / duration) * 100}%`,
+                  borderRadius: '3px'
+                }
+              })
+            ),
+            React.createElement('span', { style: { fontSize: '0.9rem', fontFamily: 'monospace', minWidth: '80px' } },
+              `${formatTime(currentTime)} / ${formatTime(duration)}`
+            ),
+            React.createElement('span', null, '🔊'),
+            React.createElement('input', {
+              type: 'range',
+              min: '0',
+              max: '1',
+              step: '0.1',
+              value: volume,
+              onChange: handleVolumeChange,
+              style: { width: '80px' }
+            })
+          ),
+          React.createElement('div', { style: { textAlign: 'center', marginTop: '1rem' } },
+            React.createElement('h3', { style: { margin: 0, color: 'white' } }, title)
+          )
+        );
+      }
+
+      function App() {
+        const [videos, setVideos] = useState([]);
+        const [publicFiles, setPublicFiles] = useState([]);
+        const [loading, setLoading] = useState(true);
+        const [error, setError] = useState(null);
+        const [selectedVideo, setSelectedVideo] = useState(null);
+
+        useEffect(() => {
+          fetchData();
+        }, []);
+
+        const fetchData = async () => {
+          try {
+            setLoading(true);
+
+            // Fetch videos
+            const videosResponse = await fetch('/api/videos');
+            if (!videosResponse.ok) throw new Error('Failed to fetch videos');
+            const videosData = await videosResponse.json();
+            setVideos(videosData.videos);
+
+            // Fetch public files
+            const publicResponse = await fetch('/api/public');
+            if (!publicResponse.ok) throw new Error('Failed to fetch public files');
+            const publicData = await publicResponse.json();
+            setPublicFiles(publicData.files);
+
+            // Auto-select first video
+            if (videosData.videos.length > 0) {
+              setSelectedVideo(videosData.videos[0]);
+            }
+          } catch (err) {
+            console.error('Error fetching data:', err);
+            setError('Failed to load data. Please try again.');
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        if (loading) {
+          return React.createElement('div', {
+            style: {
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '100vh',
+              color: 'white',
+              textAlign: 'center'
+            }
+          },
+            React.createElement('div', {
+              style: {
+                width: '50px',
+                height: '50px',
+                border: '4px solid rgba(255,255,255,0.3)',
+                borderTop: '4px solid white',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                marginBottom: '1rem'
+              }
+            }),
+            React.createElement('p', null, 'Loading...')
+          );
+        }
+
+        if (error) {
+          return React.createElement('div', {
+            style: {
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '100vh',
+              color: 'white',
+              textAlign: 'center'
+            }
+          },
+            React.createElement('h2', { style: { color: '#ff6b6b' } }, 'Oops! Something went wrong'),
+            React.createElement('p', null, error),
+            React.createElement('button', {
+              onClick: fetchData,
+              style: {
+                background: '#667eea',
+                color: 'white',
+                border: 'none',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }
+            }, 'Try Again')
+          );
+        }
+
+        return React.createElement('div', { style: { minHeight: '100vh', color: 'white' } },
+          React.createElement('header', {
+            style: {
+              textAlign: 'center',
+              padding: '2rem 1rem',
+              background: 'rgba(0,0,0,0.2)',
+              backdropFilter: 'blur(10px)'
+            }
+          },
+            React.createElement('h1', {
+              style: {
+                margin: '0 0 0.5rem 0',
+                fontSize: '2.5rem',
+                fontWeight: '700',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+              }
+            }, '🎬 Brandynette Video Player'),
+            React.createElement('p', { style: { margin: 0, fontSize: '1.1rem', opacity: 0.9 } },
+              `Premium video streaming on port 6969`)
+          ),
+          React.createElement('main', { style: { padding: '2rem 1rem', maxWidth: '1200px', margin: '0 auto' } },
+            videos.length === 0
+              ? React.createElement('div', { style: { textAlign: 'center', padding: '3rem 1rem' } },
+                  React.createElement('h2', { style: { color: '#ffd93d' } }, 'No videos found'),
+                  React.createElement('p', null, 'Please add video files to the BRANDIFICATION folder')
+                )
+              : React.createElement('div', null,
+                  videos.length > 1 && React.createElement('div', { style: { marginBottom: '2rem', textAlign: 'center' } },
+                    React.createElement('h3', { style: { marginBottom: '1rem' } }, 'Select a video:'),
+                    React.createElement('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' } },
+                      videos.map(video =>
+                        React.createElement('button', {
+                          key: video,
+                          onClick: () => setSelectedVideo(video),
+                          style: {
+                            background: selectedVideo === video ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.2)',
+                            color: 'white',
+                            border: selectedVideo === video ? '2px solid white' : '2px solid transparent',
+                            padding: '0.5rem 1rem',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease'
+                          }
+                        }, video)
+                      )
+                    )
+                  ),
+                  selectedVideo && React.createElement(VideoPlayer, {
+                    videoSrc: `/videos/${selectedVideo}`,
+                    title: selectedVideo
+                  })
+                ),
+            React.createElement('div', { style: { marginTop: '3rem', textAlign: 'center' } },
+              React.createElement('h3', null, 'API Endpoints:'),
+              React.createElement('div', { style: { display: 'grid', gap: '0.5rem', maxWidth: '600px', margin: '0 auto' } },
+                React.createElement('p', null, `📺 Videos: ${videos.length} found`),
+                React.createElement('p', null, `📁 Public files: ${publicFiles.length} found`),
+                React.createElement('p', null, '🔗 /api/videos - List videos'),
+                React.createElement('p', null, '🔗 /api/public - List public files'),
+                React.createElement('p', null, '🔗 /health - Server health')
+              )
+            )
+          ),
+          React.createElement('footer', {
+            style: {
+              textAlign: 'center',
+              padding: '1rem',
+              background: 'rgba(0,0,0,0.2)',
+              backdropFilter: 'blur(10px)'
+            }
+          },
+            React.createElement('p', null, 'Built with ❤️ using Express & React on port 6969')
+          )
+        );
+      }
+
+      // Add CSS animation for loading spinner
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(style);
+
+      ReactDOM.render(React.createElement(App), document.getElementById('root'));
+    </script>
+  </body>
+</html>
