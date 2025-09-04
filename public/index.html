@@ -1,17 +1,451 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Brandynette Video Player - Port 6969</title>
+    <title>Brandynette Video Player - Enhanced with Gravatar</title>
     <style>
+      /* ================================================
+         2030 NEON CYBER GOTH WAVE THEME
+         Agent Dr Girlfriend - Terminal Interface
+         ================================================ */
+
+      /* Optimized font loading - only load essential weights */
+      @import url("https://fonts.googleapis.com/css2?family=Audiowide&family=Fira+Code:wght@400;600&family=JetBrains+Mono:wght@400;600&family=Space+Mono:wght@400;700&display=swap");
+
+      :root {
+          /* === CYBER GOTH PALETTE 2030 === */
+          --cyber-black: #0a0a0f;
+          --cyber-dark: #111118;
+          --cyber-darker: #1a1a2e;
+          --cyber-surface: #16213e;
+
+          /* Neon Colors */
+          --neon-pink: #ff0080;
+          --neon-cyan: #00ffff;
+          --neon-purple: #8a2be2;
+          --neon-green: #39ff14;
+          --neon-orange: #ff4500;
+          --neon-blue: #0080ff;
+
+          /* Glow Effects - VIEWPORT UNITS ONLY */
+          --pink-glow: 0 0 2vw #ff0080, 0 0 4vw #ff0080, 0 0 6vw #ff0080;
+          --cyan-glow: 0 0 2vw #00ffff, 0 0 4vw #00ffff, 0 0 6vw #00ffff;
+          --purple-glow: 0 0 2vw #8a2be2, 0 0 4vw #8a2be2, 0 0 6vw #8a2be2;
+          --green-glow: 0 0 2vw #39ff14, 0 0 4vw #39ff14, 0 0 6vw #39ff14;
+
+          /* BambiSleep Integration */
+          --primary-color: var(--neon-cyan);
+          --primary-alt: var(--cyber-surface);
+          --secondary-color: var(--neon-pink);
+          --secondary-alt: var(--neon-purple);
+          --tertiary-color: var(--neon-green);
+          --tertiary-alt: var(--neon-orange);
+          --button-color: var(--neon-pink);
+          --button-alt: var(--cyber-black);
+          --nav-color: var(--cyber-darker);
+          --nav-alt: var(--neon-cyan);
+          --transparent: rgba(26, 26, 46, 0.8);
+          --transparent-alt: rgba(0, 0, 0, 0);
+          --error: var(--neon-orange);
+          --error-bg: rgba(255, 69, 0, 0.1);
+
+          /* Terminal Typography */
+          --font-mono: 'Audiowide', 'Fira Code', 'JetBrains Mono', 'Space Mono', 'Courier New', monospace;
+          --font-cyber: 'Audiowide', 'JetBrains Mono', 'Fira Code', monospace;
+
+          /* Terminal Colors */
+          --terminal-bg: var(--cyber-black);
+          --terminal-text: var(--neon-cyan);
+          --terminal-cursor: var(--neon-pink);
+          --terminal-selection: rgba(0, 255, 255, 0.3);
+
+          /* Cyber UI Elements */
+          --accent-color: var(--neon-pink);
+          --background-color: var(--cyber-black);
+          --text-color: var(--neon-cyan);
+          --header-background: var(--cyber-darker);
+          --sidebar-background: var(--cyber-dark);
+          --border-color: var(--neon-cyan);
+
+          /* Responsive Cyber Sizing - VIEWPORT UNITS ONLY */
+          --spacing-xs: 0.4vh;
+          --spacing-sm: 0.8vh;
+          --spacing-md: 1.2vh;
+          --spacing-lg: 2vh;
+          --spacing-xl: 3vh;
+          --spacing-2xl: 4vh;
+
+          --size-xs: 0.3vw;
+          --size-sm: 0.6vw;
+          --size-md: 1vw;
+          --size-lg: 1.5vw;
+          --size-xl: 2vw;
+          --size-2xl: 3vw;
+
+          /* Terminal Border System - VIEWPORT UNITS ONLY */
+          --border-thin: 0.1vw;
+          --border-normal: 0.2vw;
+          --border-thick: 0.3vw;
+          --border-glow: 0.1vw;
+
+          /* Cyber Radius - VIEWPORT UNITS ONLY */
+          --radius-xs: 0.2vw;
+          --radius-sm: 0.4vw;
+          --radius-md: 0.6vw;
+          --radius-lg: 0.8vw;
+          --radius-xl: 1.2vw;
+          --radius-terminal: 0vw;
+          /* Sharp terminal edges */
+
+          /* Neon Shadows & Glows - VIEWPORT UNITS ONLY */
+          --shadow-sm: 0 0 2vw #00ffff, 0 0 4vw #00ffff, 0 0 6vw #00ffff;
+          --shadow-base: 0 0 2vw #ff0080, 0 0 4vw #ff0080, 0 0 6vw #ff0080;
+          --shadow-md: 0 0 2vw #8a2be2, 0 0 4vw #8a2be2, 0 0 6vw #8a2be2;
+          --shadow-lg: 0 0 2vw #39ff14, 0 0 4vw #39ff14, 0 0 6vw #39ff14;
+          --shadow-xl: 0 0 3vw #ff0080, 0 0 6vw #00ffff, 0 0 9vw #8a2be2;
+
+          /* Terminal Font Sizes - VIEWPORT UNITS ONLY */
+          --font-xs: 0.7vw;
+          --font-sm: 0.85vw;
+          --font-base: 1vw;
+          --font-lg: 1.125vw;
+          --font-xl: 1.25vw;
+          --font-2xl: 1.5vw;
+          --font-3xl: 2vw;
+          --font-terminal: 0.9vw;
+
+          /* Cyber Gaps - VIEWPORT UNITS ONLY */
+          --gap-xs: 0.25vw;
+          --gap-sm: 0.5vw;
+          --gap-md: 0.75vw;
+          --gap-lg: 1vw;
+          --gap-xl: 1.5vw;
+
+          /* Animation Timings */
+          --cyber-fast: 0.15s;
+          --cyber-normal: 0.3s;
+          --cyber-slow: 0.6s;
+          --glow-pulse: 2s;
+      }
+
+      /* === CYBER GOTH THEME VARIANTS === */
+
+      .light-theme {
+          /* Terminal Green on Black (Retro) */
+          --primary-color: var(--neon-green);
+          --primary-alt: var(--cyber-surface);
+          --secondary-color: var(--neon-orange);
+          --secondary-alt: var(--neon-blue);
+          --tertiary-color: var(--neon-cyan);
+          --tertiary-alt: var(--neon-purple);
+          --button-color: var(--neon-green);
+          --button-alt: var(--cyber-black);
+          --nav-color: var(--cyber-dark);
+          --nav-alt: var(--neon-green);
+          --transparent: rgba(17, 17, 24, 0.9);
+          --transparent-alt: rgba(0, 0, 0, 0);
+          --error: var(--neon-orange);
+          --error-bg: rgba(255, 69, 0, 0.1);
+
+          --accent-color: var(--neon-green);
+          --background-color: var(--cyber-black);
+          --text-color: var(--neon-green);
+          --header-background: var(--cyber-darker);
+          --sidebar-background: var(--cyber-dark);
+          --border-color: var(--neon-green);
+      }
+
+      .dark-theme {
+          /* Full Neon Cyber Mode */
+          --primary-color: var(--neon-pink);
+          --primary-alt: var(--cyber-surface);
+          --secondary-color: var(--neon-cyan);
+          --secondary-alt: var(--neon-purple);
+          --tertiary-color: var(--neon-orange);
+          --tertiary-alt: var(--neon-blue);
+          --button-color: var(--neon-pink);
+          --button-alt: var(--cyber-black);
+          --nav-color: var(--cyber-darker);
+          --nav-alt: var(--neon-cyan);
+          --transparent: rgba(10, 10, 15, 0.8);
+          --transparent-alt: rgba(0, 0, 0, 0);
+          --error: var(--neon-orange);
+          --error-bg: rgba(255, 69, 0, 0.15);
+
+          --accent-color: var(--neon-pink);
+          --background-color: var(--cyber-black);
+          --text-color: var(--neon-cyan);
+          --header-background: var(--cyber-darker);
+          --sidebar-background: var(--cyber-dark);
+          --border-color: var(--neon-pink);
+      }
+
+      /* === CYBER TERMINAL COMPONENTS === */
+
+      * {
+          font-family: var(--font-cyber);
+      }
+
       body {
-        margin: 0;
-        padding: 0;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
+          margin: 0;
+          padding: 0;
+          background: var(--terminal-bg);
+          color: var(--terminal-text);
+          font-family: var(--font-cyber);
+          font-size: var(--font-terminal);
+          line-height: 1.4;
+          overflow-x: hidden;
+          min-height: 100vh;
+      }
+
+      .gravatar-avatar {
+        border-radius: 50%;
+        border: var(--border-normal) solid var(--border-color);
+        transition: all var(--cyber-normal) ease;
+        box-shadow: var(--cyan-glow);
+      }
+      .gravatar-avatar:hover {
+        border-color: var(--neon-pink);
+        transform: scale(1.05);
+        box-shadow: var(--pink-glow);
+      }
+      .comment-input {
+        background: var(--transparent);
+        border: var(--border-thin) solid var(--border-color);
+        color: var(--text-color);
+        padding: var(--spacing-md);
+        border-radius: var(--radius-terminal);
+        width: 100%;
+        box-sizing: border-box;
+        font-family: var(--font-cyber);
+        font-size: var(--font-sm);
+        transition: all var(--cyber-normal) ease;
+      }
+      .comment-input:focus {
+        outline: none;
+        border-color: var(--neon-pink);
+        box-shadow: var(--pink-glow);
+      }
+      .comment-input::placeholder {
+        color: rgba(0, 255, 255, 0.6);
+      }
+      .comment-item {
+        background: var(--transparent);
+        border: var(--border-thin) solid var(--secondary-color);
+        border-radius: var(--radius-sm);
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+        position: relative;
+        animation: terminalFlicker 0.1s ease-in;
+      }
+      .comment-item::before {
+        content: '> ';
+        color: var(--secondary-color);
+        font-weight: bold;
+      }
+      .user-profile-card {
+        background: var(--transparent);
+        border: var(--border-normal) solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-lg);
+        margin: var(--spacing-md) 0;
+        position: relative;
+        box-shadow: var(--cyan-glow);
+        animation: slideIn 0.3s ease-out;
+      }
+
+      .button {
+          background: transparent;
+          color: var(--button-color);
+          border: var(--border-normal) solid var(--button-color);
+          border-radius: var(--radius-terminal);
+          padding: var(--spacing-sm) var(--spacing-md);
+          font-family: var(--font-cyber);
+          font-size: var(--font-sm);
+          font-weight: 500;
+          letter-spacing: 0.05vw;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: all var(--cyber-fast) ease;
+          position: relative;
+          overflow: hidden;
+      }
+
+      .button::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+          transition: left var(--cyber-normal) ease;
+      }
+
+      .button:hover {
+          background: var(--button-color);
+          color: var(--cyber-black);
+          box-shadow: var(--shadow-base);
+          text-shadow: none;
+      }
+
+      .button:hover::before {
+          left: 100%;
+      }
+
+      .button:active {
+          transform: scale(0.98);
+      }
+
+      .header {
+          background: var(--header-background);
+          border-bottom: var(--border-normal) solid var(--border-color);
+          padding: var(--spacing-md);
+          position: relative;
+      }
+
+      .header::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: var(--border-glow);
+          background: var(--border-color);
+          box-shadow: var(--shadow-sm);
+      }
+
+      .sidebar {
+          background: var(--sidebar-background);
+          border-right: var(--border-normal) solid var(--border-color);
+          padding: var(--spacing-md);
+          position: relative;
+      }
+
+      .sidebar::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: var(--border-glow);
+          height: 100%;
+          background: var(--border-color);
+          box-shadow: var(--shadow-sm);
+      }
+
+      .message-bubble {
+          background: rgba(26, 26, 46, 0.6);
+          border: var(--border-thin) solid var(--secondary-color);
+          border-radius: var(--radius-sm);
+          padding: var(--spacing-sm) var(--spacing-md);
+          margin: var(--spacing-xs) 0;
+          max-width: 70vw;
+          font-family: var(--font-cyber);
+          position: relative;
+          animation: terminalFlicker 0.1s ease-in;
+          font-size: var(--font-base);
+      }
+
+      .message-bubble::before {
+          content: '> ';
+          color: var(--secondary-color);
+          font-weight: bold;
+      }
+
+      .message-bubble.user {
+          background: rgba(255, 0, 128, 0.1);
+          border-color: var(--neon-pink);
+          margin-left: auto;
+          text-align: right;
+      }
+
+      .message-bubble.user::before {
+          content: '';
+      }
+
+      .message-bubble.user::after {
+          content: ' <';
+          color: var(--neon-pink);
+          font-weight: bold;
+      }
+
+      .mood-indicator {
+          width: 100%;
+          height: var(--spacing-sm);
+          background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan), var(--neon-green));
+          border-radius: var(--radius-terminal);
+          position: relative;
+          overflow: hidden;
+      }
+
+      .mood-indicator::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent 40%, rgba(255, 255, 255, 0.3) 50%, transparent 60%);
+          animation: scanline 2s infinite linear;
+      }
+
+      /* === CYBER ANIMATIONS === */
+
+      @keyframes terminalFlicker {
+          0%, 100% {
+              opacity: 1;
+          }
+          50% {
+              opacity: 0.98;
+          }
+      }
+
+      @keyframes scanline {
+          0% {
+              transform: translateX(-100%);
+          }
+          100% {
+              transform: translateX(200%);
+          }
+      }
+
+      @keyframes cyberpulse {
+          0%, 100% {
+              text-shadow: 0 0 0.5vw currentColor;
+              transform: scale(1);
+          }
+          50% {
+              text-shadow: 0 0 2vw currentColor, 0 0 3vw currentColor;
+              transform: scale(1.02);
+          }
+      }
+
+      @keyframes glowPulse {
+          0%, 100% {
+              box-shadow: 0 0 0.5vw var(--border-color);
+          }
+          50% {
+              box-shadow: 0 0 2vw var(--border-color), 0 0 3vw var(--border-color);
+          }
+      }
+
+      /* === TERMINAL CURSOR EFFECT === */
+      .typing-cursor::after {
+          content: '█';
+          color: var(--terminal-cursor);
+          animation: blink 1s infinite step-end;
+      }
+
+      @keyframes blink {
+          0%, 50% {
+              opacity: 1;
+          }
+          51%, 100% {
+              opacity: 0;
+          }
       }
     </style>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -22,6 +456,767 @@
     <div id="root"></div>
     <script type="text/babel">
       const { useState, useEffect } = React;
+
+      // Gravatar Helper Functions
+      const fetchGravatarProfile = async (email) => {
+        try {
+          const response = await fetch(`/api/gravatar/profile/${encodeURIComponent(email)}`);
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error('Error fetching Gravatar profile:', error);
+          return null;
+        }
+      };
+
+      const fetchGravatarAvatar = async (email, size = 80) => {
+        try {
+          const response = await fetch(`/api/gravatar/avatar/${encodeURIComponent(email)}?size=${size}`);
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error('Error fetching Gravatar avatar:', error);
+          return null;
+        }
+      };
+
+      // Gravatar Avatar Component
+      function GravatarAvatar({ email, size = 80, alt = "User Avatar" }) {
+        const [avatarData, setAvatarData] = useState(null);
+
+        useEffect(() => {
+          if (email) {
+            fetchGravatarAvatar(email, size).then(setAvatarData);
+          }
+        }, [email, size]);
+
+        if (!avatarData) {
+          return React.createElement('div', {
+            style: {
+              width: `${size}px`,
+              height: `${size}px`,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: `${size * 0.4}px`
+            }
+          }, '👤');
+        }
+
+        return React.createElement('img', {
+          src: avatarData.avatar_url,
+          alt: alt,
+          className: 'gravatar-avatar',
+          style: { width: `${size}px`, height: `${size}px` }
+        });
+      }
+
+      // User Profile Card Component
+      function UserProfileCard({ email, onClose }) {
+        const [profile, setProfile] = useState(null);
+        const [loading, setLoading] = useState(true);
+        const [socialConnections, setSocialConnections] = useState([]);
+
+        useEffect(() => {
+          if (email) {
+            setLoading(true);
+            Promise.all([
+              fetchGravatarProfile(email),
+              fetchSocialConnections(email)
+            ]).then(([profileData, connectionsData]) => {
+              setProfile(profileData);
+              setSocialConnections(connectionsData);
+              setLoading(false);
+            });
+          }
+        }, [email]);
+
+        const fetchSocialConnections = async (email) => {
+          try {
+            const response = await fetch(`/api/social/connections/${encodeURIComponent(email)}`);
+            const data = await response.json();
+            return data.connections || [];
+          } catch (error) {
+            console.error('Error fetching social connections:', error);
+            return [];
+          }
+        };
+
+        if (!email) return null;
+
+        return React.createElement('div', { className: 'user-profile-card' },
+          React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' } },
+            React.createElement('h3', { style: { margin: 0, color: 'white' } }, '👤 User Profile'),
+            onClose && React.createElement('button', {
+              onClick: onClose,
+              style: {
+                background: 'none',
+                border: 'none',
+                color: 'white',
+                fontSize: '1.2rem',
+                cursor: 'pointer'
+              }
+            }, '✕')
+          ),
+          loading
+            ? React.createElement('p', { style: { color: 'white' } }, 'Loading profile...')
+            : React.createElement('div', { style: { display: 'flex', gap: '1rem', alignItems: 'flex-start' } },
+                React.createElement(GravatarAvatar, { email: email, size: 120 }),
+                React.createElement('div', { style: { flex: 1 } },
+                  React.createElement('h4', { style: { margin: '0 0 0.5rem 0', color: 'white' } },
+                    profile?.profile?.display_name || profile?.basic_profile?.display_name || email.split('@')[0]
+                  ),
+                  React.createElement('p', { style: { margin: '0 0 0.5rem 0', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' } },
+                    `📧 ${email}`
+                  ),
+                  profile?.profile?.location && React.createElement('p', { style: { margin: '0 0 0.5rem 0', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' } },
+                    `📍 ${profile.profile.location}`
+                  ),
+                  profile?.profile?.description && React.createElement('p', { style: { margin: '0.5rem 0', color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem' } },
+                    profile.profile.description
+                  ),
+                  React.createElement('div', { style: { marginTop: '1rem' } },
+                    React.createElement('small', { style: { color: 'rgba(255,255,255,0.6)' } },
+                      profile?.success ? '✅ Gravatar profile found' : '⚠️ Basic profile (Gravatar not found)'
+                    )
+                  ),
+                  // Social Media Status
+                  React.createElement('div', {
+                    style: {
+                      marginTop: 'var(--spacing-md)',
+                      padding: 'var(--spacing-sm)',
+                      background: 'var(--transparent)',
+                      border: 'var(--border-thin) solid var(--neon-purple)',
+                      borderRadius: 'var(--radius-sm)'
+                    }
+                  },
+                    React.createElement('div', {
+                      style: {
+                        fontSize: 'var(--font-sm)',
+                        fontFamily: 'var(--font-cyber)',
+                        color: 'var(--neon-purple)',
+                        marginBottom: 'var(--spacing-xs)'
+                      }
+                    }, `🌐 SOCIAL: ${socialConnections.length} CONNECTED`),
+                    socialConnections.length > 0
+                      ? React.createElement('div', {
+                          style: {
+                            display: 'flex',
+                            gap: 'var(--gap-xs)',
+                            flexWrap: 'wrap'
+                          }
+                        },
+                          socialConnections.slice(0, 5).map(conn =>
+                            React.createElement('span', {
+                              key: conn.platform,
+                              style: {
+                                fontSize: 'var(--font-lg)',
+                                filter: `drop-shadow(0 0 0.5vw ${conn.platform_info.color})`
+                              },
+                              title: conn.platform_info.name
+                            }, conn.platform_info.icon)
+                          ),
+                          socialConnections.length > 5 && React.createElement('span', {
+                            style: {
+                              fontSize: 'var(--font-xs)',
+                              color: 'var(--tertiary-color)'
+                            }
+                          }, `+${socialConnections.length - 5} more`)
+                        )
+                      : React.createElement('div', {
+                          style: {
+                            fontSize: 'var(--font-xs)',
+                            color: 'var(--tertiary-color)',
+                            fontFamily: 'var(--font-mono)'
+                          }
+                        }, 'No social connections yet')
+                  )
+                )
+              )
+        );
+      }
+
+      // Social Media Integration Components
+
+      // Social Platform Button Component
+      function SocialPlatformButton({ platform, isConnected, onConnect, onDisconnect, disabled }) {
+        const [loading, setLoading] = useState(false);
+
+        const handleClick = async () => {
+          if (disabled || loading) return;
+
+          setLoading(true);
+          try {
+            if (isConnected) {
+              await onDisconnect(platform.id);
+            } else {
+              await onConnect(platform.id);
+            }
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        return React.createElement('button', {
+          onClick: handleClick,
+          disabled: disabled || loading,
+          className: 'cyber-button',
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--gap-sm)',
+            borderColor: isConnected ? 'var(--neon-green)' : platform.color,
+            color: isConnected ? 'var(--neon-green)' : platform.color,
+            background: isConnected ? 'rgba(57, 255, 20, 0.1)' : 'transparent',
+            minWidth: '12vw',
+            justifyContent: 'center'
+          }
+        },
+          React.createElement('span', { style: { fontSize: 'var(--font-lg)' } }, platform.icon),
+          React.createElement('span', null, loading ? 'PROCESSING...' : isConnected ? `${platform.name} ✓` : `CONNECT ${platform.name.toUpperCase()}`)
+        );
+      }
+
+      // Social Media Hub Component
+      function SocialMediaHub({ email, onClose }) {
+        const [platforms, setPlatforms] = useState([]);
+        const [connections, setConnections] = useState([]);
+        const [socialProfile, setSocialProfile] = useState(null);
+        const [loading, setLoading] = useState(true);
+
+        useEffect(() => {
+          if (email) {
+            loadSocialData();
+          }
+        }, [email]);
+
+        const loadSocialData = async () => {
+          try {
+            setLoading(true);
+
+            // Load available platforms
+            const platformsResponse = await fetch('/api/social/platforms');
+            const platformsData = await platformsResponse.json();
+            setPlatforms(platformsData.platforms || []);
+
+            // Load user's connections
+            const connectionsResponse = await fetch(`/api/social/connections/${encodeURIComponent(email)}`);
+            const connectionsData = await connectionsResponse.json();
+            setConnections(connectionsData.connections || []);
+
+            // Load aggregated profile
+            const profileResponse = await fetch(`/api/social/profile/${encodeURIComponent(email)}`);
+            const profileData = await profileResponse.json();
+            setSocialProfile(profileData);
+
+          } catch (error) {
+            console.error('Error loading social data:', error);
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        const handleConnect = async (platformId) => {
+          try {
+            const response = await fetch(`/api/social/auth/${platformId}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: email,
+                redirectUri: window.location.origin
+              })
+            });
+
+            const data = await response.json();
+
+            if (data.auth_url) {
+              // Open OAuth URL in popup or redirect
+              const popup = window.open(
+                data.auth_url,
+                `connect_${platformId}`,
+                'width=500,height=600,scrollbars=yes,resizable=yes'
+              );
+
+              // Listen for popup completion
+              const checkClosed = setInterval(() => {
+                if (popup.closed) {
+                  clearInterval(checkClosed);
+                  // Reload connections after popup closes
+                  setTimeout(loadSocialData, 1000);
+                }
+              }, 1000);
+            }
+          } catch (error) {
+            console.error('Error connecting to platform:', error);
+          }
+        };
+
+        const handleDisconnect = async (platformId) => {
+          try {
+            const response = await fetch(`/api/social/connections/${encodeURIComponent(email)}/${platformId}`, {
+              method: 'DELETE'
+            });
+
+            if (response.ok) {
+              // Reload connections
+              await loadSocialData();
+            }
+          } catch (error) {
+            console.error('Error disconnecting from platform:', error);
+          }
+        };
+
+        const isConnected = (platformId) => {
+          return connections.some(conn => conn.platform === platformId);
+        };
+
+        if (!email) return null;
+
+        return React.createElement('div', {
+          className: 'user-profile-card',
+          style: {
+            maxWidth: '90vw',
+            background: 'var(--cyber-darker)',
+            border: 'var(--border-normal) solid var(--neon-cyan)'
+          }
+        },
+          React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-lg)' } },
+            React.createElement('h3', {
+              className: 'neon-text',
+              style: {
+                margin: 0,
+                fontSize: 'var(--font-xl)',
+                fontFamily: 'var(--font-cyber)'
+              }
+            }, '🌐 SOCIAL_MEDIA_HUB'),
+            onClose && React.createElement('button', {
+              onClick: onClose,
+              className: 'cyber-button',
+              style: {
+                borderColor: 'var(--error)',
+                color: 'var(--error)',
+                fontSize: 'var(--font-sm)',
+                padding: 'var(--spacing-xs)'
+              }
+            }, '✕ CLOSE')
+          ),
+
+          loading
+            ? React.createElement('div', { style: { textAlign: 'center', padding: 'var(--spacing-xl)' } },
+                React.createElement('div', { className: 'cyber-loading', style: { margin: '0 auto var(--spacing-md)' } }),
+                React.createElement('p', { className: 'neon-text' }, 'LOADING_SOCIAL_DATA...')
+              )
+            : React.createElement('div', null,
+                // Connection Status
+                React.createElement('div', {
+                  style: {
+                    marginBottom: 'var(--spacing-lg)',
+                    padding: 'var(--spacing-md)',
+                    background: 'var(--transparent)',
+                    border: 'var(--border-thin) solid var(--border-color)',
+                    borderRadius: 'var(--radius-sm)'
+                  }
+                },
+                  React.createElement('h4', {
+                    style: {
+                      margin: '0 0 var(--spacing-sm) 0',
+                      color: 'var(--neon-green)',
+                      fontSize: 'var(--font-lg)',
+                      fontFamily: 'var(--font-cyber)'
+                    }
+                  }, `📊 STATUS: ${connections.length}/${platforms.length} CONNECTED`),
+                  React.createElement('div', {
+                    style: {
+                      fontSize: 'var(--font-sm)',
+                      fontFamily: 'var(--font-mono)',
+                      color: 'var(--tertiary-color)'
+                    }
+                  },
+                    `EMAIL: ${email}`,
+                    React.createElement('br'),
+                    `GRAVATAR_HASH: ${socialProfile?.gravatar_hash?.substring(0, 16)}...`,
+                    React.createElement('br'),
+                    `LAST_UPDATED: ${new Date().toLocaleTimeString()}`
+                  )
+                ),
+
+                // Connected Platforms
+                connections.length > 0 && React.createElement('div', {
+                  style: { marginBottom: 'var(--spacing-lg)' }
+                },
+                  React.createElement('h4', {
+                    style: {
+                      margin: '0 0 var(--spacing-md) 0',
+                      color: 'var(--neon-green)',
+                      fontSize: 'var(--font-lg)',
+                      fontFamily: 'var(--font-cyber)'
+                    }
+                  }, '✅ ACTIVE_CONNECTIONS:'),
+                  React.createElement('div', {
+                    className: 'cyber-grid',
+                    style: {
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(15vw, 1fr))',
+                      gap: 'var(--gap-md)'
+                    }
+                  },
+                    connections.map(conn =>
+                      React.createElement('div', {
+                        key: conn.platform,
+                        style: {
+                          padding: 'var(--spacing-sm)',
+                          background: 'rgba(57, 255, 20, 0.1)',
+                          border: 'var(--border-thin) solid var(--neon-green)',
+                          borderRadius: 'var(--radius-sm)',
+                          textAlign: 'center'
+                        }
+                      },
+                        React.createElement('div', {
+                          style: {
+                            fontSize: 'var(--font-xl)',
+                            marginBottom: 'var(--spacing-xs)'
+                          }
+                        }, conn.platform_info.icon),
+                        React.createElement('div', {
+                          style: {
+                            fontSize: 'var(--font-sm)',
+                            fontFamily: 'var(--font-cyber)',
+                            color: 'var(--neon-green)'
+                          }
+                        }, conn.platform_info.name),
+                        React.createElement('div', {
+                          style: {
+                            fontSize: 'var(--font-xs)',
+                            fontFamily: 'var(--font-mono)',
+                            color: 'var(--tertiary-color)'
+                          }
+                        }, `@${conn.profile.username}`)
+                      )
+                    )
+                  )
+                ),
+
+                // Available Platforms
+                React.createElement('div', null,
+                  React.createElement('h4', {
+                    style: {
+                      margin: '0 0 var(--spacing-md) 0',
+                      color: 'var(--neon-cyan)',
+                      fontSize: 'var(--font-lg)',
+                      fontFamily: 'var(--font-cyber)'
+                    }
+                  }, '🔗 SOCIAL_PLATFORMS:'),
+                  React.createElement('div', {
+                    className: 'cyber-grid',
+                    style: {
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(18vw, 1fr))',
+                      gap: 'var(--gap-md)'
+                    }
+                  },
+                    platforms.map(platform =>
+                      React.createElement(SocialPlatformButton, {
+                        key: platform.id,
+                        platform: platform,
+                        isConnected: isConnected(platform.id),
+                        onConnect: handleConnect,
+                        onDisconnect: handleDisconnect,
+                        disabled: loading
+                      })
+                    )
+                  )
+                ),
+
+                // Help Text
+                React.createElement('div', {
+                  style: {
+                    marginTop: 'var(--spacing-lg)',
+                    padding: 'var(--spacing-md)',
+                    background: 'var(--transparent)',
+                    border: 'var(--border-thin) solid var(--neon-purple)',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: 'var(--font-xs)',
+                    fontFamily: 'var(--font-mono)',
+                    color: 'var(--neon-purple)'
+                  }
+                },
+                  React.createElement('strong', null, '💡 USAGE_INSTRUCTIONS:'),
+                  React.createElement('br'),
+                  '• Connect your social media accounts through Gravatar integration',
+                  React.createElement('br'),
+                  '• OAuth authentication maintains security and privacy',
+                  React.createElement('br'),
+                  '• Connected accounts sync with your Gravatar profile',
+                  React.createElement('br'),
+                  '• Disconnect anytime to revoke access permissions'
+                )
+              )
+        );
+      }
+
+      // Comments Component
+      function VideoComments({ videoName, currentUserEmail, setCurrentUserEmail }) {
+        const [comments, setComments] = useState([]);
+        const [newComment, setNewComment] = useState('');
+        const [loading, setLoading] = useState(false);
+        const [showProfileCard, setShowProfileCard] = useState(null);
+
+        const fetchComments = async () => {
+          try {
+            const response = await fetch(`/api/comments/${encodeURIComponent(videoName)}`);
+            const data = await response.json();
+            setComments(data.comments || []);
+          } catch (error) {
+            console.error('Error fetching comments:', error);
+          }
+        };
+
+        useEffect(() => {
+          if (videoName) {
+            fetchComments();
+          }
+        }, [videoName]);
+
+        const handleSubmitComment = async (e) => {
+          e.preventDefault();
+          if (!currentUserEmail || !newComment.trim()) return;
+
+          setLoading(true);
+          try {
+            const response = await fetch(`/api/comments/${encodeURIComponent(videoName)}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: currentUserEmail,
+                comment: newComment.trim()
+              })
+            });
+
+            if (response.ok) {
+              setNewComment('');
+              await fetchComments();
+            }
+          } catch (error) {
+            console.error('Error posting comment:', error);
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        const handleDeleteComment = async (commentId) => {
+          try {
+            const response = await fetch(`/api/comments/${encodeURIComponent(videoName)}/${commentId}`, {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: currentUserEmail })
+            });
+
+            if (response.ok) {
+              await fetchComments();
+            }
+          } catch (error) {
+            console.error('Error deleting comment:', error);
+          }
+        };
+
+        const formatTimeAgo = (timestamp) => {
+          const now = new Date();
+          const commentTime = new Date(timestamp);
+          const diffMs = now - commentTime;
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+
+          if (diffMins < 1) return 'Just now';
+          if (diffMins < 60) return `${diffMins}m ago`;
+          if (diffHours < 24) return `${diffHours}h ago`;
+          return `${diffDays}d ago`;
+        };
+
+        return React.createElement('div', { style: { marginTop: 'var(--spacing-xl)' } },
+          React.createElement('h3', {
+            className: 'neon-text',
+            style: {
+              fontSize: 'var(--font-xl)',
+              marginBottom: 'var(--spacing-lg)',
+              fontFamily: 'var(--font-cyber)'
+            }
+          }, `💬 TERMINAL_CHAT (${comments.length})`),
+
+          // Email input for commenting
+          !currentUserEmail && React.createElement('div', {
+            style: {
+              marginBottom: 'var(--spacing-lg)',
+              padding: 'var(--spacing-lg)',
+              background: 'var(--transparent)',
+              border: 'var(--border-normal) solid var(--border-color)',
+              borderRadius: 'var(--radius-md)'
+            }
+          },
+            React.createElement('input', {
+              type: 'email',
+              placeholder: 'ENTER_EMAIL_ADDRESS...',
+              className: 'comment-input',
+              style: { marginBottom: 'var(--spacing-sm)' },
+              onKeyPress: (e) => {
+                if (e.key === 'Enter') {
+                  setCurrentUserEmail(e.target.value);
+                }
+              }
+            }),
+            React.createElement('small', {
+              style: {
+                color: 'var(--secondary-color)',
+                fontSize: 'var(--font-xs)',
+                fontFamily: 'var(--font-mono)'
+              }
+            }, '> GRAVATAR_PROFILE_SYNC_ENABLED')
+          ),
+
+          // Comment form
+          currentUserEmail && React.createElement('form', {
+            onSubmit: handleSubmitComment,
+            style: {
+              marginBottom: 'var(--spacing-xl)',
+              padding: 'var(--spacing-lg)',
+              background: 'var(--transparent)',
+              border: 'var(--border-normal) solid var(--secondary-color)',
+              borderRadius: 'var(--radius-md)'
+            }
+          },
+            React.createElement('div', { style: { display: 'flex', gap: 'var(--gap-lg)', alignItems: 'flex-start' } },
+              React.createElement(GravatarAvatar, { email: currentUserEmail, size: 40 }),
+              React.createElement('div', { style: { flex: 1 } },
+                React.createElement('textarea', {
+                  value: newComment,
+                  onChange: (e) => setNewComment(e.target.value),
+                  placeholder: 'ENTER_MESSAGE...',
+                  className: 'comment-input',
+                  style: {
+                    minHeight: '8vh',
+                    resize: 'vertical',
+                    fontFamily: 'var(--font-mono)'
+                  },
+                  maxLength: 500
+                }),
+                React.createElement('div', {
+                  style: {
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginTop: 'var(--spacing-sm)'
+                  }
+                },
+                  React.createElement('small', {
+                    style: {
+                      color: 'var(--tertiary-color)',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: 'var(--font-xs)'
+                    }
+                  }, `CHARS: ${newComment.length}/500`),
+                  React.createElement('div', { style: { display: 'flex', gap: 'var(--gap-sm)' } },
+                    React.createElement('button', {
+                      type: 'button',
+                      onClick: () => setCurrentUserEmail(''),
+                      className: 'cyber-button',
+                      style: {
+                        borderColor: 'var(--neon-orange)',
+                        color: 'var(--neon-orange)'
+                      }
+                    }, 'LOGOUT'),
+                    React.createElement('button', {
+                      type: 'submit',
+                      disabled: loading || !newComment.trim(),
+                      className: 'cyber-button'
+                    }, loading ? 'TRANSMITTING...' : 'SEND_MSG')
+                  )
+                )
+              )
+            )
+          ),
+
+          // Comments list
+          comments.map(comment =>
+            React.createElement('div', { key: comment.id, className: 'comment-item' },
+              React.createElement('div', { style: { display: 'flex', gap: 'var(--gap-lg)' } },
+                React.createElement('div', {
+                  style: { cursor: 'pointer' },
+                  onClick: () => setShowProfileCard(showProfileCard === comment.email ? null : comment.email)
+                },
+                  React.createElement(GravatarAvatar, { email: comment.email, size: 50 })
+                ),
+                React.createElement('div', { style: { flex: 1 } },
+                  React.createElement('div', {
+                    style: {
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: 'var(--spacing-sm)'
+                    }
+                  },
+                    React.createElement('div', null,
+                      React.createElement('strong', {
+                        style: {
+                          color: 'var(--neon-green)',
+                          cursor: 'pointer',
+                          fontFamily: 'var(--font-cyber)',
+                          fontSize: 'var(--font-sm)'
+                        },
+                        onClick: () => setShowProfileCard(showProfileCard === comment.email ? null : comment.email)
+                      }, `USER_${comment.username.toUpperCase()}`),
+                      React.createElement('small', {
+                        style: {
+                          color: 'var(--tertiary-color)',
+                          marginLeft: 'var(--spacing-sm)',
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: 'var(--font-xs)'
+                        }
+                      }, `[${formatTimeAgo(comment.timestamp)}]`)
+                    ),
+                    comment.email === currentUserEmail && React.createElement('button', {
+                      onClick: () => handleDeleteComment(comment.id),
+                      className: 'cyber-button',
+                      style: {
+                        borderColor: 'var(--error)',
+                        color: 'var(--error)',
+                        fontSize: 'var(--font-xs)',
+                        padding: 'var(--spacing-xs)'
+                      }
+                    }, '🗑️ DEL')
+                  ),
+                  React.createElement('p', {
+                    style: {
+                      margin: 0,
+                      color: 'var(--text-color)',
+                      lineHeight: '1.4',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: 'var(--font-sm)'
+                    }
+                  }, comment.comment)
+                )
+              ),
+              showProfileCard === comment.email && React.createElement(UserProfileCard, {
+                email: comment.email,
+                onClose: () => setShowProfileCard(null)
+              })
+            )
+          ),
+
+          comments.length === 0 && React.createElement('div', {
+            style: {
+              color: 'var(--tertiary-color)',
+              textAlign: 'center',
+              padding: 'var(--spacing-xl)',
+              fontStyle: 'italic',
+              fontSize: 'var(--font-lg)',
+              fontFamily: 'var(--font-cyber)',
+              border: 'var(--border-thin) solid var(--border-color)',
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--transparent)'
+            }
+          }, '📡 NO_SIGNALS_DETECTED')
+        );
+      }
 
       function VideoPlayer({ videoSrc, title }) {
         const [isPlaying, setIsPlaying] = useState(false);
@@ -97,15 +1292,38 @@
         };
 
         if (error) {
-          return React.createElement('div', { style: { color: 'red', padding: '2rem', textAlign: 'center' } }, error);
+          return React.createElement('div', {
+            style: {
+              color: 'var(--error)',
+              padding: 'var(--spacing-xl)',
+              textAlign: 'center',
+              fontSize: 'var(--font-lg)',
+              textShadow: 'var(--pink-glow)'
+            }
+          }, `⚠️ SYSTEM_ERROR: ${error}`);
         }
 
-        return React.createElement('div', { style: { background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '1rem', margin: '1rem' } },
-          React.createElement('div', { style: { position: 'relative', background: 'black', borderRadius: '8px', overflow: 'hidden', marginBottom: '1rem' } },
+        return React.createElement('div', { className: 'cyber-video-player' },
+          React.createElement('div', {
+            style: {
+              position: 'relative',
+              background: 'var(--cyber-black)',
+              border: 'var(--border-thin) solid var(--border-color)',
+              borderRadius: 'var(--radius-sm)',
+              overflow: 'hidden',
+              marginBottom: 'var(--spacing-lg)'
+            }
+          },
             React.createElement('video', {
               ref: videoRef,
               src: videoSrc,
-              style: { width: '100%', height: 'auto', maxHeight: '70vh', display: 'block', cursor: 'pointer' },
+              style: {
+                width: '100%',
+                height: 'auto',
+                maxHeight: '70vh',
+                display: 'block',
+                cursor: 'pointer'
+              },
               onClick: togglePlay
             }),
             loading && React.createElement('div', {
@@ -114,34 +1332,59 @@
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
-                color: 'white',
+                color: 'var(--text-color)',
                 textAlign: 'center'
               }
-            }, 'Loading video...')
+            },
+              React.createElement('div', { className: 'cyber-loading', style: { margin: '0 auto var(--spacing-md)' } }),
+              React.createElement('p', { className: 'neon-text' }, 'LOADING_STREAM...')
+            )
           ),
-          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(0,0,0,0.8)', color: 'white', borderRadius: '8px' } },
+          React.createElement('div', {
+            style: {
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--gap-lg)',
+              padding: 'var(--spacing-lg)',
+              background: 'var(--cyber-darker)',
+              color: 'var(--text-color)',
+              borderRadius: 'var(--radius-sm)',
+              border: 'var(--border-thin) solid var(--border-color)'
+            }
+          },
             React.createElement('button', {
               onClick: togglePlay,
               disabled: loading,
-              style: { background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer', padding: '0.5rem' }
+              className: 'cyber-button',
+              style: {
+                fontSize: 'var(--font-lg)',
+                padding: 'var(--spacing-sm)'
+              }
             }, isPlaying ? '⏸️' : '▶️'),
             React.createElement('div', {
-              style: { flex: 1, height: '6px', background: 'rgba(255,255,255,0.3)', borderRadius: '3px', cursor: 'pointer' },
+              className: 'cyber-progress-bar',
+              style: {
+                flex: 1,
+                cursor: 'pointer'
+              },
               onClick: handleSeek
             },
               React.createElement('div', {
+                className: 'cyber-progress-fill',
                 style: {
-                  height: '100%',
-                  background: '#667eea',
-                  width: `${(currentTime / duration) * 100}%`,
-                  borderRadius: '3px'
+                  width: `${(currentTime / duration) * 100}%`
                 }
               })
             ),
-            React.createElement('span', { style: { fontSize: '0.9rem', fontFamily: 'monospace', minWidth: '80px' } },
-              `${formatTime(currentTime)} / ${formatTime(duration)}`
-            ),
-            React.createElement('span', null, '🔊'),
+            React.createElement('span', {
+              style: {
+                fontSize: 'var(--font-sm)',
+                fontFamily: 'var(--font-mono)',
+                minWidth: '8vw',
+                color: 'var(--neon-green)'
+              }
+            }, `${formatTime(currentTime)} / ${formatTime(duration)}`),
+            React.createElement('span', { style: { fontSize: 'var(--font-lg)' } }, '🔊'),
             React.createElement('input', {
               type: 'range',
               min: '0',
@@ -149,11 +1392,21 @@
               step: '0.1',
               value: volume,
               onChange: handleVolumeChange,
-              style: { width: '80px' }
+              style: {
+                width: '8vw',
+                accentColor: 'var(--neon-cyan)'
+              }
             })
           ),
-          React.createElement('div', { style: { textAlign: 'center', marginTop: '1rem' } },
-            React.createElement('h3', { style: { margin: 0, color: 'white' } }, title)
+          React.createElement('div', { style: { textAlign: 'center', marginTop: 'var(--spacing-lg)' } },
+            React.createElement('h3', {
+              className: 'neon-text',
+              style: {
+                margin: 0,
+                fontSize: 'var(--font-xl)',
+                fontFamily: 'var(--font-cyber)'
+              }
+            }, `📺 ${title}`)
           )
         );
       }
@@ -164,6 +1417,9 @@
         const [loading, setLoading] = useState(true);
         const [error, setError] = useState(null);
         const [selectedVideo, setSelectedVideo] = useState(null);
+        const [currentUserEmail, setCurrentUserEmail] = useState('');
+        const [showUserProfile, setShowUserProfile] = useState(false);
+        const [showSocialHub, setShowSocialHub] = useState(false);
 
         useEffect(() => {
           fetchData();
@@ -205,22 +1461,19 @@
               alignItems: 'center',
               justifyContent: 'center',
               minHeight: '100vh',
-              color: 'white',
-              textAlign: 'center'
+              color: 'var(--text-color)',
+              textAlign: 'center',
+              background: 'var(--terminal-bg)'
             }
           },
             React.createElement('div', {
-              style: {
-                width: '50px',
-                height: '50px',
-                border: '4px solid rgba(255,255,255,0.3)',
-                borderTop: '4px solid white',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
-                marginBottom: '1rem'
-              }
+              className: 'cyber-loading',
+              style: { marginBottom: 'var(--spacing-lg)' }
             }),
-            React.createElement('p', null, 'Loading...')
+            React.createElement('p', {
+              className: 'neon-text',
+              style: { fontSize: 'var(--font-lg)' }
+            }, 'INITIALIZING TERMINAL...')
           );
         }
 
@@ -232,108 +1485,432 @@
               alignItems: 'center',
               justifyContent: 'center',
               minHeight: '100vh',
-              color: 'white',
-              textAlign: 'center'
+              color: 'var(--text-color)',
+              textAlign: 'center',
+              background: 'var(--terminal-bg)'
             }
           },
-            React.createElement('h2', { style: { color: '#ff6b6b' } }, 'Oops! Something went wrong'),
-            React.createElement('p', null, error),
+            React.createElement('h2', {
+              style: {
+                color: 'var(--error)',
+                fontSize: 'var(--font-2xl)',
+                textShadow: 'var(--pink-glow)',
+                marginBottom: 'var(--spacing-lg)'
+              }
+            }, '⚠️ SYSTEM ERROR'),
+            React.createElement('p', {
+              style: {
+                fontSize: 'var(--font-lg)',
+                marginBottom: 'var(--spacing-xl)'
+              }
+            }, error),
             React.createElement('button', {
               onClick: fetchData,
-              style: {
-                background: '#667eea',
-                color: 'white',
-                border: 'none',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '8px',
-                cursor: 'pointer'
-              }
-            }, 'Try Again')
+              className: 'cyber-button'
+            }, 'RETRY SYSTEM')
           );
         }
 
-        return React.createElement('div', { style: { minHeight: '100vh', color: 'white' } },
+        return React.createElement('div', { style: { minHeight: '100vh', color: 'var(--text-color)', background: 'var(--terminal-bg)' } },
           React.createElement('header', {
+            className: 'cyber-header'
+          },
+            React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1200px', margin: '0 auto' } },
+              React.createElement('div', null,
+                React.createElement('h1', {
+                  className: 'neon-text',
+                  style: {
+                    margin: '0 0 var(--spacing-sm) 0',
+                    fontSize: 'var(--font-3xl)',
+                    fontWeight: '700',
+                    fontFamily: 'var(--font-cyber)',
+                    letterSpacing: '0.1vw'
+                  }
+                }, '⚡ BRANDYNETTE TERMINAL ⚡'),
+                React.createElement('p', {
+                  style: {
+                    margin: 0,
+                    fontSize: 'var(--font-lg)',
+                    opacity: 0.9,
+                    color: 'var(--secondary-color)'
+                  }
+                }, '> CYBER_GOTH_WAVE_2030.EXE')
+              ),
+              currentUserEmail && React.createElement('div', {
+                style: {
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--gap-md)'
+                }
+              },
+                // Social Media Hub Button
+                React.createElement('button', {
+                  onClick: () => setShowSocialHub(!showSocialHub),
+                  className: 'cyber-button',
+                  style: {
+                    borderColor: 'var(--neon-purple)',
+                    color: 'var(--neon-purple)',
+                    fontSize: 'var(--font-sm)',
+                    padding: 'var(--spacing-sm)'
+                  }
+                }, '🌐 SOCIAL_HUB'),
+                // User Profile Section
+                React.createElement('div', {
+                  style: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--gap-lg)',
+                    cursor: 'pointer',
+                    padding: 'var(--spacing-sm)',
+                    border: 'var(--border-thin) solid var(--border-color)',
+                    borderRadius: 'var(--radius-sm)',
+                    background: 'var(--transparent)'
+                  },
+                  onClick: () => setShowUserProfile(!showUserProfile)
+                },
+                  React.createElement(GravatarAvatar, { email: currentUserEmail, size: 60 }),
+                  React.createElement('div', { style: { textAlign: 'left' } },
+                    React.createElement('div', {
+                      style: {
+                        fontWeight: 'bold',
+                        fontSize: 'var(--font-sm)',
+                        color: 'var(--neon-green)'
+                      }
+                    }, 'USER_ONLINE'),
+                    React.createElement('div', {
+                      style: {
+                        fontSize: 'var(--font-xs)',
+                        opacity: 0.8,
+                        fontFamily: 'var(--font-mono)'
+                      }
+                    }, currentUserEmail.split('@')[0])
+                  )
+                )
+              )
+            ),
+            showUserProfile && currentUserEmail && React.createElement(UserProfileCard, {
+              email: currentUserEmail,
+              onClose: () => setShowUserProfile(false)
+            }),
+            showSocialHub && currentUserEmail && React.createElement(SocialMediaHub, {
+              email: currentUserEmail,
+              onClose: () => setShowSocialHub(false)
+            })
+          ),
+          React.createElement('main', {
             style: {
-              textAlign: 'center',
-              padding: '2rem 1rem',
-              background: 'rgba(0,0,0,0.2)',
-              backdropFilter: 'blur(10px)'
+              padding: 'var(--spacing-xl) var(--spacing-lg)',
+              maxWidth: '1200px',
+              margin: '0 auto'
             }
           },
-            React.createElement('h1', {
-              style: {
-                margin: '0 0 0.5rem 0',
-                fontSize: '2.5rem',
-                fontWeight: '700',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
-              }
-            }, '🎬 Brandynette Video Player'),
-            React.createElement('p', { style: { margin: 0, fontSize: '1.1rem', opacity: 0.9 } },
-              `Premium video streaming on port 6969`)
-          ),
-          React.createElement('main', { style: { padding: '2rem 1rem', maxWidth: '1200px', margin: '0 auto' } },
             videos.length === 0
-              ? React.createElement('div', { style: { textAlign: 'center', padding: '3rem 1rem' } },
-                  React.createElement('h2', { style: { color: '#ffd93d' } }, 'No videos found'),
-                  React.createElement('p', null, 'Please add video files to the BRANDIFICATION folder')
+              ? React.createElement('div', {
+                  style: {
+                    textAlign: 'center',
+                    padding: 'var(--spacing-2xl) var(--spacing-lg)',
+                    border: 'var(--border-normal) solid var(--error)',
+                    borderRadius: 'var(--radius-lg)',
+                    background: 'var(--error-bg)'
+                  }
+                },
+                  React.createElement('h2', {
+                    style: {
+                      color: 'var(--error)',
+                      fontSize: 'var(--font-2xl)',
+                      fontFamily: 'var(--font-cyber)',
+                      textShadow: 'var(--pink-glow)'
+                    }
+                  }, '⚠️ NO_MEDIA_FOUND'),
+                  React.createElement('p', {
+                    style: {
+                      fontSize: 'var(--font-lg)',
+                      fontFamily: 'var(--font-mono)'
+                    }
+                  }, '> ADD_FILES_TO: ./BRANDIFICATION/')
                 )
               : React.createElement('div', null,
-                  videos.length > 1 && React.createElement('div', { style: { marginBottom: '2rem', textAlign: 'center' } },
-                    React.createElement('h3', { style: { marginBottom: '1rem' } }, 'Select a video:'),
-                    React.createElement('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' } },
+                  videos.length > 1 && React.createElement('div', {
+                    style: {
+                      marginBottom: 'var(--spacing-xl)',
+                      textAlign: 'center',
+                      padding: 'var(--spacing-lg)',
+                      background: 'var(--transparent)',
+                      border: 'var(--border-normal) solid var(--border-color)',
+                      borderRadius: 'var(--radius-lg)'
+                    }
+                  },
+                    React.createElement('h3', {
+                      className: 'neon-text',
+                      style: {
+                        marginBottom: 'var(--spacing-lg)',
+                        fontSize: 'var(--font-xl)',
+                        fontFamily: 'var(--font-cyber)'
+                      }
+                    }, '📺 SELECT_STREAM:'),
+                    React.createElement('div', {
+                      style: {
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 'var(--gap-md)',
+                        justifyContent: 'center'
+                      }
+                    },
                       videos.map(video =>
                         React.createElement('button', {
                           key: video,
                           onClick: () => setSelectedVideo(video),
+                          className: 'cyber-button',
                           style: {
-                            background: selectedVideo === video ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.2)',
-                            color: 'white',
-                            border: selectedVideo === video ? '2px solid white' : '2px solid transparent',
-                            padding: '0.5rem 1rem',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s ease'
+                            background: selectedVideo === video ? 'var(--button-color)' : 'transparent',
+                            color: selectedVideo === video ? 'var(--cyber-black)' : 'var(--button-color)',
+                            borderColor: selectedVideo === video ? 'var(--button-color)' : 'var(--button-color)',
+                            boxShadow: selectedVideo === video ? 'var(--pink-glow)' : 'none'
                           }
-                        }, video)
+                        }, video.toUpperCase())
                       )
                     )
                   ),
-                  selectedVideo && React.createElement(VideoPlayer, {
-                    videoSrc: `/videos/${selectedVideo}`,
-                    title: selectedVideo
-                  })
+                  selectedVideo && React.createElement('div', null,
+                    React.createElement(VideoPlayer, {
+                      videoSrc: `/videos/${selectedVideo}`,
+                      title: selectedVideo
+                    }),
+                    React.createElement(VideoComments, {
+                      videoName: selectedVideo,
+                      currentUserEmail: currentUserEmail,
+                      setCurrentUserEmail: setCurrentUserEmail
+                    })
+                  )
                 ),
-            React.createElement('div', { style: { marginTop: '3rem', textAlign: 'center' } },
-              React.createElement('h3', null, 'API Endpoints:'),
-              React.createElement('div', { style: { display: 'grid', gap: '0.5rem', maxWidth: '600px', margin: '0 auto' } },
+            React.createElement('div', {
+              style: {
+                marginTop: 'var(--spacing-2xl)',
+                textAlign: 'center',
+                padding: 'var(--spacing-xl)',
+                background: 'var(--transparent)',
+                border: 'var(--border-normal) solid var(--border-color)',
+                borderRadius: 'var(--radius-lg)'
+              }
+            },
+              React.createElement('h3', {
+                className: 'neon-text',
+                style: {
+                  fontSize: 'var(--font-xl)',
+                  marginBottom: 'var(--spacing-lg)',
+                  fontFamily: 'var(--font-cyber)'
+                }
+              }, '⚡ SYSTEM_STATUS:'),
+              React.createElement('div', { style: { display: 'grid', gap: '0.5rem', maxWidth: '800px', margin: '0 auto', fontSize: '0.9rem' } },
                 React.createElement('p', null, `📺 Videos: ${videos.length} found`),
                 React.createElement('p', null, `📁 Public files: ${publicFiles.length} found`),
-                React.createElement('p', null, '🔗 /api/videos - List videos'),
-                React.createElement('p', null, '🔗 /api/public - List public files'),
-                React.createElement('p', null, '🔗 /health - Server health')
+                React.createElement('p', null, '👤 Gravatar avatar integration'),
+                React.createElement('p', null, '� Comment system with user profiles'),
+                React.createElement('p', null, '🎯 Profile cards and QR codes'),
+                React.createElement('p', null, '�🔗 RESTful API endpoints')
+              ),
+              React.createElement('div', { style: { marginTop: '2rem', fontSize: '0.8rem', opacity: 0.7 } },
+                React.createElement('h4', null, 'API Endpoints:'),
+                React.createElement('div', { style: { display: 'grid', gap: '0.3rem' } },
+                  React.createElement('code', null, 'GET /api/videos - List videos'),
+                  React.createElement('code', null, 'GET /api/gravatar/avatar/:email - Get avatar'),
+                  React.createElement('code', null, 'GET /api/gravatar/profile/:email - Get profile'),
+                  React.createElement('code', null, 'GET /api/comments/:video - Get comments'),
+                  React.createElement('code', null, 'POST /api/comments/:video - Add comment'),
+                  React.createElement('code', null, 'GET /health - Server health')
+                )
               )
             )
           ),
           React.createElement('footer', {
             style: {
               textAlign: 'center',
-              padding: '1rem',
+              padding: '2rem',
               background: 'rgba(0,0,0,0.2)',
-              backdropFilter: 'blur(10px)'
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)'
             }
           },
-            React.createElement('p', null, 'Built with ❤️ using Express & React on port 6969')
+            React.createElement('p', { style: { margin: '0 0 1rem 0' } }, 'Built with ❤️ using Express, React & Gravatar API'),
+            React.createElement('div', { style: { display: 'flex', justifyContent: 'center', gap: '2rem', fontSize: '0.9rem', opacity: 0.8 } },
+              React.createElement('span', null, '🎬 Video Streaming'),
+              React.createElement('span', null, '👤 Gravatar Integration'),
+              React.createElement('span', null, '💬 Social Comments'),
+              React.createElement('span', null, '📱 Responsive Design')
+            )
           )
         );
       }
 
-      // Add CSS animation for loading spinner
+      // Add CSS animations for enhanced UI
       const style = document.createElement('style');
       style.textContent = `
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+        .gravatar-avatar {
+          transition: transform var(--cyber-normal) ease, border-color var(--cyber-normal) ease;
+        }
+        .gravatar-avatar:hover {
+          transform: scale(1.05);
+        }
+        .comment-item {
+          transition: all var(--cyber-normal) ease;
+        }
+        .comment-item:hover {
+          background: var(--cyber-darker);
+          box-shadow: var(--purple-glow);
+        }
+        .user-profile-card {
+          animation: slideIn var(--cyber-normal) ease-out;
+        }
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-2vh);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .cyber-video-player {
+          background: var(--cyber-darker);
+          border: var(--border-normal) solid var(--border-color);
+          border-radius: var(--radius-md);
+          padding: var(--spacing-lg);
+          margin: var(--spacing-lg);
+          box-shadow: var(--cyan-glow);
+          position: relative;
+          overflow: hidden;
+        }
+        .cyber-video-player::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: var(--border-glow);
+          background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan), var(--neon-green));
+          animation: scanline 3s infinite linear;
+        }
+        .cyber-header {
+          background: var(--header-background);
+          border-bottom: var(--border-normal) solid var(--border-color);
+          padding: var(--spacing-lg);
+          position: relative;
+          backdrop-filter: blur(10px);
+        }
+        .cyber-header::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: var(--border-glow);
+          background: var(--border-color);
+          box-shadow: var(--cyan-glow);
+        }
+        .cyber-footer {
+          background: var(--header-background);
+          border-top: var(--border-normal) solid var(--border-color);
+          padding: var(--spacing-lg);
+          position: relative;
+          backdrop-filter: blur(10px);
+        }
+        .cyber-footer::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: var(--border-glow);
+          background: var(--border-color);
+          box-shadow: var(--cyan-glow);
+        }
+        .cyber-button {
+          background: transparent;
+          color: var(--button-color);
+          border: var(--border-normal) solid var(--button-color);
+          border-radius: var(--radius-terminal);
+          padding: var(--spacing-sm) var(--spacing-md);
+          font-family: var(--font-cyber);
+          font-size: var(--font-sm);
+          font-weight: 600;
+          letter-spacing: 0.05vw;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: all var(--cyber-fast) ease;
+          position: relative;
+          overflow: hidden;
+        }
+        .cyber-button:hover {
+          background: var(--button-color);
+          color: var(--cyber-black);
+          box-shadow: var(--pink-glow);
+          text-shadow: none;
+        }
+        .cyber-button:active {
+          transform: scale(0.98);
+        }
+        .cyber-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .neon-text {
+          color: var(--text-color);
+          text-shadow: var(--cyan-glow);
+          animation: cyberpulse var(--glow-pulse) infinite ease-in-out;
+        }
+        .terminal-output {
+          background: var(--cyber-black);
+          border: var(--border-thin) solid var(--neon-green);
+          border-radius: var(--radius-terminal);
+          padding: var(--spacing-md);
+          font-family: var(--font-mono);
+          font-size: var(--font-sm);
+          color: var(--neon-green);
+          white-space: pre-wrap;
+          overflow-x: auto;
+        }
+        .cyber-grid {
+          display: grid;
+          gap: var(--gap-md);
+          padding: var(--spacing-md);
+        }
+        .cyber-loading {
+          width: 5vw;
+          height: 5vw;
+          border: var(--border-thick) solid var(--transparent);
+          border-top: var(--border-thick) solid var(--neon-cyan);
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          box-shadow: var(--cyan-glow);
+        }
+        .cyber-progress-bar {
+          height: var(--spacing-sm);
+          background: var(--cyber-darker);
+          border: var(--border-thin) solid var(--border-color);
+          border-radius: var(--radius-terminal);
+          overflow: hidden;
+          position: relative;
+        }
+        .cyber-progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+          transition: width var(--cyber-normal) ease;
+          box-shadow: var(--pink-glow);
+        }
+        .scan-line {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent 40%, rgba(255, 255, 255, 0.3) 50%, transparent 60%);
+          animation: scanline 2s infinite linear;
+          pointer-events: none;
         }
       `;
       document.head.appendChild(style);

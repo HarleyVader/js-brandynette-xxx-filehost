@@ -1,7 +1,7 @@
 {
     "name": "js-brandynette-xxx-filehost",
-    "version": "1.0.0",
-    "description": "ES6 Express HTTP file server for video hosting",
+    "version": "2.0.0",
+    "description": "ES6 Express HTTP file server for video hosting with Gravatar integration",
     "type": "module",
     "main": "src/server.js",
     "scripts": {
@@ -12,12 +12,18 @@
         "express",
         "video",
         "fileserver",
-        "es6"
+        "es6",
+        "gravatar",
+        "avatar",
+        "profile",
+        "comments"
     ],
     "author": "",
     "license": "MIT",
     "dependencies": {
         "cors": "^2.8.5",
+        "crypto-js": "^4.2.0",
+        "dotenv": "^17.2.2",
         "express": "^4.18.2"
     },
     "devDependencies": {

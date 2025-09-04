@@ -1,5 +1,8 @@
 ### COPILOT INSTRUCTIONS
 
+**NEVER USE NPM START!**
+**NEVER USE TASKKILL!**
+
 ## Project Overview
 Build an ES6 Express HTTP file server that serves a single-page HTML application with embedded React for video streaming from the "BRANDIFICATION" folder.
 
