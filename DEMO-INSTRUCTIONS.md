@@ -14,19 +14,19 @@ When prompted for email, enter: `brandynette@bambisleep.church`
 
 #### Avatar API
 
-```
+```http
 GET http://localhost:8080/api/gravatar/avatar/brandynette@bambisleep.church
 ```
 
 #### Profile API
 
-```
+```http
 GET http://localhost:8080/api/gravatar/profile/brandynette@bambisleep.church
 ```
 
 #### QR Code API
 
-```
+```http
 GET http://localhost:8080/api/gravatar/qr/brandynette@bambisleep.church
 ```
 

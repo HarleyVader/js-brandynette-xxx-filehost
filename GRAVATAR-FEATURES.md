@@ -293,6 +293,6 @@ For issues and questions:
 
 ---
 
-**Built with ❤️ using Express, React & Gravatar API**
+## Built with ❤️ using Express, React & Gravatar API
 
-*Version 2.0.0 - Enhanced with comprehensive Gravatar integration*
+### Version 2.0.0 - Enhanced with comprehensive Gravatar integration

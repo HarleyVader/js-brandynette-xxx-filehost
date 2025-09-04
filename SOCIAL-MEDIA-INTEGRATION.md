@@ -253,6 +253,6 @@ All social media components use the cyber theme CSS variables:
 
 ---
 
-**Ready to connect the digital universe! 🚀**
+## Ready to connect the digital universe! 🚀
 
 Your social media integration is now live and ready to connect users across all major platforms through the power of Gravatar authentication and cyber-themed user experience.
