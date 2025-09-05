@@ -104,6 +104,14 @@ const SOCIAL_PLATFORMS = {
         apiUrl: 'https://graph.facebook.com/',
         loginUrl: 'https://www.facebook.com/v18.0/dialog/oauth',
         color: '#1877f2'
+    },
+    reddit: {
+        name: 'Reddit',
+        icon: '🔴',
+        baseUrl: 'https://reddit.com/u/',
+        apiUrl: 'https://oauth.reddit.com/',
+        loginUrl: 'https://www.reddit.com/api/v1/authorize',
+        color: '#ff4500'
     }
 };
 
@@ -444,13 +452,31 @@ app.post('/api/social/auth/:platform', (req, res) => {
             redirectUri: redirectUri || `http://localhost:${PORT}/social/callback`
         });
 
-        // Generate OAuth URL (simplified for demo - in production, use proper OAuth2 flow)
-        const authUrl = new URL(platformConfig.loginUrl);
-        authUrl.searchParams.append('client_id', process.env[`${platform.toUpperCase()}_CLIENT_ID`] || 'demo_client_id');
-        authUrl.searchParams.append('redirect_uri', `http://localhost:${PORT}/api/social/callback/${platform}`);
-        authUrl.searchParams.append('response_type', 'code');
-        authUrl.searchParams.append('scope', 'read');
-        authUrl.searchParams.append('state', sessionId);
+        // Generate platform-specific OAuth URL
+        let authUrl;
+        const clientId = process.env[`${platform.toUpperCase()}_CLIENT_ID`];
+
+        if (!clientId) {
+            return res.status(500).json({ error: `${platform.toUpperCase()}_CLIENT_ID not configured` });
+        }
+
+        if (platform === 'reddit') {
+            authUrl = new URL(platformConfig.loginUrl);
+            authUrl.searchParams.append('client_id', clientId);
+            authUrl.searchParams.append('response_type', 'code');
+            authUrl.searchParams.append('state', sessionId);
+            authUrl.searchParams.append('redirect_uri', `http://localhost:${PORT}/api/social/callback/${platform}`);
+            authUrl.searchParams.append('duration', 'temporary');
+            authUrl.searchParams.append('scope', 'identity read subscribe history');
+        } else {
+            // Generic OAuth2 flow for other platforms
+            authUrl = new URL(platformConfig.loginUrl);
+            authUrl.searchParams.append('client_id', clientId);
+            authUrl.searchParams.append('redirect_uri', `http://localhost:${PORT}/api/social/callback/${platform}`);
+            authUrl.searchParams.append('response_type', 'code');
+            authUrl.searchParams.append('scope', 'read');
+            authUrl.searchParams.append('state', sessionId);
+        }
 
         res.json({
             platform: platform,
@@ -703,6 +729,66 @@ app.get('/videos/:filename', (req, res) => {
         res.writeHead(200, head);
         fs.createReadStream(videoPath).pipe(res);
     }
+});
+
+// Documentation API endpoints
+app.get('/api/docs/files', (req, res) => {
+    try {
+        const docsPath = path.join(__dirname, '../Docs');
+
+        // Check if Docs directory exists
+        if (!fs.existsSync(docsPath)) {
+            return res.json({ files: [], count: 0 });
+        }
+
+        const files = fs.readdirSync(docsPath);
+        const markdownFiles = files.filter(file =>
+            file.toLowerCase().endsWith('.md') || file.toLowerCase().endsWith('.markdown')
+        );
+
+        res.json({
+            files: markdownFiles.sort(),
+            count: markdownFiles.length
+        });
+    } catch (error) {
+        console.error('Error reading Docs directory:', error);
+        res.status(500).json({ error: 'Failed to read documentation files' });
+    }
+});
+
+app.get('/api/docs/content/:filename', (req, res) => {
+    try {
+        const filename = req.params.filename;
+
+        // Basic security: prevent path traversal
+        if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+            return res.status(400).json({ error: 'Invalid filename' });
+        }
+
+        const filePath = path.join(__dirname, '../Docs', filename);
+
+        // Check if file exists
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: 'Documentation file not found' });
+        }
+
+        // Read the markdown file
+        const content = fs.readFileSync(filePath, 'utf8');
+
+        res.json({
+            filename: filename,
+            content: content,
+            size: content.length
+        });
+    } catch (error) {
+        console.error('Error reading documentation file:', error);
+        res.status(500).json({ error: 'Failed to read documentation file' });
+    }
+});
+
+// Serve docs.html at /docs route
+app.get('/docs', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/docs.html'));
 });
 
 // Serve React app for all other routes (only in production)

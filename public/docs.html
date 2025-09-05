@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brandynette Docs - Documentation System</title>
+
+    <!-- External Libraries -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+
+    <!-- Unified Cyber Theme -->
+    <link rel="stylesheet" href="/css/cyber-theme.css">
+
+    <style>
+        /* Documentation-specific overrides */
+        .docs-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            background: var(--gradient-primary);
+            color: white;
+            text-align: center;
+            font-family: var(--font-primary);
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+
+        .nav-link {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            text-shadow: 0 0 5px white;
+        }
+
+        .sidebar-content {
+            padding: 1rem;
+        }
+
+        .file-list {
+            list-style: none;
+        }
+
+        .file-item {
+            margin-bottom: 0.5rem;
+            padding: 0.75rem;
+            background: rgba(var(--primary-color-rgb), 0.1);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Fira Code', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-item::before {
+            content: '📄';
+            margin-right: 0.5rem;
+        }
+
+        .file-item:hover {
+            background: rgba(var(--button-color-rgb), 0.2);
+            border-color: var(--button-color);
+            box-shadow: 0 0 15px rgba(var(--button-color-rgb), 0.3);
+            transform: translateX(5px);
+        }
+
+        .file-item.active {
+            background: var(--gradient-secondary);
+            color: white;
+            border-color: var(--nav-alt);
+            box-shadow: 0 0 20px rgba(var(--primary-color-rgb), 0.4);
+        }
+
+        .file-item.active::before {
+            content: '📖';
+        }
+
+        .main-content {
+            flex: 1;
+            background: var(--nav-color);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .content-header {
+            padding: 1.5rem;
+            background: var(--nav-color);
+            border-bottom: 2px solid var(--nav-alt);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
+        .content-title {
+            font-family: var(--font-primary);
+            font-size: 2rem;
+            color: var(--nav-alt);
+            text-shadow: 0 0 15px var(--nav-alt);
+            margin-bottom: 0.5rem;
+        }
+
+        .content-subtitle {
+            color: var(--tertiary-color);
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.8;
+        }
+
+        .markdown-content {
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Configure marked for better rendering
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(code, { language: lang }).value;
+                    } catch (err) {}
+                }
+                return hljs.highlightAuto(code).value;
+            },
+            breaks: true,
+            gfm: true
+        });
+
+        function DocsApp() {
+            const [markdownFiles, setMarkdownFiles] = useState([]);
+            const [selectedFile, setSelectedFile] = useState(null);
+            const [markdownContent, setMarkdownContent] = useState('');
+            const [loading, setLoading] = useState(true);
+            const [contentLoading, setContentLoading] = useState(false);
+            const [error, setError] = useState(null);
+
+            useEffect(() => {
+                fetchMarkdownFiles();
+            }, []);
+
+            const fetchMarkdownFiles = async () => {
+                try {
+                    setLoading(true);
+                    const response = await fetch('/api/docs/files');
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch markdown files');
+                    }
+
+                    const data = await response.json();
+                    setMarkdownFiles(data.files || []);
+
+                    // Auto-select first file if available
+                    if (data.files && data.files.length > 0) {
+                        setSelectedFile(data.files[0]);
+                        await fetchMarkdownContent(data.files[0]);
+                    }
+                } catch (err) {
+                    console.error('Error fetching markdown files:', err);
+                    setError('Failed to load documentation files. Please ensure the Docs folder contains markdown files.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const fetchMarkdownContent = async (filename) => {
+                try {
+                    setContentLoading(true);
+                    const response = await fetch(`/api/docs/content/${encodeURIComponent(filename)}`);
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch markdown content');
+                    }
+
+                    const data = await response.json();
+                    setMarkdownContent(data.content || '');
+                } catch (err) {
+                    console.error('Error fetching markdown content:', err);
+                    setMarkdownContent('# Error\n\nFailed to load the selected documentation file.');
+                } finally {
+                    setContentLoading(false);
+                }
+            };
+
+            const handleFileSelect = async (filename) => {
+                setSelectedFile(filename);
+                await fetchMarkdownContent(filename);
+            };
+
+            const renderMarkdown = (content) => {
+                return { __html: marked.parse(content) };
+            };
+
+            if (loading) {
+                return (
+                    <div className="docs-container">
+                        <div className="loading">
+                            <div className="loading-spinner"></div>
+                            <h2>Loading Documentation System...</h2>
+                            <p>Scanning for markdown files in Docs folder</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (error) {
+                return (
+                    <div className="docs-container">
+                        <div className="error">
+                            <h2>⚠️ Documentation System Error</h2>
+                            <p>{error}</p>
+                            <button
+                                onClick={fetchMarkdownFiles}
+                                style={{
+                                    marginTop: '1rem',
+                                    padding: '0.75rem 1.5rem',
+                                    background: 'var(--gradient-primary)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    fontFamily: 'Space Mono, monospace'
+                                }}
+                            >
+                                🔄 Retry
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="docs-container">
+                    {/* Sidebar */}
+                    <div className="sidebar">
+                        <div className="sidebar-header">
+                            📚 DOCUMENTATION
+                            <a href="/" className="nav-link">🎬 MAIN APP</a>
+                        </div>
+                        <div className="sidebar-content">
+                            {markdownFiles.length === 0 ? (
+                                <div className="empty-state">
+                                    <p>No markdown files found in Docs folder</p>
+                                </div>
+                            ) : (
+                                <ul className="file-list">
+                                    {markdownFiles.map((file, index) => (
+                                        <li
+                                            key={index}
+                                            className={`file-item ${selectedFile === file ? 'active' : ''}`}
+                                            onClick={() => handleFileSelect(file)}
+                                        >
+                                            {file.replace('.md', '')}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="main-content">
+                        <div className="content-header">
+                            <h1 className="content-title">
+                                {selectedFile ? selectedFile.replace('.md', '') : 'Brandynette Documentation'}
+                            </h1>
+                            <p className="content-subtitle">
+                                {selectedFile ? `📄 ${selectedFile}` : 'Select a documentation file from the sidebar'}
+                            </p>
+                        </div>
+
+                        <div className="markdown-content">
+                            {contentLoading ? (
+                                <div className="loading">
+                                    <div className="loading-spinner"></div>
+                                    <p>Loading content...</p>
+                                </div>
+                            ) : selectedFile ? (
+                                <div dangerouslySetInnerHTML={renderMarkdown(markdownContent)} />
+                            ) : (
+                                <div className="empty-state">
+                                    <h2>🚀 Welcome to Brandynette Documentation</h2>
+                                    <p>Select a markdown file from the sidebar to view its content.</p>
+                                    <p>Files are loaded from the <code>/Docs</code> folder.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(React.createElement(DocsApp), document.getElementById('root'));
+    </script>
+</body>
+</html>
