@@ -1,27 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Brandynette Video Player - Port 6969</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-      }
-    </style>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="text/babel">
-      const { useState, useEffect } = React;
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brandynette Video Player - Port 6969</title>
+  <style>
+    /* BambiSleep Chat Styles */
+    @import url("https://fonts.googleapis.com/css2?family=Audiowide&display=swap");
+
+    :root {
+      --primary-color: #0c2a2aE6;
+      --primary-alt: #15aab5E6;
+      --secondary-color: #40002fE6;
+      --secondary-alt: #cc0174E6;
+      --tertiary-color: #720241e6;
+      --tertiary-alt: #02b893E6;
+      --button-color: #df0471E6;
+      --button-alt: #110000E6;
+      --nav-color: #0a2626E6;
+      --nav-alt: #17dbd8E6;
+      --transparent: #124141E6;
+      --error: #ff3333E6;
+      --border: 3px ridge;
+      --border-radius: 8px;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Audiowide', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--tertiary-color) 100%);
+      min-height: 100vh;
+      color: white;
+    }
+
+    /* List element spacing improvements */
+    .video-list-item {
+      margin: 1rem 0;
+      padding: 1.2rem;
+      background: var(--transparent);
+      border: var(--border) var(--nav-alt);
+      border-radius: var(--border-radius);
+      transition: all 0.3s ease;
+    }
+
+    .video-list-item:hover {
+      background: var(--primary-alt);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Smaller names styling */
+    .video-name {
+      font-size: 0.9rem;
+      font-weight: 400;
+      opacity: 0.9;
+    }
+
+    .video-title {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    /* Button styling with theme */
+    .theme-button {
+      background: var(--button-color);
+      color: white;
+      border: var(--border) var(--button-alt);
+      border-radius: var(--border-radius);
+      padding: 0.8rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Audiowide', sans-serif;
+    }
+
+    .theme-button:hover {
+      background: var(--button-alt);
+      border-color: var(--button-color);
+      transform: scale(1.05);
+    }
+
+    .theme-button.selected {
+      background: var(--secondary-alt);
+      border-color: var(--nav-alt);
+    }
+  </style>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
       function VideoPlayer({ videoSrc, title }) {
         const [isPlaying, setIsPlaying] = useState(false);
@@ -100,7 +174,16 @@
           return React.createElement('div', { style: { color: 'red', padding: '2rem', textAlign: 'center' } }, error);
         }
 
-        return React.createElement('div', { style: { background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '1rem', margin: '1rem' } },
+        return React.createElement('div', {
+          style: {
+            background: 'var(--transparent)',
+            borderRadius: 'var(--border-radius)',
+            padding: '1.5rem',
+            margin: '1.5rem',
+            border: 'var(--border) var(--tertiary-alt)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+          }
+        },
           React.createElement('div', { style: { position: 'relative', background: 'black', borderRadius: '8px', overflow: 'hidden', marginBottom: '1rem' } },
             React.createElement('video', {
               ref: videoRef,
@@ -119,22 +202,50 @@
               }
             }, 'Loading video...')
           ),
-          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(0,0,0,0.8)', color: 'white', borderRadius: '8px' } },
+          React.createElement('div', {
+            style: {
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1.2rem',
+              padding: '1.2rem',
+              background: 'var(--nav-color)',
+              color: 'white',
+              borderRadius: 'var(--border-radius)',
+              border: 'var(--border) var(--nav-alt)'
+            }
+          },
             React.createElement('button', {
               onClick: togglePlay,
               disabled: loading,
-              style: { background: 'none', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer', padding: '0.5rem' }
+              style: {
+                background: 'var(--button-color)',
+                border: 'var(--border) var(--button-alt)',
+                color: 'white',
+                fontSize: '1.3rem',
+                cursor: 'pointer',
+                padding: '0.8rem',
+                borderRadius: 'var(--border-radius)',
+                transition: 'all 0.3s ease'
+              }
             }, isPlaying ? '⏸️' : '▶️'),
             React.createElement('div', {
-              style: { flex: 1, height: '6px', background: 'rgba(255,255,255,0.3)', borderRadius: '3px', cursor: 'pointer' },
+              style: {
+                flex: 1,
+                height: '8px',
+                background: 'var(--button-alt)',
+                borderRadius: 'var(--border-radius)',
+                cursor: 'pointer',
+                border: '1px solid var(--nav-alt)'
+              },
               onClick: handleSeek
             },
               React.createElement('div', {
                 style: {
                   height: '100%',
-                  background: '#667eea',
+                  background: 'linear-gradient(90deg, var(--tertiary-alt), var(--primary-alt))',
                   width: `${(currentTime / duration) * 100}%`,
-                  borderRadius: '3px'
+                  borderRadius: 'var(--border-radius)',
+                  transition: 'width 0.1s ease'
                 }
               })
             ),
@@ -152,8 +263,17 @@
               style: { width: '80px' }
             })
           ),
-          React.createElement('div', { style: { textAlign: 'center', marginTop: '1rem' } },
-            React.createElement('h3', { style: { margin: 0, color: 'white' } }, title)
+          React.createElement('div', { style: { textAlign: 'center', marginTop: '1.2rem' } },
+            React.createElement('h3', {
+              className: 'video-title',
+              style: {
+                margin: 0,
+                color: 'var(--nav-alt)',
+                fontSize: '1rem',
+                fontFamily: 'Audiowide, sans-serif',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+              }
+            }, title)
           )
         );
       }
@@ -240,13 +360,16 @@
             React.createElement('p', null, error),
             React.createElement('button', {
               onClick: fetchData,
+              className: 'theme-button',
               style: {
-                background: '#667eea',
+                background: 'var(--button-color)',
                 color: 'white',
-                border: 'none',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '8px',
-                cursor: 'pointer'
+                border: 'var(--border) var(--button-alt)',
+                padding: '1rem 2rem',
+                borderRadius: 'var(--border-radius)',
+                cursor: 'pointer',
+                fontFamily: 'Audiowide, sans-serif',
+                fontSize: '0.9rem'
               }
             }, 'Try Again')
           );
@@ -257,8 +380,9 @@
             style: {
               textAlign: 'center',
               padding: '2rem 1rem',
-              background: 'rgba(0,0,0,0.2)',
-              backdropFilter: 'blur(10px)'
+              background: 'var(--nav-color)',
+              backdropFilter: 'blur(10px)',
+              borderBottom: 'var(--border) var(--nav-alt)'
             }
           },
             React.createElement('h1', {
@@ -266,7 +390,11 @@
                 margin: '0 0 0.5rem 0',
                 fontSize: '2.5rem',
                 fontWeight: '700',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+                textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+                fontFamily: 'Audiowide, sans-serif',
+                color: 'var(--nav-alt)',
+                textTransform: 'uppercase',
+                letterSpacing: '2px'
               }
             }, '🎬 Brandynette Video Player'),
             React.createElement('p', { style: { margin: 0, fontSize: '1.1rem', opacity: 0.9 } },
@@ -281,19 +409,23 @@
               : React.createElement('div', null,
                   videos.length > 1 && React.createElement('div', { style: { marginBottom: '2rem', textAlign: 'center' } },
                     React.createElement('h3', { style: { marginBottom: '1rem' } }, 'Select a video:'),
-                    React.createElement('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' } },
+                    React.createElement('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', margin: '1.5rem 0' } },
                       videos.map(video =>
                         React.createElement('button', {
                           key: video,
                           onClick: () => setSelectedVideo(video),
+                          className: selectedVideo === video ? 'theme-button selected' : 'theme-button',
                           style: {
-                            background: selectedVideo === video ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.2)',
+                            background: selectedVideo === video ? 'var(--secondary-alt)' : 'var(--button-color)',
                             color: 'white',
-                            border: selectedVideo === video ? '2px solid white' : '2px solid transparent',
-                            padding: '0.5rem 1rem',
-                            borderRadius: '8px',
+                            border: selectedVideo === video ? 'var(--border) var(--nav-alt)' : 'var(--border) var(--button-alt)',
+                            borderRadius: 'var(--border-radius)',
+                            padding: '1rem 1.5rem',
                             cursor: 'pointer',
-                            transition: 'all 0.3s ease'
+                            transition: 'all 0.3s ease',
+                            fontFamily: 'Audiowide, sans-serif',
+                            fontSize: '0.85rem',
+                            margin: '0.3rem'
                           }
                         }, video)
                       )
@@ -304,23 +436,49 @@
                     title: selectedVideo
                   })
                 ),
-            React.createElement('div', { style: { marginTop: '3rem', textAlign: 'center' } },
-              React.createElement('h3', null, 'API Endpoints:'),
-              React.createElement('div', { style: { display: 'grid', gap: '0.5rem', maxWidth: '600px', margin: '0 auto' } },
-                React.createElement('p', null, `📺 Videos: ${videos.length} found`),
-                React.createElement('p', null, `📁 Public files: ${publicFiles.length} found`),
-                React.createElement('p', null, '🔗 /api/videos - List videos'),
-                React.createElement('p', null, '🔗 /api/public - List public files'),
-                React.createElement('p', null, '🔗 /health - Server health')
+            React.createElement('div', {
+              style: {
+                marginTop: '3rem',
+                textAlign: 'center',
+                background: 'var(--transparent)',
+                padding: '2rem',
+                borderRadius: 'var(--border-radius)',
+                border: 'var(--border) var(--tertiary-alt)'
+              }
+            },
+              React.createElement('h3', {
+                style: {
+                  fontFamily: 'Audiowide, sans-serif',
+                  color: 'var(--nav-alt)',
+                  fontSize: '1.2rem',
+                  marginBottom: '1.5rem'
+                }
+              }, 'API Endpoints:'),
+              React.createElement('div', {
+                style: {
+                  display: 'grid',
+                  gap: '1rem',
+                  maxWidth: '600px',
+                  margin: '0 auto',
+                  fontSize: '0.9rem'
+                }
+              },
+                React.createElement('p', { className: 'video-name' }, `📺 Videos: ${videos.length} found`),
+                React.createElement('p', { className: 'video-name' }, `📁 Public files: ${publicFiles.length} found`),
+                React.createElement('p', { className: 'video-name' }, '🔗 /api/videos - List videos'),
+                React.createElement('p', { className: 'video-name' }, '🔗 /api/public - List public files'),
+                React.createElement('p', { className: 'video-name' }, '🔗 /health - Server health')
               )
             )
           ),
           React.createElement('footer', {
             style: {
               textAlign: 'center',
-              padding: '1rem',
-              background: 'rgba(0,0,0,0.2)',
-              backdropFilter: 'blur(10px)'
+              padding: '1.5rem',
+              background: 'var(--nav-color)',
+              backdropFilter: 'blur(10px)',
+              borderTop: 'var(--border) var(--nav-alt)',
+              marginTop: '2rem'
             }
           },
             React.createElement('p', null, 'Built with ❤️ using Express & React on port 6969')
@@ -340,5 +498,6 @@
 
       ReactDOM.render(React.createElement(App), document.getElementById('root'));
     </script>
-  </body>
+</body>
+
 </html>
