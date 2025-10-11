@@ -23,68 +23,128 @@
       --nav-alt: #17dbd8E6;
       --transparent: #124141E6;
       --error: #ff3333E6;
-      --border: 3px ridge;
-      --border-radius: 8px;
+      --glow-pink: #ff00ff;
+      --glow-cyan: #00ffff;
+      --glow-purple: #8a2be2;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --bubble-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Audiowide', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--tertiary-color) 100%);
+      font-family: 'Audiowide', monospace;
+      background: radial-gradient(circle at 20% 80%, var(--primary-color) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, var(--secondary-color) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, var(--tertiary-color) 0%, transparent 50%),
+        linear-gradient(135deg, #000011 0%, #001122 100%);
       min-height: 100vh;
       color: white;
+      overflow-x: hidden;
     }
 
-    /* List element spacing improvements */
-    .video-list-item {
-      margin: 1rem 0;
-      padding: 1.2rem;
-      background: var(--transparent);
-      border: var(--border) var(--nav-alt);
-      border-radius: var(--border-radius);
-      transition: all 0.3s ease;
+    .glass-bubble {
+      background: var(--glass-bg);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      box-shadow: var(--bubble-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
     }
 
-    .video-list-item:hover {
-      background: var(--primary-alt);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    .glass-bubble::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+      pointer-events: none;
     }
 
-    /* Smaller names styling */
-    .video-name {
-      font-size: 0.9rem;
-      font-weight: 400;
-      opacity: 0.9;
+    .glow-effect {
+      filter: drop-shadow(0 0 10px var(--glow-cyan))drop-shadow(0 0 20px var(--glow-pink))drop-shadow(0 0 30px var(--glow-purple));
+      animation: pulse-glow 3s ease-in-out infinite alternate;
     }
 
-    .video-title {
-      font-size: 1.1rem;
-      font-weight: 500;
+    @keyframes pulse-glow {
+      0% {
+        filter: drop-shadow(0 0 5px var(--glow-cyan))drop-shadow(0 0 10px var(--glow-pink));
+      }
+
+      100% {
+        filter: drop-shadow(0 0 15px var(--glow-cyan))drop-shadow(0 0 25px var(--glow-pink))drop-shadow(0 0 35px var(--glow-purple));
+      }
     }
 
-    /* Button styling with theme */
-    .theme-button {
-      background: var(--button-color);
+    .bubble-button {
+      background: linear-gradient(135deg, var(--button-color), var(--secondary-alt));
       color: white;
-      border: var(--border) var(--button-alt);
-      border-radius: var(--border-radius);
-      padding: 0.8rem 1.5rem;
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 0.6rem 1rem;
       cursor: pointer;
       transition: all 0.3s ease;
       font-family: 'Audiowide', sans-serif;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+      margin: 0.2rem;
     }
 
-    .theme-button:hover {
-      background: var(--button-alt);
-      border-color: var(--button-color);
-      transform: scale(1.05);
+    .bubble-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
     }
 
-    .theme-button.selected {
-      background: var(--secondary-alt);
-      border-color: var(--nav-alt);
+    .bubble-button:hover::before {
+      left: 100%;
+    }
+
+    .bubble-button:hover {
+      transform: translateY(-2px)scale(1.05);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px var(--glow-pink);
+    }
+
+    .bubble-button.selected {
+      background: linear-gradient(135deg, var(--glow-pink), var(--glow-cyan));
+      box-shadow: 0 0 30px var(--glow-pink), inset 0 2px 10px rgba(255, 255, 255, 0.1);
+    }
+
+    .video-name {
+      font-size: 0.65rem;
+      opacity: 0.8;
+      margin: 0;
+      padding: 0;
+    }
+
+    .video-title {
+      font-size: 0.8rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    .compact-container {
+      margin: 0.2rem;
+      padding: 0.5rem;
+    }
+
+    .no-spacing {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      outline: 0;
     }
   </style>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -175,16 +235,16 @@
         }
 
         return React.createElement('div', {
+          className: 'glass-bubble glow-effect',
           style: {
-            background: 'var(--transparent)',
-            borderRadius: 'var(--border-radius)',
-            padding: '1.5rem',
-            margin: '1.5rem',
-            border: 'var(--border) var(--tertiary-alt)',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+            padding: '0.8rem',
+            margin: '0.4rem'
           }
         },
-          React.createElement('div', { style: { position: 'relative', background: 'black', borderRadius: '8px', overflow: 'hidden', marginBottom: '1rem' } },
+          React.createElement('div', {
+            className: 'glass-bubble',
+            style: { position: 'relative', background: 'black', overflow: 'hidden', margin: '0.3rem' }
+          },
             React.createElement('video', {
               ref: videoRef,
               src: videoSrc,
@@ -203,29 +263,20 @@
             }, 'Loading video...')
           ),
           React.createElement('div', {
+            className: 'glass-bubble compact-container',
             style: {
               display: 'flex',
               alignItems: 'center',
-              gap: '1.2rem',
-              padding: '1.2rem',
-              background: 'var(--nav-color)',
-              color: 'white',
-              borderRadius: 'var(--border-radius)',
-              border: 'var(--border) var(--nav-alt)'
+              gap: '0.3rem',
+              color: 'white'
             }
           },
             React.createElement('button', {
               onClick: togglePlay,
               disabled: loading,
+              className: 'bubble-button glow-effect',
               style: {
-                background: 'var(--button-color)',
-                border: 'var(--border) var(--button-alt)',
-                color: 'white',
-                fontSize: '1.3rem',
-                cursor: 'pointer',
-                padding: '0.8rem',
-                borderRadius: 'var(--border-radius)',
-                transition: 'all 0.3s ease'
+                fontSize: '1.1rem'
               }
             }, isPlaying ? '⏸️' : '▶️'),
             React.createElement('div', {
@@ -263,16 +314,12 @@
               style: { width: '80px' }
             })
           ),
-          React.createElement('div', { style: { textAlign: 'center', marginTop: '1.2rem' } },
+          React.createElement('div', {
+            className: 'no-spacing',
+            style: { textAlign: 'center' }
+          },
             React.createElement('h3', {
-              className: 'video-title',
-              style: {
-                margin: 0,
-                color: 'var(--nav-alt)',
-                fontSize: '1rem',
-                fontFamily: 'Audiowide, sans-serif',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
-              }
+              className: 'video-title glow-effect'
             }, title)
           )
         );
@@ -377,12 +424,11 @@
 
         return React.createElement('div', { style: { minHeight: '100vh', color: 'white' } },
           React.createElement('header', {
+            className: 'glass-bubble glow-effect',
             style: {
               textAlign: 'center',
-              padding: '2rem 1rem',
-              background: 'var(--nav-color)',
-              backdropFilter: 'blur(10px)',
-              borderBottom: 'var(--border) var(--nav-alt)'
+              padding: '0.5rem',
+              margin: '0.2rem'
             }
           },
             React.createElement('h1', {
@@ -400,7 +446,10 @@
             React.createElement('p', { style: { margin: 0, fontSize: '1.1rem', opacity: 0.9 } },
               `Premium video streaming on port 6969`)
           ),
-          React.createElement('main', { style: { padding: '2rem 1rem', maxWidth: '1200px', margin: '0 auto' } },
+          React.createElement('main', {
+            className: 'compact-container',
+            style: { maxWidth: '1200px', margin: '0 auto' }
+          },
             videos.length === 0
               ? React.createElement('div', { style: { textAlign: 'center', padding: '3rem 1rem' } },
                   React.createElement('h2', { style: { color: '#ffd93d' } }, 'No videos found'),
@@ -409,23 +458,17 @@
               : React.createElement('div', null,
                   videos.length > 1 && React.createElement('div', { style: { marginBottom: '2rem', textAlign: 'center' } },
                     React.createElement('h3', { style: { marginBottom: '1rem' } }, 'Select a video:'),
-                    React.createElement('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', margin: '1.5rem 0' } },
+                    React.createElement('div', {
+                      className: 'no-spacing',
+                      style: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }
+                    },
                       videos.map(video =>
                         React.createElement('button', {
                           key: video,
                           onClick: () => setSelectedVideo(video),
-                          className: selectedVideo === video ? 'theme-button selected' : 'theme-button',
+                          className: selectedVideo === video ? 'bubble-button selected glow-effect' : 'bubble-button',
                           style: {
-                            background: selectedVideo === video ? 'var(--secondary-alt)' : 'var(--button-color)',
-                            color: 'white',
-                            border: selectedVideo === video ? 'var(--border) var(--nav-alt)' : 'var(--border) var(--button-alt)',
-                            borderRadius: 'var(--border-radius)',
-                            padding: '1rem 1.5rem',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s ease',
-                            fontFamily: 'Audiowide, sans-serif',
-                            fontSize: '0.85rem',
-                            margin: '0.3rem'
+                            fontSize: '0.7rem'
                           }
                         }, video)
                       )
@@ -437,30 +480,20 @@
                   })
                 ),
             React.createElement('div', {
+              className: 'glass-bubble glow-effect compact-container',
               style: {
-                marginTop: '3rem',
-                textAlign: 'center',
-                background: 'var(--transparent)',
-                padding: '2rem',
-                borderRadius: 'var(--border-radius)',
-                border: 'var(--border) var(--tertiary-alt)'
+                textAlign: 'center'
               }
             },
               React.createElement('h3', {
-                style: {
-                  fontFamily: 'Audiowide, sans-serif',
-                  color: 'var(--nav-alt)',
-                  fontSize: '1.2rem',
-                  marginBottom: '1.5rem'
-                }
+                className: 'video-title'
               }, 'API Endpoints:'),
               React.createElement('div', {
+                className: 'no-spacing',
                 style: {
                   display: 'grid',
-                  gap: '1rem',
                   maxWidth: '600px',
-                  margin: '0 auto',
-                  fontSize: '0.9rem'
+                  margin: '0 auto'
                 }
               },
                 React.createElement('p', { className: 'video-name' }, `📺 Videos: ${videos.length} found`),
@@ -472,13 +505,10 @@
             )
           ),
           React.createElement('footer', {
+            className: 'glass-bubble glow-effect compact-container',
             style: {
               textAlign: 'center',
-              padding: '1.5rem',
-              background: 'var(--nav-color)',
-              backdropFilter: 'blur(10px)',
-              borderTop: 'var(--border) var(--nav-alt)',
-              marginTop: '2rem'
+              margin: '0.2rem'
             }
           },
             React.createElement('p', null, 'Built with ❤️ using Express & React on port 6969')
