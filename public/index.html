@@ -156,377 +156,421 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-      function VideoPlayer({ videoSrc, title }) {
-        const [isPlaying, setIsPlaying] = useState(false);
-        const [currentTime, setCurrentTime] = useState(0);
-        const [duration, setDuration] = useState(0);
-        const [volume, setVolume] = useState(1);
-        const [loading, setLoading] = useState(true);
-        const [error, setError] = useState(null);
+    function VideoPlayer({ videoSrc, title }) {
+      const [isPlaying, setIsPlaying] = useState(false);
+      const [currentTime, setCurrentTime] = useState(0);
+      const [duration, setDuration] = useState(0);
+      const [volume, setVolume] = useState(1);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
 
-        const videoRef = React.useRef(null);
+      const videoRef = React.useRef(null);
 
-        useEffect(() => {
-          const video = videoRef.current;
-          if (!video) return;
+      useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
 
-          const handleLoadedMetadata = () => {
-            setDuration(video.duration);
-            setLoading(false);
-          };
-
-          const handleTimeUpdate = () => setCurrentTime(video.currentTime);
-          const handlePlay = () => setIsPlaying(true);
-          const handlePause = () => setIsPlaying(false);
-          const handleEnded = () => setIsPlaying(false);
-          const handleError = () => {
-            setError('Failed to load video');
-            setLoading(false);
-          };
-
-          video.addEventListener('loadedmetadata', handleLoadedMetadata);
-          video.addEventListener('timeupdate', handleTimeUpdate);
-          video.addEventListener('play', handlePlay);
-          video.addEventListener('pause', handlePause);
-          video.addEventListener('ended', handleEnded);
-          video.addEventListener('error', handleError);
-
-          return () => {
-            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-            video.removeEventListener('timeupdate', handleTimeUpdate);
-            video.removeEventListener('play', handlePlay);
-            video.removeEventListener('pause', handlePause);
-            video.removeEventListener('ended', handleEnded);
-            video.removeEventListener('error', handleError);
-          };
-        }, [videoSrc]);
-
-        const togglePlay = () => {
-          const video = videoRef.current;
-          if (video.paused) {
-            video.play();
-          } else {
-            video.pause();
-          }
+        const handleLoadedMetadata = () => {
+          setDuration(video.duration);
+          setLoading(false);
         };
 
-        const handleSeek = (e) => {
-          const video = videoRef.current;
-          const rect = e.currentTarget.getBoundingClientRect();
-          const percent = (e.clientX - rect.left) / rect.width;
-          video.currentTime = percent * duration;
+        const handleTimeUpdate = () => setCurrentTime(video.currentTime);
+        const handlePlay = () => setIsPlaying(true);
+        const handlePause = () => setIsPlaying(false);
+        const handleEnded = () => setIsPlaying(false);
+        const handleError = () => {
+          setError('Failed to load video');
+          setLoading(false);
         };
 
-        const handleVolumeChange = (e) => {
-          const newVolume = parseFloat(e.target.value);
-          setVolume(newVolume);
-          videoRef.current.volume = newVolume;
-        };
+        video.addEventListener('loadedmetadata', handleLoadedMetadata);
+        video.addEventListener('timeupdate', handleTimeUpdate);
+        video.addEventListener('play', handlePlay);
+        video.addEventListener('pause', handlePause);
+        video.addEventListener('ended', handleEnded);
+        video.addEventListener('error', handleError);
 
-        const formatTime = (time) => {
-          const minutes = Math.floor(time / 60);
-          const seconds = Math.floor(time % 60);
-          return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        return () => {
+          video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+          video.removeEventListener('timeupdate', handleTimeUpdate);
+          video.removeEventListener('play', handlePlay);
+          video.removeEventListener('pause', handlePause);
+          video.removeEventListener('ended', handleEnded);
+          video.removeEventListener('error', handleError);
         };
+      }, [videoSrc]);
 
-        if (error) {
-          return React.createElement('div', { style: { color: 'red', padding: '2rem', textAlign: 'center' } }, error);
+      const togglePlay = () => {
+        const video = videoRef.current;
+        if (video.paused) {
+          video.play();
+        } else {
+          video.pause();
         }
+      };
 
-        return React.createElement('div', {
-          className: 'glass-bubble glow-effect',
+      const handleSeek = (e) => {
+        const video = videoRef.current;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        video.currentTime = percent * duration;
+      };
+
+      const handleVolumeChange = (e) => {
+        const newVolume = parseFloat(e.target.value);
+        setVolume(newVolume);
+        videoRef.current.volume = newVolume;
+      };
+
+      const formatTime = (time) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      };
+
+      if (error) {
+        return React.createElement('div', { style: { color: 'red', padding: '2rem', textAlign: 'center' } }, error);
+      }
+
+      return React.createElement('div', {
+        className: 'glass-bubble glow-effect',
+        style: {
+          padding: '0.8rem',
+          margin: '0.4rem'
+        }
+      },
+        React.createElement('div', {
+          className: 'glass-bubble',
+          style: { position: 'relative', background: 'black', overflow: 'hidden', margin: '0.3rem' }
+        },
+          React.createElement('video', {
+            ref: videoRef,
+            src: videoSrc,
+            style: { width: '100%', height: 'auto', maxHeight: '70vh', display: 'block', cursor: 'pointer' },
+            onClick: togglePlay
+          }),
+          loading && React.createElement('div', {
+            style: {
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              color: 'white',
+              textAlign: 'center'
+            }
+          }, 'Loading video...')
+        ),
+        React.createElement('div', {
+          className: 'glass-bubble compact-container',
           style: {
-            padding: '0.8rem',
-            margin: '0.4rem'
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.3rem',
+            color: 'white'
+          }
+        },
+          React.createElement('button', {
+            onClick: togglePlay,
+            disabled: loading,
+            className: 'bubble-button glow-effect',
+            style: {
+              fontSize: '1.1rem'
+            }
+          }, isPlaying ? '⏸️' : '▶️'),
+          React.createElement('div', {
+            style: {
+              flex: 1,
+              height: '8px',
+              background: 'var(--button-alt)',
+              borderRadius: 'var(--border-radius)',
+              cursor: 'pointer',
+              border: '1px solid var(--nav-alt)'
+            },
+            onClick: handleSeek
+          },
+            React.createElement('div', {
+              style: {
+                height: '100%',
+                background: 'linear-gradient(90deg, var(--tertiary-alt), var(--primary-alt))',
+                width: `${(currentTime / duration) * 100}%`,
+                borderRadius: 'var(--border-radius)',
+                transition: 'width 0.1s ease'
+              }
+            })
+          ),
+          React.createElement('span', { style: { fontSize: '0.9rem', fontFamily: 'monospace', minWidth: '80px' } },
+            `${formatTime(currentTime)} / ${formatTime(duration)}`
+          ),
+          React.createElement('span', null, '🔊'),
+          React.createElement('input', {
+            type: 'range',
+            min: '0',
+            max: '1',
+            step: '0.1',
+            value: volume,
+            onChange: handleVolumeChange,
+            style: { width: '80px' }
+          })
+        ),
+        React.createElement('div', {
+          className: 'no-spacing',
+          style: { textAlign: 'center' }
+        },
+          React.createElement('h3', {
+            className: 'video-title glow-effect'
+          }, title)
+        )
+      );
+    }
+
+    function App() {
+      const [videos, setVideos] = useState([]);
+      const [publicFiles, setPublicFiles] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+      const [selectedVideo, setSelectedVideo] = useState(null);
+
+      useEffect(() => {
+        fetchData();
+      }, []);
+
+      const fetchData = async () => {
+        try {
+          setLoading(true);
+
+          // Fetch videos
+          const videosResponse = await fetch('/api/videos');
+          if (!videosResponse.ok) throw new Error('Failed to fetch videos');
+          const videosData = await videosResponse.json();
+          setVideos(videosData.videos);
+
+          // Fetch public files
+          const publicResponse = await fetch('/api/public');
+          if (!publicResponse.ok) throw new Error('Failed to fetch public files');
+          const publicData = await publicResponse.json();
+          setPublicFiles(publicData.files);
+
+          // Auto-select first video
+          if (videosData.videos.length > 0) {
+            setSelectedVideo(videosData.videos[0]);
+          }
+        } catch (err) {
+          console.error('Error fetching data:', err);
+          setError('Failed to load data. Please try again.');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      if (loading) {
+        return React.createElement('div', {
+          style: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '100vh',
+            color: 'white',
+            textAlign: 'center'
           }
         },
           React.createElement('div', {
-            className: 'glass-bubble',
-            style: { position: 'relative', background: 'black', overflow: 'hidden', margin: '0.3rem' }
-          },
-            React.createElement('video', {
-              ref: videoRef,
-              src: videoSrc,
-              style: { width: '100%', height: 'auto', maxHeight: '70vh', display: 'block', cursor: 'pointer' },
-              onClick: togglePlay
-            }),
-            loading && React.createElement('div', {
-              style: {
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                color: 'white',
-                textAlign: 'center'
-              }
-            }, 'Loading video...')
-          ),
-          React.createElement('div', {
-            className: 'glass-bubble compact-container',
             style: {
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              color: 'white'
+              width: '50px',
+              height: '50px',
+              border: '4px solid rgba(255,255,255,0.3)',
+              borderTop: '4px solid white',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              marginBottom: '1rem'
             }
-          },
-            React.createElement('button', {
-              onClick: togglePlay,
-              disabled: loading,
-              className: 'bubble-button glow-effect',
-              style: {
-                fontSize: '1.1rem'
-              }
-            }, isPlaying ? '⏸️' : '▶️'),
-            React.createElement('div', {
-              style: {
-                flex: 1,
-                height: '8px',
-                background: 'var(--button-alt)',
-                borderRadius: 'var(--border-radius)',
-                cursor: 'pointer',
-                border: '1px solid var(--nav-alt)'
-              },
-              onClick: handleSeek
-            },
-              React.createElement('div', {
-                style: {
-                  height: '100%',
-                  background: 'linear-gradient(90deg, var(--tertiary-alt), var(--primary-alt))',
-                  width: `${(currentTime / duration) * 100}%`,
-                  borderRadius: 'var(--border-radius)',
-                  transition: 'width 0.1s ease'
-                }
+          }),
+          React.createElement('p', null, 'Loading...')
+        );
+      }
+
+      if (error) {
+        return React.createElement('div', {
+          style: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '100vh',
+            color: 'white',
+            textAlign: 'center'
+          }
+        },
+          React.createElement('h2', { style: { color: '#ff6b6b' } }, 'Oops! Something went wrong'),
+          React.createElement('p', null, error),
+          React.createElement('button', {
+            onClick: fetchData,
+            className: 'theme-button',
+            style: {
+              background: 'var(--button-color)',
+              color: 'white',
+              border: 'var(--border) var(--button-alt)',
+              padding: '1rem 2rem',
+              borderRadius: 'var(--border-radius)',
+              cursor: 'pointer',
+              fontFamily: 'Audiowide, sans-serif',
+              fontSize: '0.9rem'
+            }
+          }, 'Try Again')
+        );
+      }
+
+      return React.createElement('div', { style: { minHeight: '100vh', color: 'white' } },
+        React.createElement('header', {
+          className: 'glass-bubble glow-effect',
+          style: {
+            textAlign: 'center',
+            padding: '0.5rem',
+            margin: '0.2rem'
+          }
+        },
+          React.createElement('h1', {
+            style: {
+              margin: '0 0 0.5rem 0',
+              fontSize: '2.5rem',
+              fontWeight: '700',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+              fontFamily: 'Audiowide, sans-serif',
+              color: 'var(--nav-alt)',
+              textTransform: 'uppercase',
+              letterSpacing: '2px'
+            }
+          }, '🎬 Brandynette Video Player'),
+          React.createElement('p', { style: { margin: 0, fontSize: '1.1rem', opacity: 0.9 } },
+            `Premium video streaming on port 6969`)
+        ),
+        React.createElement('main', {
+          className: 'compact-container',
+          style: { maxWidth: '1200px', margin: '0 auto' }
+        },
+          videos.length === 0
+            ? React.createElement('div', { style: { textAlign: 'center', padding: '3rem 1rem' } },
+              React.createElement('h2', { style: { color: '#ffd93d' } }, 'No videos found'),
+              React.createElement('p', null, 'Please add video files to the BRANDIFICATION folder')
+            )
+            : React.createElement('div', null,
+              videos.length > 1 && React.createElement('div', { style: { marginBottom: '2rem', textAlign: 'center' } },
+                React.createElement('h3', { style: { marginBottom: '1rem' } }, 'Select a video:'),
+                React.createElement('div', {
+                  className: 'no-spacing',
+                  style: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }
+                },
+                  videos.map(video =>
+                    React.createElement('button', {
+                      key: video,
+                      onClick: () => setSelectedVideo(video),
+                      className: selectedVideo === video ? 'bubble-button selected glow-effect' : 'bubble-button',
+                      style: {
+                        fontSize: '0.7rem'
+                      }
+                    }, video)
+                  )
+                )
+              ),
+              selectedVideo && React.createElement(VideoPlayer, {
+                videoSrc: `/videos/${selectedVideo}`,
+                title: selectedVideo
               })
             ),
-            React.createElement('span', { style: { fontSize: '0.9rem', fontFamily: 'monospace', minWidth: '80px' } },
-              `${formatTime(currentTime)} / ${formatTime(duration)}`
-            ),
-            React.createElement('span', null, '🔊'),
-            React.createElement('input', {
-              type: 'range',
-              min: '0',
-              max: '1',
-              step: '0.1',
-              value: volume,
-              onChange: handleVolumeChange,
-              style: { width: '80px' }
-            })
-          ),
           React.createElement('div', {
-            className: 'no-spacing',
-            style: { textAlign: 'center' }
-          },
-            React.createElement('h3', {
-              className: 'video-title glow-effect'
-            }, title)
-          )
-        );
-      }
-
-      function App() {
-        const [videos, setVideos] = useState([]);
-        const [publicFiles, setPublicFiles] = useState([]);
-        const [loading, setLoading] = useState(true);
-        const [error, setError] = useState(null);
-        const [selectedVideo, setSelectedVideo] = useState(null);
-
-        useEffect(() => {
-          fetchData();
-        }, []);
-
-        const fetchData = async () => {
-          try {
-            setLoading(true);
-
-            // Fetch videos
-            const videosResponse = await fetch('/api/videos');
-            if (!videosResponse.ok) throw new Error('Failed to fetch videos');
-            const videosData = await videosResponse.json();
-            setVideos(videosData.videos);
-
-            // Fetch public files
-            const publicResponse = await fetch('/api/public');
-            if (!publicResponse.ok) throw new Error('Failed to fetch public files');
-            const publicData = await publicResponse.json();
-            setPublicFiles(publicData.files);
-
-            // Auto-select first video
-            if (videosData.videos.length > 0) {
-              setSelectedVideo(videosData.videos[0]);
-            }
-          } catch (err) {
-            console.error('Error fetching data:', err);
-            setError('Failed to load data. Please try again.');
-          } finally {
-            setLoading(false);
-          }
-        };
-
-        if (loading) {
-          return React.createElement('div', {
-            style: {
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: '100vh',
-              color: 'white',
-              textAlign: 'center'
-            }
-          },
-            React.createElement('div', {
-              style: {
-                width: '50px',
-                height: '50px',
-                border: '4px solid rgba(255,255,255,0.3)',
-                borderTop: '4px solid white',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
-                marginBottom: '1rem'
-              }
-            }),
-            React.createElement('p', null, 'Loading...')
-          );
-        }
-
-        if (error) {
-          return React.createElement('div', {
-            style: {
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: '100vh',
-              color: 'white',
-              textAlign: 'center'
-            }
-          },
-            React.createElement('h2', { style: { color: '#ff6b6b' } }, 'Oops! Something went wrong'),
-            React.createElement('p', null, error),
-            React.createElement('button', {
-              onClick: fetchData,
-              className: 'theme-button',
-              style: {
-                background: 'var(--button-color)',
-                color: 'white',
-                border: 'var(--border) var(--button-alt)',
-                padding: '1rem 2rem',
-                borderRadius: 'var(--border-radius)',
-                cursor: 'pointer',
-                fontFamily: 'Audiowide, sans-serif',
-                fontSize: '0.9rem'
-              }
-            }, 'Try Again')
-          );
-        }
-
-        return React.createElement('div', { style: { minHeight: '100vh', color: 'white' } },
-          React.createElement('header', {
-            className: 'glass-bubble glow-effect',
-            style: {
-              textAlign: 'center',
-              padding: '0.5rem',
-              margin: '0.2rem'
-            }
-          },
-            React.createElement('h1', {
-              style: {
-                margin: '0 0 0.5rem 0',
-                fontSize: '2.5rem',
-                fontWeight: '700',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
-                fontFamily: 'Audiowide, sans-serif',
-                color: 'var(--nav-alt)',
-                textTransform: 'uppercase',
-                letterSpacing: '2px'
-              }
-            }, '🎬 Brandynette Video Player'),
-            React.createElement('p', { style: { margin: 0, fontSize: '1.1rem', opacity: 0.9 } },
-              `Premium video streaming on port 6969`)
-          ),
-          React.createElement('main', {
-            className: 'compact-container',
-            style: { maxWidth: '1200px', margin: '0 auto' }
-          },
-            videos.length === 0
-              ? React.createElement('div', { style: { textAlign: 'center', padding: '3rem 1rem' } },
-                  React.createElement('h2', { style: { color: '#ffd93d' } }, 'No videos found'),
-                  React.createElement('p', null, 'Please add video files to the BRANDIFICATION folder')
-                )
-              : React.createElement('div', null,
-                  videos.length > 1 && React.createElement('div', { style: { marginBottom: '2rem', textAlign: 'center' } },
-                    React.createElement('h3', { style: { marginBottom: '1rem' } }, 'Select a video:'),
-                    React.createElement('div', {
-                      className: 'no-spacing',
-                      style: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }
-                    },
-                      videos.map(video =>
-                        React.createElement('button', {
-                          key: video,
-                          onClick: () => setSelectedVideo(video),
-                          className: selectedVideo === video ? 'bubble-button selected glow-effect' : 'bubble-button',
-                          style: {
-                            fontSize: '0.7rem'
-                          }
-                        }, video)
-                      )
-                    )
-                  ),
-                  selectedVideo && React.createElement(VideoPlayer, {
-                    videoSrc: `/videos/${selectedVideo}`,
-                    title: selectedVideo
-                  })
-                ),
-            React.createElement('div', {
-              className: 'glass-bubble glow-effect compact-container',
-              style: {
-                textAlign: 'center'
-              }
-            },
-              React.createElement('h3', {
-                className: 'video-title'
-              }, 'API Endpoints:'),
-              React.createElement('div', {
-                className: 'no-spacing',
-                style: {
-                  display: 'grid',
-                  maxWidth: '600px',
-                  margin: '0 auto'
-                }
-              },
-                React.createElement('p', { className: 'video-name' }, `📺 Videos: ${videos.length} found`),
-                React.createElement('p', { className: 'video-name' }, `📁 Public files: ${publicFiles.length} found`),
-                React.createElement('p', { className: 'video-name' }, '🔗 /api/videos - List videos'),
-                React.createElement('p', { className: 'video-name' }, '🔗 /api/public - List public files'),
-                React.createElement('p', { className: 'video-name' }, '🔗 /health - Server health')
-              )
-            )
-          ),
-          React.createElement('footer', {
             className: 'glass-bubble glow-effect compact-container',
             style: {
-              textAlign: 'center',
-              margin: '0.2rem'
+              textAlign: 'center'
             }
           },
-            React.createElement('p', null, 'Built with ❤️ using Express & React on port 6969')
+            React.createElement('h3', {
+              className: 'video-title'
+            }, 'API Endpoints:'),
+            React.createElement('div', {
+              className: 'no-spacing',
+              style: {
+                display: 'grid',
+                maxWidth: '600px',
+                margin: '0 auto'
+              }
+            },
+              React.createElement('p', { className: 'video-name' }, `📺 Videos: ${videos.length} found`),
+              React.createElement('p', { className: 'video-name' }, `📁 Public files: ${publicFiles.length} found`),
+              React.createElement('p', { className: 'video-name' }, '🔗 /api/videos - List videos'),
+              React.createElement('p', { className: 'video-name' }, '🔗 /api/public - List public files'),
+              React.createElement('p', { className: 'video-name' }, '🔗 /health - Server health')
+            )
           )
-        );
-      }
+        ),
+        React.createElement('footer', {
+          className: 'glass-bubble glow-effect compact-container',
+          style: {
+            textAlign: 'center',
+            margin: '0.2rem',
+            fontSize: '0.9rem',
+            lineHeight: '1.4'
+          }
+        },
+          React.createElement('div', { style: { marginBottom: '1rem' } },
+            React.createElement('p', null, 'Built with ❤️ using Express & React on port 6969'),
+            React.createElement('p', { style: { fontSize: '0.8rem', opacity: '0.8', margin: '0.5rem 0' } },
+              'By ', React.createElement('a', {
+                href: 'https://github.com/HarleyVader',
+                style: { color: 'var(--tertiary-alt)', textDecoration: 'none' },
+                target: '_blank'
+              }, 'HarleyVader'), ' - Creative software, AI & digital storytelling'
+            )
+          ),
+          React.createElement('div', { style: { borderTop: '1px solid var(--glass-border)', paddingTop: '1rem', marginBottom: '1rem' } },
+            React.createElement('p', { style: { fontSize: '0.8rem', marginBottom: '0.5rem', color: 'var(--primary-alt)' } }, '🙏 Special Thanks To:'),
+            React.createElement('div', { style: { display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' } },
+              React.createElement('a', {
+                href: 'https://bambisleep.info',
+                style: { color: 'var(--secondary-alt)', textDecoration: 'none', fontSize: '0.8rem' },
+                target: '_blank'
+              }, '📚 BambiSleep Wiki'),
+              React.createElement('a', {
+                href: 'https://bambicloud.com',
+                style: { color: 'var(--secondary-alt)', textDecoration: 'none', fontSize: '0.8rem' },
+                target: '_blank'
+              }, '☁️ Bambi Cloud')
+            )
+          ),
+          React.createElement('div', { style: { borderTop: '1px solid var(--glass-border)', paddingTop: '1rem' } },
+            React.createElement('p', { style: { fontSize: '0.8rem', marginBottom: '0.5rem', color: 'var(--tertiary-alt)' } }, '🚀 Main Projects:'),
+            React.createElement('div', { style: { display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' } },
+              React.createElement('a', {
+                href: 'https://bambisleep.chat',
+                style: { color: 'var(--button-color)', textDecoration: 'none', fontSize: '0.8rem' },
+                target: '_blank'
+              }, '🤖 BambiSleep.Chat - AI Hypnotic Girlfriend • Mind Control • Programming • Transformation • NSFW'),
+              React.createElement('a', {
+                href: 'https://bambisleep.church',
+                style: { color: 'var(--button-color)', textDecoration: 'none', fontSize: '0.8rem' },
+                target: '_blank'
+              }, '⛪ BambiSleep.Church - Digital Sanctuary')
+            )
+          )
+        )
+      );
+    }
 
-      // Add CSS animation for loading spinner
-      const style = document.createElement('style');
-      style.textContent = `
+    // Add CSS animation for loading spinner
+    const style = document.createElement('style');
+    style.textContent = `
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
       `;
-      document.head.appendChild(style);
+    document.head.appendChild(style);
 
-      ReactDOM.render(React.createElement(App), document.getElementById('root'));
-    </script>
+    // React 18 createRoot API
+    const container = document.getElementById('root');
+    const root = ReactDOM.createRoot(container);
+    root.render(React.createElement(App));
+  </script>
 </body>
 
 </html>
