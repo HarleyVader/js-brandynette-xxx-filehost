@@ -130,10 +130,10 @@ function VideoPlayer({ videoSrc, title }) {
 
 ```css
 :root {
-  --primary-color: #0c2a2ae6; /* Deep teal */
-  --secondary-color: #40002fe6; /* Dark purple */
-  --button-color: #df0471e6; /* Neon pink */
-  --nav-alt: #17dbd8e6; /* Cyan glow */
+  --primary-color: #0c2a2aE6; /* Deep teal */
+  --secondary-color: #40002fE6; /* Dark purple */
+  --button-color: #df0471E6; /* Neon pink */
+  --nav-alt: #17dbd8E6; /* Cyan glow */
 }
 
 .glass-bubble {
