@@ -130,15 +130,16 @@ function VideoPlayer({ videoSrc, title }) {
 
 ```css
 :root {
-  --primary-color: #0c2a2aE6; /* Deep teal */
-  --secondary-color: #40002fE6; /* Dark purple */
-  --button-color: #df0471E6; /* Neon pink */
-  --nav-alt: #17dbd8E6; /* Cyan glow */
+  /* Cyber goth color palette with 8-digit hex (RGBA) */
+  --primary-color: rgb(12, 42, 42, 0.9);      /* Deep teal */
+  --secondary-color: rgb(64, 0, 47, 0.9);     /* Dark purple */
+  --button-color: rgb(223, 4, 113, 0.9);      /* Neon pink */
+  --nav-alt: rgb(23, 219, 216, 0.9);          /* Cyan glow */
 }
 
 .glass-bubble {
   background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px); /* Glass morphism */
+  backdrop-filter: blur(20px);                /* Glass morphism */
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
