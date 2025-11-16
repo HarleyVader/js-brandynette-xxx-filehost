@@ -17,11 +17,12 @@
 
 **HestiaCP Control Panel** (LXC 101 @ 192.168.0.66:38383)
 
-- 📦 **Installation:** In Progress (10-15 minutes)
+- ✅ **Installation:** COMPLETE & OPERATIONAL
 - 🔧 **Services:** NGINX + Apache + PHP-FPM + MariaDB 11.4
+- 🔒 **SSL:** Self-signed (365 days) | [Let's Encrypt Setup Guide](./SSL-LETSENCRYPT-GUIDE.md)
 - 📧 **Mail Server:** bambisleep.church (Exim + Dovecot + SpamAssassin)
 - 📚 **Docs:** [HESTIACP-SETUP.md](./HESTIACP-SETUP.md) | [DEPLOYMENT.md](./DEPLOYMENT.md) | [NETWORK.md](./NETWORK.md)
-- 🔍 **Status:** Run `.\scripts\quick-status.ps1` to check progress
+- 🔍 **Status:** `.\scripts\quick-status.ps1` | **SSL:** `.\scripts\check-ssl-status.ps1`
 
 ---
 
