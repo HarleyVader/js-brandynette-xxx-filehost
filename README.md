@@ -5,10 +5,23 @@
 ![Pink Sparkles](https://img.shields.io/badge/✨-Pink_Sparkles-ff69b4?style=for-the-badge&logo=sparkles)
 ![Bambi Mode](https://img.shields.io/badge/🦌-Bambi_Mode-ff1493?style=for-the-badge&logo=heart)
 ![Port 6969](https://img.shields.io/badge/🌸-Port_6969-ff69b4?style=for-the-badge&logo=flower)
+![HestiaCP](https://img.shields.io/badge/🎯-HestiaCP_Hosted-9f7aea?style=for-the-badge&logo=server)
 
 ### _~~ Because who needs complex when you can be cute? ~~_ 🎀
 
 </div>
+
+---
+
+## 🏠 Deployment Status
+
+**HestiaCP Control Panel** (LXC 101 @ 192.168.0.66:38383)
+
+- 📦 **Installation:** In Progress (10-15 minutes)
+- 🔧 **Services:** NGINX + Apache + PHP-FPM + MariaDB 11.4
+- 📧 **Mail Server:** bambisleep.church (Exim + Dovecot + SpamAssassin)
+- 📚 **Docs:** [HESTIACP-SETUP.md](./HESTIACP-SETUP.md) | [DEPLOYMENT.md](./DEPLOYMENT.md) | [NETWORK.md](./NETWORK.md)
+- 🔍 **Status:** Run `.\scripts\quick-status.ps1` to check progress
 
 ---
 

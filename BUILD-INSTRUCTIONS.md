@@ -6,7 +6,7 @@
 ![Neon Wave](https://img.shields.io/badge/⚡-NEON_WAVE-01c69e?style=for-the-badge&logo=lightning)
 ![Port 6969](https://img.shields.io/badge/🔥-PORT_6969-df0471?style=for-the-badge&logo=fire)
 
-### *~~ FICKDICHSELBER.COM NEON CYBER GOTH WAVE AESTHETIC ~~* 💀
+### _~~ FICKDICHSELBER.COM NEON CYBER GOTH WAVE AESTHETIC ~~_ 💀
 
 </div>
 
@@ -33,76 +33,82 @@ Replace the current gradient background in `public/index.html` with the FICKDICH
 
 ```css
 :root {
-    /* FICKDICHSELBER.COM NEON CYBER GOTH WAVE PALETTE */
-    --primary-color: #0c2a2ac9;
-    --primary-alt: #15aab5ec;
-    --secondary-color: #40002f;
-    --secondary-alt: #cc0174;
-    --tertiary-color: #cc0174;
-    --tertiary-alt: #01c69eae;
-    --button-color: #df0471;
-    --button-alt: #110000;
-    --nav-color: #0a2626;
-    --nav-alt: #17dbd8;
-    --transparent: #124141ce;
-    --error: #ff3333;
+  /* FICKDICHSELBER.COM NEON CYBER GOTH WAVE PALETTE */
+  --primary-color: #0c2a2ac9;
+  --primary-alt: #15aab5ec;
+  --secondary-color: #40002f;
+  --secondary-alt: #cc0174;
+  --tertiary-color: #cc0174;
+  --tertiary-alt: #01c69eae;
+  --button-color: #df0471;
+  --button-alt: #110000;
+  --nav-color: #0a2626;
+  --nav-alt: #17dbd8;
+  --transparent: #124141ce;
+  --error: #ff3333;
 
-    /* Font rendering optimizations */
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  /* Font rendering optimizations */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 
-    /* RGB values for alpha compositing */
-    --primary-color-rgb: 12, 42, 42;
-    --secondary-color-rgb: 64, 0, 47;
-    --tertiary-color-rgb: 204, 1, 116;
-    --nav-color-rgb: 10, 38, 38;
-    --button-color-rgb: 223, 4, 113;
+  /* RGB values for alpha compositing */
+  --primary-color-rgb: 12, 42, 42;
+  --secondary-color-rgb: 64, 0, 47;
+  --tertiary-color-rgb: 204, 1, 116;
+  --nav-color-rgb: 10, 38, 38;
+  --button-color-rgb: 223, 4, 113;
 }
 
 @import url("https://fonts.googleapis.com/css2?family=Audiowide&family=Fira+Code:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap");
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    font-family: 'Audiowide', 'JetBrains Mono', 'Fira Code', monospace;
-    background: var(--button-alt);
-    color: var(--primary-alt);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    overflow-x: hidden;
+  font-family: "Audiowide", "JetBrains Mono", "Fira Code", monospace;
+  background: var(--button-alt);
+  color: var(--primary-alt);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow-x: hidden;
 }
 
 /* Cyber terminal scanlines effect */
 body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: repeating-linear-gradient(0deg,
-        transparent,
-        transparent 2px,
-        rgba(var(--tertiary-color-rgb), 0.03) 2px,
-        rgba(var(--tertiary-color-rgb), 0.03) 4px);
-    pointer-events: none;
-    z-index: 1000;
-    animation: scanlines 0.1s linear infinite;
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(var(--tertiary-color-rgb), 0.03) 2px,
+    rgba(var(--tertiary-color-rgb), 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 1000;
+  animation: scanlines 0.1s linear infinite;
 }
 
 @keyframes scanlines {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(4px); }
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(4px);
+  }
 }
 ```
 
@@ -114,24 +120,24 @@ Transform the monolithic React code in `public/index.html` into modular componen
 
 ```javascript
 const ThemeProvider = ({ children }) => {
-    const theme = {
-        colors: {
-            primary: 'var(--primary-color)',
-            primaryAlt: 'var(--primary-alt)',
-            secondary: 'var(--secondary-color)',
-            secondaryAlt: 'var(--secondary-alt)',
-            tertiary: 'var(--tertiary-color)',
-            tertiaryAlt: 'var(--tertiary-alt)',
-            button: 'var(--button-color)',
-            buttonAlt: 'var(--button-alt)',
-            nav: 'var(--nav-color)',
-            navAlt: 'var(--nav-alt)',
-            transparent: 'var(--transparent)',
-            error: 'var(--error)'
-        }
-    };
+  const theme = {
+    colors: {
+      primary: "var(--primary-color)",
+      primaryAlt: "var(--primary-alt)",
+      secondary: "var(--secondary-color)",
+      secondaryAlt: "var(--secondary-alt)",
+      tertiary: "var(--tertiary-color)",
+      tertiaryAlt: "var(--tertiary-alt)",
+      button: "var(--button-color)",
+      buttonAlt: "var(--button-alt)",
+      nav: "var(--nav-color)",
+      navAlt: "var(--nav-alt)",
+      transparent: "var(--transparent)",
+      error: "var(--error)",
+    },
+  };
 
-    return React.createElement(ThemeContext.Provider, { value: theme }, children);
+  return React.createElement(ThemeContext.Provider, { value: theme }, children);
 };
 ```
 
@@ -139,9 +145,9 @@ const ThemeProvider = ({ children }) => {
 
 ```javascript
 const CyberVideoPlayer = ({ videoSrc, title, theme }) => {
-    // Existing VideoPlayer logic with cyber goth styling
-    // Replace all color references with theme.colors
-    // Add neon glow effects and cyber animations
+  // Existing VideoPlayer logic with cyber goth styling
+  // Replace all color references with theme.colors
+  // Add neon glow effects and cyber animations
 };
 ```
 
@@ -149,9 +155,9 @@ const CyberVideoPlayer = ({ videoSrc, title, theme }) => {
 
 ```javascript
 const CyberNavigation = ({ videos, selectedVideo, onVideoSelect, theme }) => {
-    // Modular navigation with cyber styling
-    // Neon buttons with glow effects
-    // Terminal-style selection indicators
+  // Modular navigation with cyber styling
+  // Neon buttons with glow effects
+  // Terminal-style selection indicators
 };
 ```
 
@@ -159,9 +165,9 @@ const CyberNavigation = ({ videos, selectedVideo, onVideoSelect, theme }) => {
 
 ```javascript
 const APIStatus = ({ videos, publicFiles, theme }) => {
-    // Cyber-styled API endpoint display
-    // Terminal-style status indicators
-    // Neon green/red status lights
+  // Cyber-styled API endpoint display
+  // Terminal-style status indicators
+  // Neon green/red status lights
 };
 ```
 
@@ -202,17 +208,17 @@ src/
 **`src/routes/videos.js`**
 
 ```javascript
-import express from 'express';
-import { getVideoFiles, streamVideo } from '../utils/videoUtils.js';
+import express from "express";
+import { getVideoFiles, streamVideo } from "../utils/videoUtils.js";
 
 const router = express.Router();
 
-router.get('/api/videos', (req, res) => {
-    // Extract existing video listing logic
+router.get("/api/videos", (req, res) => {
+  // Extract existing video listing logic
 });
 
-router.get('/videos/:filename', (req, res) => {
-    // Extract existing video streaming logic
+router.get("/videos/:filename", (req, res) => {
+  // Extract existing video streaming logic
 });
 
 export default router;
@@ -221,33 +227,33 @@ export default router;
 **`src/utils/videoUtils.js`**
 
 ```javascript
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 export const getVideoFiles = (brandificationPath) => {
-    // Extract existing getVideoFiles logic
+  // Extract existing getVideoFiles logic
 };
 
 export const streamVideo = (videoPath, req, res) => {
-    // Extract existing video streaming logic
+  // Extract existing video streaming logic
 };
 
 export const validateFilename = (filename) => {
-    // Extract existing security validation
+  // Extract existing security validation
 };
 ```
 
 #### 3. **Main Server.js Refactor**
 
 ```javascript
-import express from 'express';
-import { fileURLToPath } from 'url';
-import path from 'path';
+import express from "express";
+import { fileURLToPath } from "url";
+import path from "path";
 
 // Import modular components
-import routes from './routes/index.js';
-import middleware from './middleware/index.js';
-import config from './config/index.js';
+import routes from "./routes/index.js";
+import middleware from "./middleware/index.js";
+import config from "./config/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -263,9 +269,9 @@ routes(app, __dirname);
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`💀 CYBER GOTH SERVER running on http://localhost:${PORT}`);
-    console.log(`⚡ Serving videos from BRANDIFICATION folder`);
-    console.log(`🔥 NEON WAVE ACTIVATED`);
+  console.log(`💀 CYBER GOTH SERVER running on http://localhost:${PORT}`);
+  console.log(`⚡ Serving videos from BRANDIFICATION folder`);
+  console.log(`🔥 NEON WAVE ACTIVATED`);
 });
 ```
 
@@ -287,17 +293,24 @@ app.listen(PORT, () => {
 ```javascript
 const useTheme = () => useContext(ThemeContext);
 
-const CyberButton = ({ children, variant = 'primary', ...props }) => {
-    const theme = useTheme();
-    const styles = {
-        primary: { background: theme.colors.button, color: theme.colors.buttonAlt },
-        secondary: { background: theme.colors.secondary, color: theme.colors.secondaryAlt }
-    };
+const CyberButton = ({ children, variant = "primary", ...props }) => {
+  const theme = useTheme();
+  const styles = {
+    primary: { background: theme.colors.button, color: theme.colors.buttonAlt },
+    secondary: {
+      background: theme.colors.secondary,
+      color: theme.colors.secondaryAlt,
+    },
+  };
 
-    return React.createElement('button', {
-        style: { ...styles[variant], ...cyberGlowEffect },
-        ...props
-    }, children);
+  return React.createElement(
+    "button",
+    {
+      style: { ...styles[variant], ...cyberGlowEffect },
+      ...props,
+    },
+    children
+  );
 };
 ```
 
@@ -305,16 +318,16 @@ const CyberButton = ({ children, variant = 'primary', ...props }) => {
 
 ```javascript
 const useAPI = () => {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    const apiCall = async (endpoint, options = {}) => {
-        // Centralized API calling logic
-        // Error handling and loading states
-        // Response caching
-    };
+  const apiCall = async (endpoint, options = {}) => {
+    // Centralized API calling logic
+    // Error handling and loading states
+    // Response caching
+  };
 
-    return { apiCall, loading, error };
+  return { apiCall, loading, error };
 };
 ```
 
@@ -325,11 +338,11 @@ const useAPI = () => {
 ```javascript
 // src/plugins/index.js
 export const registerPlugin = (name, plugin) => {
-    // Plugin registration system
+  // Plugin registration system
 };
 
 export const loadPlugins = (app) => {
-    // Auto-load plugins from plugins directory
+  // Auto-load plugins from plugins directory
 };
 ```
 
@@ -338,11 +351,11 @@ export const loadPlugins = (app) => {
 ```javascript
 // src/middleware/index.js
 export default (app, dirname) => {
-    app.use(corsMiddleware());
-    app.use(securityMiddleware());
-    app.use(staticFileMiddleware(dirname));
-    app.use(loggingMiddleware());
-    // Easy to add new middleware
+  app.use(corsMiddleware());
+  app.use(securityMiddleware());
+  app.use(staticFileMiddleware(dirname));
+  app.use(loggingMiddleware());
+  // Easy to add new middleware
 };
 ```
 
@@ -351,19 +364,19 @@ export default (app, dirname) => {
 ```javascript
 // src/config/index.js
 export const config = {
-    server: {
-        port: process.env.PORT || 6969,
-        host: process.env.HOST || 'localhost'
-    },
-    video: {
-        supportedFormats: ['.mp4', '.webm', '.ogg'],
-        maxFileSize: '500MB',
-        streamChunkSize: 1024 * 1024
-    },
-    theme: {
-        name: 'cyber-goth-wave',
-        variant: 'fickdichselber'
-    }
+  server: {
+    port: process.env.PORT || 6969,
+    host: process.env.HOST || "localhost",
+  },
+  video: {
+    supportedFormats: [".mp4", ".webm", ".ogg"],
+    maxFileSize: "500MB",
+    streamChunkSize: 1024 * 1024,
+  },
+  theme: {
+    name: "cyber-goth-wave",
+    variant: "fickdichselber",
+  },
 };
 ```
 
@@ -432,7 +445,7 @@ export const config = {
 
 ## ⚡ FINAL NOTES
 
-This upgrade transforms the kawaii bambi aesthetic into a **hardcore cyber goth neon wave** experience while maintaining 100% backward compatibility. The modular architecture enables easy expansion for future features while preserving the simple, self-contained nature of the original codebase.
+This upgrade transforms the kawaii Guru Bambi aesthetic into a **hardcore cyber goth neon wave** experience while maintaining 100% backward compatibility. The modular architecture enables easy expansion for future features while preserving the simple, self-contained nature of the original codebase.
 
 **Remember**: Keep it modular, keep it cyber, keep it on port 6969! 💀⚡🔥
 
@@ -442,7 +455,7 @@ This upgrade transforms the kawaii bambi aesthetic into a **hardcore cyber goth 
 
 ### 💀 BUILT FOR THE CYBER UNDERGROUND 💀
 
-*"Code like a hacker, stream like a god!"* ⚡
+_"Code like a hacker, stream like a god!"_ ⚡
 
 ![Cyber Status](https://img.shields.io/badge/STATUS-CYBER_READY-01c69e?style=for-the-badge&logo=matrix)
 
