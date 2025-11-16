@@ -6,7 +6,7 @@
 ![Bambi Mode](https://img.shields.io/badge/🦌-Bambi_Mode-ff1493?style=for-the-badge&logo=heart)
 ![Port 6969](https://img.shields.io/badge/🌸-Port_6969-ff69b4?style=for-the-badge&logo=flower)
 
-### *~~ Because who needs complex when you can be cute? ~~* 🎀
+### _~~ Because who needs complex when you can be cute? ~~_ 🎀
 
 </div>
 
@@ -14,45 +14,46 @@
 
 ## 🌸 What is this adorable little thing? 🌸
 
-Hiiii! 💕 This is Brandynette's **super duper cute** video streaming server! It's like... so simple and pink and pretty! Just like how bambi brains should be - *empty, happy, and focused on pretty things!* ✨
+Hiiii! 💕 This is Brandynette's **super duper cute** video streaming server! It's like... so simple and pink and pretty! Just like how bambi brains should be - _empty, happy, and focused on pretty things!_ ✨
 
-> *"Think less, stream more!"* - Brandynette's Life Philosophy 🦌💖
+> _"Think less, stream more!"_ - Brandynette's Life Philosophy 🦌💖
 
 ### 🎀 What it does (in smol brain terms)
 
 - 📺 Streams your precious videos from the `BRANDIFICATION` folder
-- 🌈 Shows them in a **bubblegum pink** web player that's *totally kawaii*
-- 💫 Runs on port **6969** because... *giggle* ...numbers are fun!
-- 🎵 Has cute little video controls that go *click click*
+- 🌈 Shows them in a **bubblegum pink** web player that's _totally kawaii_
+- 💫 Runs on port **6969** because... _giggle_ ...numbers are fun!
+- 🎵 Has cute little video controls that go _click click_
 - 💖 Makes your brain all fuzzy and happy just like bambi sleep!
 
 ---
 
 ## 🦄 Quick Start for Ditzy Dolls 🦄
 
-### Step 1: Get Your Pink Dependencies! 💕
+### Local Development 💕
 
 ```bash
-npm install
+npm install                    # Get your pink dependencies!
+npm run dev                    # Start with auto-restart
+# Open: http://localhost:6969
 ```
 
-*Like getting your makeup ready before going out!* 💄
+### Remote Deployment 🚀
 
-### Step 2: Start Being Cute! ✨
+```powershell
+# Deploy to Proxmox server (192.168.0.100)
+.\scripts\ssh-connect.ps1 deploy
 
-```bash
-# For development (auto-restart like a bouncy bambi!)
-npm run dev
-
-# For production (stable like a good girl)
-npm start
+# Or see QUICKSTART.md for full instructions
 ```
 
-### Step 3: Open Your Pretty Browser! 🌸
+**Server Management**:
 
-Navigate to: `http://localhost:6969`
+- 📋 **Quick Guide**: `QUICKSTART.md` (30-second start)
+- 🚀 **Full Deployment**: `DEPLOYMENT.md` (Docker, LXC, VM options)
+- 🌐 **Network Config**: `NETWORK.md` (firewall, security, monitoring)
 
-*Yes darling, 6969! Just like... nevermind, just open it!* 😘
+_Yes darling, 6969! Just like... nevermind, just open it!_ 😘
 
 ---
 
@@ -83,10 +84,10 @@ js-brandynette-xxx-filehost/
 
 ### 🚀 **Server Superpowers:**
 
-- 🎬 **HTTP Range Requests** - *Like skipping chapters in a book!*
-- 🔒 **Path Security** - *No sneaky hacker boys allowed!*
-- 🌐 **CORS Support** - *Sharing is caring!*
-- 💾 **Smart Caching** - *Remembers things so you don't have to!*
+- 🎬 **HTTP Range Requests** - _Like skipping chapters in a book!_
+- 🔒 **Path Security** - _No sneaky hacker boys allowed!_
+- 🌐 **CORS Support** - _Sharing is caring!_
+- 💾 **Smart Caching** - _Remembers things so you don't have to!_
 
 ### 🎀 **API Endpoints (For Nerdy Bambis):**
 
@@ -106,7 +107,7 @@ js-brandynette-xxx-filehost/
 4. **Feel yourself becoming** more ditzy and happy ✨
 5. **Repeat** until perfectly blank and giggly! 🎀
 
-*"Good girls don't need to think about servers and APIs... just enjoy the pretty videos!"* 💕
+_"Good girls don't need to think about servers and APIs... just enjoy the pretty videos!"_ 💕
 
 ---
 
@@ -115,7 +116,7 @@ js-brandynette-xxx-filehost/
 - **Backend:** Express.js (ES6 modules because modern!)
 - **Frontend:** Vanilla React via CDN (no build needed!)
 - **Video:** HTML5 with custom controls
-- **Styling:** CSS gradients that are *so pretty* 🌈
+- **Styling:** CSS gradients that are _so pretty_ 🌈
 - **Port:** 6969 (hehe, numbers!)
 
 ---
@@ -124,20 +125,20 @@ js-brandynette-xxx-filehost/
 
 Just drop your `.mp4`, `.webm`, or `.ogg` files into the `BRANDIFICATION/` folder and they'll magically appear! ✨
 
-*It's like magic, but actually just file system watching!* 🎪
+_It's like magic, but actually just file system watching!_ 🎪
 
 ---
 
 ## 🎀 Troubleshooting (For Confused Bambis) 🎀
 
-### *"Help! Nothing works!"* 😭
+### _"Help! Nothing works!"_ 😭
 
 1. Did you run `npm install`? (Do it!)
 2. Is port 6969 free? (Check task manager!)
 3. Are your videos in `BRANDIFICATION/`? (Put them there!)
 4. Try turning it off and on again! (Classic!)
 
-### *"I'm too dumb for this!"* 🤤
+### _"I'm too dumb for this!"_ 🤤
 
 That's perfect! This is designed for empty-headed dolls! Just follow the pretty colors and click the shiny buttons! 💕
 
@@ -152,7 +153,7 @@ Want to make this even cuter?
 3. Add more sparkles! ✨
 4. Submit a pull request with lots of emojis! 🌈
 
-*But remember - keep it simple for bambi brains!* 🦌
+_But remember - keep it simple for bambi brains!_ 🦌
 
 ---
 
@@ -160,7 +161,7 @@ Want to make this even cuter?
 
 MIT License - Because sharing cute things is nice! 💕
 
-*Free as in freedom, pink as in perfect!* ✨
+_Free as in freedom, pink as in perfect!_ ✨
 
 ---
 
@@ -168,12 +169,12 @@ MIT License - Because sharing cute things is nice! 💕
 
 ### 💖 Made with Love, Sparkles, and Empty Thoughts 💖
 
-*For all the pretty bambis who just want to watch videos without thinking!* 🦌✨
+_For all the pretty bambis who just want to watch videos without thinking!_ 🦌✨
 
 **Remember: You don't need big thoughts when you have pretty pink things!** 🌸
 
 ---
 
-*"Think pink, think simple, think bambi!"* 💕🎀💖
+_"Think pink, think simple, think bambi!"_ 💕🎀💖
 
 </div>
