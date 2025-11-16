@@ -10,12 +10,14 @@
 ## 📋 Current SSL Status
 
 ✅ **Self-Signed Certificate Active**
+
 - Location: `/usr/local/hestia/ssl/`
 - Valid for: HestiaCP control panel (port 38383)
 - Expiration: Generated during installation
 - Security: Encrypted but browsers show warning
 
 ⏳ **Let's Encrypt Setup Required**
+
 - Requires: Valid DNS A record pointing to public IP
 - Benefit: Browser-trusted certificates (no warnings)
 - Auto-renewal: Yes (every 60 days)
@@ -37,6 +39,7 @@ panel.bambisleep.church.    IN  A       YOUR_PUBLIC_IP
 ```
 
 **How to find your public IP:**
+
 ```powershell
 # From Windows
 (Invoke-WebRequest -Uri "https://ifconfig.me/ip").Content
@@ -49,11 +52,11 @@ Start-Process "https://whatismyip.com"
 
 Configure your router to forward ports to 192.168.0.66:
 
-| External Port | Internal IP   | Internal Port | Protocol |
-|---------------|---------------|---------------|----------|
-| 80            | 192.168.0.66  | 80            | TCP      |
-| 443           | 192.168.0.66  | 443           | TCP      |
-| 38383         | 192.168.0.66  | 38383         | TCP      |
+| External Port | Internal IP  | Internal Port | Protocol |
+| ------------- | ------------ | ------------- | -------- |
+| 80            | 192.168.0.66 | 80            | TCP      |
+| 443           | 192.168.0.66 | 443           | TCP      |
+| 38383         | 192.168.0.66 | 38383         | TCP      |
 
 **Why port 80/443?** Let's Encrypt validation requires HTTP (80) or HTTPS (443) to verify domain ownership.
 
@@ -83,6 +86,7 @@ netfilter-persistent save
 ### Method 1: HestiaCP Control Panel (Easiest)
 
 1. **Add Domain First:**
+
    ```
    Login: https://192.168.0.66:38383
    Navigate: WEB → Add Web Domain
@@ -90,6 +94,7 @@ netfilter-persistent save
    ```
 
 2. **Enable SSL for Domain:**
+
    ```
    WEB → bambi.bambisleep.church → SSL Certificate
    Select: Let's Encrypt
@@ -222,9 +227,9 @@ Save this as `setup-letsencrypt.ps1`:
 param(
     [Parameter(Mandatory=$true)]
     [string]$Domain,
-    
+
     [string]$Email = "bambi@bambisleep.church",
-    
+
     [switch]$ControlPanel
 )
 
@@ -266,10 +271,10 @@ if ($ControlPanel) {
     Write-Host "Installing SSL for web domain..." -ForegroundColor Yellow
     $domainParts = $Domain -split '\.'
     $user = "bambi"
-    
+
     # Add domain if it doesn't exist
     ssh root@$ProxmoxHost "pct exec $ContainerID -- v-add-web-domain $user $Domain"
-    
+
     # Add Let's Encrypt SSL
     ssh root@$ProxmoxHost "pct exec $ContainerID -- v-add-letsencrypt-domain $user $Domain"
 }
@@ -279,6 +284,7 @@ Write-Host "Certificate will auto-renew every 60 days" -ForegroundColor Cyan
 ```
 
 **Usage:**
+
 ```powershell
 # For web domain
 .\setup-letsencrypt.ps1 -Domain "bambisleep.church"
@@ -297,6 +303,7 @@ Write-Host "Certificate will auto-renew every 60 days" -ForegroundColor Cyan
 ### Issue: "DNS record doesn't exist"
 
 **Solution:**
+
 ```bash
 # Test DNS from container
 ssh root@192.168.0.100 "pct exec 101 -- dig bambi.bambisleep.church"
@@ -308,6 +315,7 @@ ssh root@192.168.0.100 "pct exec 101 -- dig bambi.bambisleep.church"
 ### Issue: "Connection timeout" or "Port 80 not accessible"
 
 **Solution:**
+
 ```bash
 # 1. Check if NGINX is listening
 ssh root@192.168.0.100 "pct exec 101 -- netstat -tulpn | grep :80"
@@ -325,6 +333,7 @@ ssh root@192.168.0.100 "pct exec 101 -- iptables -L -n | grep 80"
 ### Issue: "Certificate validation failed"
 
 **Solution:**
+
 ```bash
 # Check Let's Encrypt logs
 ssh root@192.168.0.100 "pct exec 101 -- tail -50 /var/log/letsencrypt/letsencrypt.log"
@@ -339,10 +348,12 @@ ssh root@192.168.0.100 "pct exec 101 -- tail -50 /var/log/letsencrypt/letsencryp
 ### Issue: "Too many certificates already issued"
 
 Let's Encrypt has rate limits:
+
 - 50 certificates per domain per week
 - 5 duplicate certificates per week
 
 **Solution:**
+
 ```bash
 # Wait 7 days, or use staging server for testing
 certbot certonly --staging \
@@ -355,6 +366,7 @@ certbot certonly --staging \
 ### Issue: Auto-renewal not working
 
 **Solution:**
+
 ```bash
 # Check cron job
 ssh root@192.168.0.100 "pct exec 101 -- systemctl status cron"
@@ -390,21 +402,21 @@ try {
     $sslStream.AuthenticateAsClient($Domain)
     $cert = $sslStream.RemoteCertificate
     $tcpClient.Close()
-    
+
     Write-Host "✅ Certificate Found" -ForegroundColor Green
     Write-Host "Issued To: $($cert.Subject)" -ForegroundColor White
     Write-Host "Issued By: $($cert.Issuer)" -ForegroundColor White
     Write-Host "Valid From: $($cert.GetEffectiveDateString())" -ForegroundColor White
     Write-Host "Valid Until: $($cert.GetExpirationDateString())" -ForegroundColor White
-    
+
     $daysRemaining = ([DateTime]$cert.GetExpirationDateString() - (Get-Date)).Days
-    
+
     if ($daysRemaining -lt 30) {
         Write-Host "⚠️  WARNING: Certificate expires in $daysRemaining days!" -ForegroundColor Yellow
     } else {
         Write-Host "✅ Certificate valid for $daysRemaining days" -ForegroundColor Green
     }
-    
+
 } catch {
     Write-Host "❌ ERROR: Could not retrieve certificate" -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Yellow
@@ -450,22 +462,26 @@ Start-Process "https://192.168.0.66:38383"
 ## 🔐 Security Best Practices
 
 1. **Use Strong Encryption:**
+
    - Let's Encrypt uses modern ciphers by default
    - HestiaCP configured for TLS 1.2+ only
 
 2. **Monitor Certificate Expiration:**
+
    ```bash
    # Set up email alerts
    echo "MAILTO=bambi@bambisleep.church" >> /etc/crontab
    ```
 
 3. **Enable HSTS (HTTP Strict Transport Security):**
+
    ```bash
    # Add to NGINX config
    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
    ```
 
 4. **Disable Weak Protocols:**
+
    - HestiaCP disables SSLv2/SSLv3 by default
    - Only TLS 1.2 and TLS 1.3 enabled
 
@@ -478,6 +494,6 @@ Start-Process "https://192.168.0.66:38383"
 
 **Current Status:** Self-signed certificate active  
 **Next Step:** Configure DNS, then run Let's Encrypt setup  
-**Auto-Renewal:** Will be enabled automatically after setup  
+**Auto-Renewal:** Will be enabled automatically after setup
 
 **Questions?** See [HESTIACP-SETUP.md](./HESTIACP-SETUP.md) for more details.
