@@ -618,19 +618,32 @@
                 },
                   videos.map(video =>
                     React.createElement('button', {
-                      key: video,
+                      key: video.filename,
                       onClick: () => setSelectedVideo(video),
-                      className: selectedVideo === video ? 'bubble-button selected glow-effect' : 'bubble-button',
+                      className: selectedVideo?.filename === video.filename ? 'bubble-button selected glow-effect' : 'bubble-button',
                       style: {
-                        fontSize: '0.7rem'
+                        fontSize: '0.7rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '0.2rem'
                       }
-                    }, video)
+                    }, 
+                      React.createElement('span', null, video.filename),
+                      React.createElement('span', {
+                        style: {
+                          fontSize: '0.6rem',
+                          opacity: 0.7,
+                          color: 'var(--primary-alt)'
+                        }
+                      }, `${video.sizeMB} MB`)
+                    )
                   )
                 )
               ),
               selectedVideo && React.createElement(VideoPlayer, {
-                videoSrc: `/videos/${selectedVideo}`,
-                title: selectedVideo
+                videoSrc: `/videos/${selectedVideo.filename}`,
+                title: selectedVideo.filename
               })
             ),
           React.createElement('div', {

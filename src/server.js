@@ -104,7 +104,29 @@ app.get("/health", (req, res) => {
 app.get("/api/videos", (req, res) => {
   try {
     const videos = getVideoFiles();
-    res.json({ videos, count: videos.length });
+    const brandificationPath = path.join(__dirname, '../BRANDIFICATION');
+    
+    // Get file sizes for each video
+    const videosWithSize = videos.map(filename => {
+      try {
+        const filePath = path.join(brandificationPath, filename);
+        const stats = fs.statSync(filePath);
+        return {
+          filename: filename,
+          size: stats.size,
+          sizeMB: (stats.size / (1024 * 1024)).toFixed(2)
+        };
+      } catch (error) {
+        console.error(`Error getting stats for ${filename}:`, error);
+        return {
+          filename: filename,
+          size: 0,
+          sizeMB: '0.00'
+        };
+      }
+    });
+    
+    res.json({ videos: videosWithSize, count: videosWithSize.length });
   } catch (error) {
     console.error("Error fetching videos:", error);
     res.status(500).json({ error: "Failed to fetch videos" });

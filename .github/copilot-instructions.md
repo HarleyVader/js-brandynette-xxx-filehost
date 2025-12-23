@@ -8,7 +8,8 @@
 **Port**: 6969 (development & production)  
 **Architecture Philosophy**: Self-contained, zero-build, single-file deployment
 
-**Production**: Systemd service (`brandynette.service`) runs as root on `/opt/brandynette`
+**Production**: Systemd service (`brandynette.service`) runs as root on `/opt/brandynette`  
+**Live URL**: https://brandynette.xxx
 
 ## 🏗️ Architecture & Critical Patterns
 
