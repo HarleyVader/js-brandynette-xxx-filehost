@@ -6,7 +6,9 @@
 
 **Stack**: Node.js ES6 modules, Express 4, React 18 (CDN), Babel (browser transpilation)  
 **Port**: 6969 (development & production)  
-**Architecture Philosophy**: Self-contained, zero-build, modular-ready
+**Architecture Philosophy**: Self-contained, zero-build, single-file deployment
+
+**Production**: Systemd service (`brandynette.service`) runs as root on `/opt/brandynette`
 
 ## 🏗️ Architecture & Critical Patterns
 
@@ -75,8 +77,9 @@ app.get("/videos/:filename", (req, res) => {
 **Uses modern React 18 API** - not legacy ReactDOM.render:
 
 ```javascript
-// React 18 concurrent rendering support
-const root = ReactDOM.createRoot(document.getElementById("root"));
+// React 18 concurrent rendering support (public/index.html line 565)
+const container = document.getElementById("root");
+const root = ReactDOM.createRoot(container);
 root.render(React.createElement(App));
 ```
 
@@ -103,25 +106,41 @@ return React.createElement(
 **State Management Pattern**:
 
 ```javascript
-// Typical component structure
+// Actual VideoPlayer component from public/index.html (line 146-340)
 function VideoPlayer({ videoSrc, title }) {
-  // 1. State hooks
+  // 1. State hooks for playback controls
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const videoRef = React.useRef(null);
 
-  // 2. Effects for event listeners
+  // 2. Effects for video event listeners (loadedmetadata, timeupdate, play/pause, ended)
   useEffect(() => {
     const video = videoRef.current;
+    const handleLoadedMetadata = () => {
+      setDuration(video.duration);
+      setLoading(false);
+    };
     const handleTimeUpdate = () => setCurrentTime(video.currentTime);
-    video.addEventListener("timeupdate", handleTimeUpdate);
-    return () => video.removeEventListener("timeupdate", handleTimeUpdate);
+    // ... plus play, pause, ended, error handlers
+    return () => {
+      /* cleanup all listeners */
+    };
   }, [videoSrc]);
 
   // 3. Event handlers
   const togglePlay = () => (video.paused ? video.play() : video.pause());
+  const handleSeek = (e) => {
+    /* click position on progress bar */
+  };
+  const handleVolumeChange = (e) => {
+    /* slider value */
+  };
 
-  // 4. Render with React.createElement
+  // 4. Render with React.createElement (video, controls, progress bar, volume)
 }
 ```
 
@@ -130,24 +149,40 @@ function VideoPlayer({ videoSrc, title }) {
 **CSS Custom Properties + Glass Morphism** - all colors centralized:
 
 ```css
+/* public/index.html lines 8-30 - Complete cyber goth color system */
 :root {
-  /* Cyber goth color palette with 8-digit hex (RGBA) */
-  --primary-color: rgb(12, 42, 42, 0.9);      /* Deep teal */
-  --secondary-color: rgb(64, 0, 47, 0.9);     /* Dark purple */
-  --button-color: rgb(223, 4, 113, 0.9);      /* Neon pink */
-  --nav-alt: rgb(23, 219, 216, 0.9);          /* Cyan glow */
+  --primary-color: #0c2a2ae6; /* Deep teal - backgrounds */
+  --primary-alt: #15aab5e6; /* Bright teal - highlights */
+  --secondary-color: #40002fe6; /* Dark purple - accents */
+  --secondary-alt: #cc0174e6; /* Hot pink - secondary highlights */
+  --tertiary-color: #720241e6; /* Deep magenta */
+  --tertiary-alt: #02b893e6; /* Turquoise */
+  --button-color: #df0471e6; /* Neon pink - primary CTA */
+  --button-alt: #110000e6; /* Near black */
+  --nav-color: #0a2626e6; /* Dark teal - navigation */
+  --nav-alt: #17dbd8e6; /* Bright cyan - nav highlights */
+  --glow-pink: #ff00ff;
+  --glow-cyan: #00ffff;
+  --glow-purple: #8a2be2;
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --bubble-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .glass-bubble {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);                /* Glass morphism */
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px); /* Safari support */
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--bubble-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .glow-effect {
   filter: drop-shadow(0 0 10px var(--glow-cyan)) drop-shadow(
       0 0 20px var(--glow-pink)
-    );
+    )
+    drop-shadow(0 0 30px var(--glow-purple));
   animation: pulse-glow 3s ease-in-out infinite alternate;
 }
 ```
@@ -158,19 +193,22 @@ function VideoPlayer({ videoSrc, title }) {
 
 ### ES6 Module Pattern
 
-**Requires `"type": "module"` in package.json**:
+**Requires `"type": "module"` in package.json** (line 4):
 
 ```javascript
-// ✅ CORRECT: ES6 import/export syntax
+// src/server.js lines 1-8 - ES6 import pattern
 import express from "express";
+import cors from "cors";
+import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 
-// __dirname equivalent in ES6 modules
+// __dirname equivalent in ES6 modules (required for path resolution)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ❌ WRONG: Don't use require() in this project
-const express = require("express"); // Syntax error!
+// ❌ WRONG: Don't use require() - will throw ERR_REQUIRE_ESM
+const express = require("express"); // SyntaxError!
 ```
 
 ### Security Pattern - Path Traversal Protection
@@ -188,25 +226,37 @@ if (
 }
 ```
 
-### File System Watching Pattern
+### Live File Discovery Pattern
 
-**Videos auto-discovered on every request** - no database needed:
+**Videos auto-discovered on every request** - no database, no file watchers:
 
 ```javascript
+// src/server.js lines 19-33 - Helper function with error handling
 const getVideoFiles = () => {
-  const files = fs.readdirSync(path.join(__dirname, "../BRANDIFICATION"));
-  return files.filter(
-    (file) =>
-      file.toLowerCase().endsWith(".mp4") ||
-      file.toLowerCase().endsWith(".webm") ||
-      file.toLowerCase().endsWith(".ogg")
-  );
+  const brandificationPath = path.join(__dirname, "../BRANDIFICATION");
+  try {
+    const files = fs.readdirSync(brandificationPath);
+    return files.filter(
+      (file) =>
+        file.toLowerCase().endsWith(".mp4") ||
+        file.toLowerCase().endsWith(".webm") ||
+        file.toLowerCase().endsWith(".ogg")
+    );
+  } catch (error) {
+    console.error("Error reading BRANDIFICATION directory:", error);
+    return []; // Graceful degradation if folder missing
+  }
 };
 
-// Called fresh on each /api/videos request
+// src/server.js lines 40-48 - Called fresh on each request
 app.get("/api/videos", (req, res) => {
-  const videos = getVideoFiles(); // Live file system read
-  res.json({ videos, count: videos.length });
+  try {
+    const videos = getVideoFiles(); // Synchronous directory read
+    res.json({ videos, count: videos.length });
+  } catch (error) {
+    console.error("Error fetching videos:", error);
+    res.status(500).json({ error: "Failed to fetch videos" });
+  }
 });
 ```
 
@@ -220,17 +270,20 @@ app.get("/api/videos", (req, res) => {
 # Clone/navigate to project
 cd js-brandynette-xxx-filehost
 
-# Install dependencies (express, cors, nodemon)
+# Install dependencies (express@^4.18.2, cors@^2.8.5, nodemon@^3.0.1 dev)
 npm install
 
 # Start development server with auto-restart
-npm run dev
+npm run dev           # Uses nodemon src/server.js
+
+# OR start production server (no auto-restart)
+npm start             # Uses node src/server.js
 
 # Server starts on http://localhost:6969
 # Edit code → Nodemon auto-restarts → Manual browser refresh
 ```
 
-**Note**: No hot module replacement - changes require manual browser refresh.
+**Note**: No hot module replacement - changes require manual browser refresh (F5).
 
 ### Development Cycle
 
@@ -256,12 +309,36 @@ cp your-video.mp4 BRANDIFICATION/
 
 **Supported formats**: `.mp4`, `.webm`, `.ogg` (case-insensitive)
 
+### Production Deployment (Linux Systemd)
+
+```bash
+# Install service file (brandynette.service)
+sudo cp brandynette.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable brandynette
+sudo systemctl start brandynette
+
+# Check status
+sudo systemctl status brandynette
+
+# View logs
+sudo journalctl -u brandynette -f
+```
+
+**Service Configuration** (`brandynette.service`):
+
+- Runs as `root` user (change if needed for security)
+- Working directory: `/opt/brandynette`
+- Environment: `PORT=6969`, `NODE_ENV=production`
+- Auto-restart: `RestartSec=10`
+- Logs to systemd journal (`journalctl`)
+
 ### Testing Video Streaming
 
 ```powershell
 # Test health endpoint
 curl http://localhost:6969/health
-# Expected: {"status":"ok","timestamp":"2025-11-16T..."}
+# Expected: {"status":"ok","timestamp":"2025-12-23T..."}
 
 # Test video list
 curl http://localhost:6969/api/videos
@@ -269,32 +346,35 @@ curl http://localhost:6969/api/videos
 
 # Test range request streaming (critical for video seeking)
 curl -H "Range: bytes=0-1023" http://localhost:6969/videos/du-suchst-ein-girl.mp4
-# Expected: 206 Partial Content status with 1024 bytes
+# Expected: 206 Partial Content with Content-Range header
 
 # Test public files list
 curl http://localhost:6969/api/public
-# Expected: {"files":[{"name":"index.html",...}],"count":1}
+# Expected: {"files":[{"name":"index.html","size":...,"isDirectory":false}],"count":1}
 ```
 
 ### Debugging Techniques
 
 **Server-side debugging**:
+
 ```javascript
 // Add console.log in src/server.js
-console.log('📹 Streaming video:', filename, 'Range:', range);
+console.log("📹 Streaming video:", filename, "Range:", range);
 
 // Check terminal output when accessing videos
 ```
 
 **Client-side debugging**:
+
 ```javascript
 // Add console.log in public/index.html <script type="text/babel">
-console.log('🎬 Videos fetched:', videosData);
+console.log("🎬 Videos fetched:", videosData);
 
 // Open browser DevTools Console (F12)
 ```
 
 **Network debugging**:
+
 - Open DevTools → Network tab → Filter by Media
 - Check status codes (200 for full, 206 for range requests)
 - Verify `Content-Range` headers for video seeking
@@ -305,49 +385,38 @@ console.log('🎬 Videos fetched:', videosData);
 ```
 js-brandynette-xxx-filehost/
 ├── src/
-│   └── server.js              # Express server, API routes, streaming logic (148 lines)
+│   └── server.js              # Express server, API routes, streaming logic (138 lines)
 ├── public/
 │   └── index.html             # Entire React app (576 lines, self-contained)
 ├── BRANDIFICATION/            # Video storage (fs.readdirSync target)
 │   └── du-suchst-ein-girl.mp4 # Example video file
 ├── .github/
-│   └── copilot-instructions.md # This file - AI agent guidance
+│   ├── copilot-instructions.md # This file - AI agent guidance (653 lines)
+│   ├── TODO.md                # Feature roadmap (100 lines)
+│   └── FUNDING.yml            # GitHub Sponsors configuration
 ├── package.json               # "type": "module" enables ES6
-├── README.md                  # Kawaii pink-themed documentation (180 lines)
-├── BUILD-INSTRUCTIONS.md      # Cyber goth upgrade & modularization roadmap (450 lines)
-├── TODO.md                    # Feature requests (transcoding, auth, analytics) (97 lines)
-└── cspell.json                # Spell check dictionary
+├── package-lock.json          # Dependency lock file
+├── README.md                  # Kawaii pink-themed user documentation (180 lines)
+├── brandynette.service        # Systemd service file for production
+├── cspell.json                # Spell check dictionary
+└── .gitignore                 # Git ignore patterns
 ```
 
 **No dist/ or build/ folders**: CDN React eliminates build artifacts.
+**No BUILD-INSTRUCTIONS.md**: Architecture details are in this file and TODO.md.
 
-### Future Modular Structure (from BUILD-INSTRUCTIONS.md)
+### Routes & Endpoints
 
-When implementing modularization, follow this planned structure:
+**Current implementation** (all in `src/server.js`):
 
-```
-src/
-├── server.js              # Main entry point (keep exact location)
-├── routes/
-│   ├── index.js           # Route aggregator
-│   ├── health.js          # Health check routes
-│   ├── videos.js          # Video serving routes
-│   └── api.js             # API endpoints
-├── middleware/
-│   ├── index.js           # Middleware aggregator
-│   ├── cors.js            # CORS configuration
-│   ├── security.js        # Security middleware
-│   └── static.js          # Static file serving
-├── utils/
-│   ├── fileUtils.js       # File system utilities
-│   ├── videoUtils.js      # Video processing utilities
-│   └── pathUtils.js       # Path validation utilities
-└── config/
-    ├── index.js           # Configuration aggregator
-    └── server.js          # Server configuration
-```
+- `GET /` - Serves `public/index.html` (wildcard route)
+- `GET /health` - Health check (lines 35-37)
+- `GET /api/videos` - Lists video files from BRANDIFICATION/ (lines 40-48)
+- `GET /api/public` - Lists files in public/ directory (lines 50-67)
+- `GET /videos/:filename` - Streams video with range request support (lines 69-118)
+- Error handling middleware (lines 121-125)
 
-**Critical**: When refactoring, preserve `src/server.js` location and ES6 module patterns.
+**Security**: Path traversal protection on `/videos/:filename` (line 73-75)
 
 ## 🎯 Common Tasks & Patterns
 
@@ -429,11 +498,13 @@ function ThumbnailGrid({ videos, onVideoSelect }) {
    - **Fix**: Ensure lowercase `.mp4/.webm/.ogg` extensions match filter
 
 5. **❌ Glass morphism not rendering**
+
    - **Cause**: Browser doesn't support `backdrop-filter` (Safari/Edge compatibility)
    - **Fix**: Add `-webkit-backdrop-filter` prefix, test in Chrome/Edge
    - **Fallback**: Provide solid background for unsupported browsers
 
 6. **❌ CORS errors when embedding in other sites**
+
    - **Cause**: Default CORS middleware may be too restrictive
    - **Fix**: Configure CORS origin in `src/server.js` (currently allows all origins)
    - **Security note**: Restrict origins in production environments
@@ -450,24 +521,24 @@ All colors defined as CSS custom properties in `public/index.html`:
 
 ```css
 :root {
-  --primary-color: #0c2a2aE6;      /* Deep teal - backgrounds */
-  --primary-alt: #15aab5E6;        /* Bright teal - highlights */
-  --secondary-color: #40002fE6;    /* Dark purple - accents */
-  --secondary-alt: #cc0174E6;      /* Hot pink - secondary highlights */
-  --tertiary-color: #720241e6;     /* Deep magenta - tertiary accents */
-  --tertiary-alt: #02b893E6;       /* Turquoise - tertiary highlights */
-  --button-color: #df0471E6;       /* Neon pink - buttons */
-  --button-alt: #110000E6;         /* Near black - button text/backgrounds */
-  --nav-color: #0a2626E6;          /* Dark teal - navigation */
-  --nav-alt: #17dbd8E6;            /* Bright cyan - navigation highlights */
-  --transparent: #124141E6;        /* Semi-transparent teal */
-  --error: #ff3333E6;              /* Error red */
-  
+  --primary-color: #0c2a2ae6; /* Deep teal - backgrounds */
+  --primary-alt: #15aab5e6; /* Bright teal - highlights */
+  --secondary-color: #40002fe6; /* Dark purple - accents */
+  --secondary-alt: #cc0174e6; /* Hot pink - secondary highlights */
+  --tertiary-color: #720241e6; /* Deep magenta - tertiary accents */
+  --tertiary-alt: #02b893e6; /* Turquoise - tertiary highlights */
+  --button-color: #df0471e6; /* Neon pink - buttons */
+  --button-alt: #110000e6; /* Near black - button text/backgrounds */
+  --nav-color: #0a2626e6; /* Dark teal - navigation */
+  --nav-alt: #17dbd8e6; /* Bright cyan - navigation highlights */
+  --transparent: #124141e6; /* Semi-transparent teal */
+  --error: #ff3333e6; /* Error red */
+
   /* Glow effects */
   --glow-pink: #ff00ff;
   --glow-cyan: #00ffff;
   --glow-purple: #8a2be2;
-  
+
   /* Glass morphism */
   --glass-bg: rgba(255, 255, 255, 0.08);
   --glass-border: rgba(255, 255, 255, 0.2);
@@ -486,7 +557,7 @@ All colors defined as CSS custom properties in `public/index.html`:
 - `.compact-container` - Minimal spacing container
 - `.no-spacing` - Zero margin/padding reset
 
-### Future Theming (BUILD-INSTRUCTIONS.md)
+### Future Theming (TODO.md)
 
 When implementing modular theme system:
 
@@ -497,20 +568,48 @@ const ThemeContext = React.createContext();
 const ThemeProvider = ({ children }) => {
   const theme = {
     colors: {
-      primary: 'var(--primary-color)',
-      primaryAlt: 'var(--primary-alt)',
+      primary: "var(--primary-color)",
+      primaryAlt: "var(--primary-alt)",
       // ... all color variables
     },
     fonts: {
-      display: 'Audiowide, sans-serif',
-      mono: 'JetBrains Mono, Fira Code, monospace'
+      display: "Audiowide, sans-serif",
+      mono: "JetBrains Mono, Fira Code, monospace",
     },
     effects: {
-      glow: 'drop-shadow(0 0 10px var(--glow-cyan))',
-      blur: 'blur(20px)'
-    }
+      glow: "drop-shadow(0 0 10px var(--glow-cyan))",
+      blur: "blur(20px)",
+    },
   };
-  
+
+  return React.createElement(ThemeContext.Provider, { value: theme }, children);
+};
+
+// Usage in components
+const useTheme = () => React.useContext(ThemeContext);
+```
+
+```javascript
+// Planned ThemeProvider component
+const ThemeContext = React.createContext();
+
+const ThemeProvider = ({ children }) => {
+  const theme = {
+    colors: {
+      primary: "var(--primary-color)",
+      primaryAlt: "var(--primary-alt)",
+      // ... all color variables
+    },
+    fonts: {
+      display: "Audiowide, sans-serif",
+      mono: "JetBrains Mono, Fira Code, monospace",
+    },
+    effects: {
+      glow: "drop-shadow(0 0 10px var(--glow-cyan))",
+      blur: "blur(20px)",
+    },
+  };
+
   return React.createElement(ThemeContext.Provider, { value: theme }, children);
 };
 
@@ -521,69 +620,59 @@ const useTheme = () => React.useContext(ThemeContext);
 ## 📚 Essential Files for AI Understanding
 
 **Core Implementation** (must read for any changes):
-- `src/server.js` (148 lines) - Complete Express server with streaming logic
-- `public/index.html` (576 lines) - Entire React frontend embedded in HTML
-- `package.json` - ES6 module configuration, dependencies
 
-**Architecture & Planning**:
-- `BUILD-INSTRUCTIONS.md` (450 lines) - Detailed modularization roadmap with cyber goth theme upgrade
-  - Backend modularization structure (`routes/`, `middleware/`, `utils/`, `config/`)
-  - Frontend component system (ThemeProvider, CyberVideoPlayer, Navigation, APIStatus)
-  - Color palette and styling system (CSS custom properties for cyber goth theme)
-  - 4-phase implementation plan (backend → theme → frontend → testing)
-- `TODO.md` (97 lines) - Feature requests with priorities
-  - High priority: Video transcoding, HLS streaming, authentication, storage backends
-  - Medium priority: Playlists, comments, analytics, social features
-  - Low priority: Mobile app, CDN integration, monetization
+- [src/server.js](src/server.js) (138 lines) - Complete Express server with streaming logic, HTTP range requests, path security
+- [public/index.html](public/index.html) (576 lines) - Entire React 18 frontend with CDN-based React/Babel, cyber goth styling
+- [package.json](package.json) - ES6 module configuration (`"type": "module"`), dependencies (express, cors, nodemon)
+
+**Production Deployment**:
+
+- [brandynette.service](brandynette.service) - Systemd service file for Linux production deployment (`/opt/brandynette`)
+  - Runs as root user on port 6969
+  - Auto-restart with 10-second delay
+  - Logs to systemd journal
+
+**Planning & Roadmap**:
+
+- [.github/TODO.md](.github/TODO.md) (~100 lines) - Feature roadmap with priorities
+  - High priority: Video transcoding (FFmpeg), HLS streaming, authentication (JWT), storage abstraction (S3/MinIO)
+  - Medium priority: Thumbnails, metadata, playlists, analytics dashboard
+  - Low priority: Upload testing, load testing, API docs, deployment guides
 
 **Documentation**:
-- `README.md` (180 lines) - Kawaii-themed user documentation with quick start guide
-- `.github/copilot-instructions.md` - This file, AI agent guidance
+
+- [README.md](README.md) (180 lines) - Kawaii/bambi-themed user documentation with emojis and playful language
+- [.github/copilot-instructions.md](.github/copilot-instructions.md) - This file, comprehensive AI agent guidance
 
 ## 🚧 Planned Features & Roadmap
 
-### From TODO.md - Implementation Priorities
+### From .github/TODO.md - Implementation Priorities
 
 **High Priority** (implement first):
-1. **Video Transcoding Pipeline** - FFmpeg integration for multiple quality levels
-2. **HLS Streaming** - Adaptive bitrate streaming support
-3. **Authentication System** - User login/register with session management
-4. **Storage Abstraction** - S3/MinIO/local filesystem backends
-5. **Rate Limiting** - Prevent bandwidth abuse
+
+1. **Video Transcoding Pipeline** - FFmpeg integration for multiple quality levels (`.mp4`, `.webm`, adaptive bitrate)
+2. **HLS Streaming** - HTTP Live Streaming with `.m3u8` playlists for adaptive quality
+3. **Authentication System** - User login/register, session management, JWT tokens
+4. **Storage Abstraction** - Support S3, MinIO, or local filesystem with unified API
+5. **Rate Limiting** - Prevent bandwidth abuse (Express rate-limiter middleware)
+6. **Thumbnail Generation** - Auto-generate preview images from video frames (FFmpeg)
 
 **Medium Priority** (after core features):
-- Thumbnail generation, video metadata management
-- Progress tracking, playlists, favorites
-- Analytics dashboard, view counts
-- Search and filtering
+
+- Video metadata (title, description, tags, categories) - PostgreSQL/SQLite schema
+- Progress tracking - Save playback position per user/video
+- Playlists & favorites - User-curated collections
+- Analytics dashboard - View counts, bandwidth usage, popular videos
+- Search & filtering - Full-text search on video metadata
+- Responsive design - Mobile-friendly layout overhaul
+- Dark mode toggle - Alternative to cyber goth theme
 
 **Low Priority** (future enhancements):
-- Mobile apps, CDN integration, monetization
-- Live streaming, comments system
 
-### From BUILD-INSTRUCTIONS.md - Modularization Strategy
-
-**Phase 1: Backend Modularization**
-- Extract routes into separate modules (`routes/videos.js`, `routes/api.js`)
-- Create utility modules (`utils/videoUtils.js`, `utils/pathUtils.js`)
-- Implement middleware chain (`middleware/cors.js`, `middleware/security.js`)
-- Configuration system (`config/index.js`)
-
-**Phase 2: Frontend Theme Upgrade**
-- Cyber goth color palette (see BUILD-INSTRUCTIONS.md for exact CSS variables)
-- Scanlines animation effect for terminal aesthetic
-- Font system: Audiowide, Fira Code, JetBrains Mono
-- Neon glow effects and glass morphism enhancements
-
-**Phase 3: Frontend Modularization**
-- Component system: `ThemeProvider`, `CyberVideoPlayer`, `CyberNavigation`, `APIStatus`
-- Custom hooks: `useAPI`, `useTheme` for state management
-- Context-based theming for consistent styling
-
-**Phase 4: Testing & Validation**
-- Verify all API endpoints maintain compatibility
-- Test video streaming with range requests
-- Validate responsive design and browser compatibility
+- Upload testing - Large file upload validation
+- Load testing - Concurrent stream capacity benchmarks
+- API documentation - OpenAPI/Swagger spec
+- Deployment guide - Docker, LXC, VM setup instructions
 
 ## 🔑 Key Principles
 
@@ -593,7 +682,7 @@ const useTheme = () => React.useContext(ThemeContext);
    - No `npm run build` needed, instant refresh during dev
 2. **Self-Contained Deployment**: Single HTML file + Node server, no dist artifacts
    - Entire frontend in `public/index.html` (576 lines)
-   - Backend in `src/server.js` (148 lines)
+   - Backend in `src/server.js` (138 lines)
    - Drop videos in `BRANDIFICATION/` and they appear automatically
 3. **Live File Discovery**: Videos auto-detected on request, no database
    - `fs.readdirSync()` called fresh on each `/api/videos` request
@@ -608,7 +697,7 @@ const useTheme = () => React.useContext(ThemeContext);
 6. **Modular-Ready Architecture**: Designed for future expansion without breaking changes
    - ES6 modules enable clean refactoring
    - Clear separation concerns (routes, middleware, utils)
-   - Planned modularization path in BUILD-INSTRUCTIONS.md
+   - Planned modularization path in TODO.md
 
 ## 🏗️ Architectural Decisions & Trade-offs
 
@@ -617,6 +706,7 @@ const useTheme = () => React.useContext(ThemeContext);
 **Decision**: Use CDN-based React instead of build tools like Vite/Webpack
 
 **Trade-offs**:
+
 - ✅ **Pros**: No build step, instant refresh, self-contained HTML, works without Node build tools
 - ✅ **Pros**: Easy to understand for beginners, single-file deployment
 - ❌ **Cons**: No tree-shaking, larger initial load, no TypeScript support
@@ -629,6 +719,7 @@ const useTheme = () => React.useContext(ThemeContext);
 **Decision**: `fs.readdirSync()` on every request instead of file watching or database
 
 **Trade-offs**:
+
 - ✅ **Pros**: Drop-in video support, no restart needed, zero setup
 - ✅ **Pros**: No database complexity, no sync issues
 - ❌ **Cons**: Slower for large directories (100+ files)
@@ -644,9 +735,17 @@ const useTheme = () => React.useContext(ThemeContext);
 
 ---
 
-**Quick Reference**: Port 6969 • ES6 modules • React 18 CDN • Range requests • Glass morphism • Zero build
+## 📊 Project Stats
 
-**Modularization Roadmap**: See BUILD-INSTRUCTIONS.md for detailed 4-phase implementation plan  
-**Feature Roadmap**: See TODO.md for prioritized feature requests (transcoding, auth, storage)
+- **Backend**: 138 lines (src/server.js)
+- **Frontend**: 576 lines (public/index.html)
+- **Total LOC**: ~714 lines excluding dependencies
+- **Dependencies**: 2 runtime (express, cors), 1 dev (nodemon)
+- **API Endpoints**: 5 routes (health, videos, public, video stream, wildcard)
+- **Supported Formats**: `.mp4`, `.webm`, `.ogg`
 
-**Last Updated**: November 16, 2025 (Enhanced with BUILD-INSTRUCTIONS.md and TODO.md roadmaps)
+**Quick Reference**: Port 6969 • ES6 modules • React 18 CDN • HTTP Range requests • Glass morphism • Zero build • Systemd production
+
+**Feature Roadmap**: See `.github/TODO.md` for prioritized features (transcoding, HLS, auth, storage, analytics)
+
+**Last Updated**: December 23, 2025 (Removed BUILD-INSTRUCTIONS.md references, updated to current codebase)
