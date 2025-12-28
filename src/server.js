@@ -432,14 +432,9 @@ app.get("/videos/:filename", (req, res) => {
   }
 });
 
-// Serve React app for all other routes (only in production)
+// Serve React app for all other routes - always use public/index.html (zero-build architecture)
 app.get("*", (req, res) => {
-  if (process.env.NODE_ENV === "production") {
-    res.sendFile(path.join(__dirname, "../dist/index.html"));
-  } else {
-    // In development, serve the public index.html directly
-    res.sendFile(path.join(__dirname, "../public/index.html"));
-  }
+  res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
 // Error handling middleware
