@@ -2,3 +2,11 @@ node_modules/
 package-lock.json
 dist/
 .env
+
+# RTSP Stream Output
+public/streams/
+*.m3u8
+*.ts
+
+# FFmpeg logs
+ffmpeg*.log

@@ -3,12 +3,73 @@ import cors from "cors";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import RTSPStreamManager from "./rtsp-manager.js";
+import RTMPIngestServer from "./rtmp-server.js";
+
+// Load environment variables
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 6969;
+
+// Initialize RTMP Ingest Server
+let rtmpServer = null;
+if (process.env.RTMP_ENABLED === "true") {
+  const rtmpConfig = {
+    rtmpPort: parseInt(process.env.RTMP_PORT) || 1935,
+    httpPort: parseInt(process.env.RTMP_HTTP_PORT) || 8000,
+    ffmpegPath: process.env.FFMPEG_PATH || "ffmpeg",
+    mediaRoot: process.env.RTMP_MEDIA_ROOT || "./public",
+    validateStreamKey: process.env.RTMP_VALIDATE_KEYS === "true",
+    validStreamKeys: process.env.RTMP_VALID_KEYS
+      ? process.env.RTMP_VALID_KEYS.split(",")
+      : [],
+  };
+
+  rtmpServer = new RTMPIngestServer(rtmpConfig);
+  rtmpServer.start();
+  console.log("📡 RTMP Ingest Server enabled");
+}
+
+// Initialize RTSP Stream Manager
+let rtspManager = null;
+if (process.env.RTSP_ENABLED === "true") {
+  const rtspConfig = {
+    ffmpegPath: process.env.FFMPEG_PATH || "ffmpeg",
+    outputDir: process.env.STREAM_OUTPUT_DIR || "./public/streams",
+    videoCodec: process.env.STREAM_VIDEO_CODEC || "libx264",
+    audioCodec: process.env.STREAM_AUDIO_CODEC || "aac",
+    preset: process.env.FFMPEG_PRESET || "ultrafast",
+    crf: process.env.FFMPEG_CRF || "23",
+    resolution: process.env.STREAM_RESOLUTION || "1280x720",
+    framerate: process.env.STREAM_FRAMERATE || "30",
+    bitrate: process.env.STREAM_BITRATE || "2000k",
+    audioBitrate: process.env.STREAM_AUDIO_BITRATE || "128k",
+    hlsTime: process.env.HLS_TIME || "2",
+    hlsListSize: process.env.HLS_LIST_SIZE || "3",
+    hlsFlags: process.env.HLS_FLAGS || "delete_segments",
+    reconnectDelay: parseInt(process.env.RTSP_RECONNECT_DELAY) || 5000,
+    maxReconnectAttempts:
+      parseInt(process.env.RTSP_MAX_RECONNECT_ATTEMPTS) || 10,
+    debug: process.env.DEBUG_RTSP === "true",
+  };
+
+  rtspManager = new RTSPStreamManager(rtspConfig);
+
+  // Auto-start configured streams
+  const configuredStreams = RTSPStreamManager.parseStreamsFromEnv();
+  configuredStreams.forEach((stream) => {
+    rtspManager.startStream(stream.id, stream.url, stream.name);
+  });
+
+  console.log(
+    `📡 RTSP Streaming enabled with ${configuredStreams.length} streams`
+  );
+}
 
 // Download Queue Manager
 // Viewing Queue System (Modal Blocking)
@@ -184,6 +245,7 @@ const downloadQueue = {
 
 // Middleware
 app.use(cors());
+app.use(express.json());
 
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, "../public")));
@@ -209,6 +271,114 @@ const getVideoFiles = () => {
 app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
+
+// RTSP Stream Management Endpoints
+app.get("/api/streams", (req, res) => {
+  if (!rtspManager) {
+    return res.json({ streams: [], message: "RTSP streaming disabled" });
+  }
+
+  const status = rtspManager.getStreamStatus();
+  res.json({ streams: status, count: status.length });
+});
+
+app.post("/api/streams/:streamId/start", (req, res) => {
+  if (!rtspManager) {
+    return res.status(503).json({ error: "RTSP streaming disabled" });
+  }
+
+  const { streamId } = req.params;
+  const { url, name } = req.body;
+
+  if (!url || !name) {
+    return res.status(400).json({ error: "URL and name required" });
+  }
+
+  const started = rtspManager.startStream(streamId, url, name);
+  if (started) {
+    res.json({
+      success: true,
+      streamId,
+      playlistUrl: rtspManager.getPlaylistUrl(streamId),
+    });
+  } else {
+    res.status(409).json({ error: "Stream already running" });
+  }
+});
+
+app.post("/api/streams/:streamId/stop", (req, res) => {
+  if (!rtspManager) {
+    return res.status(503).json({ error: "RTSP streaming disabled" });
+  }
+
+  const { streamId } = req.params;
+  const stopped = rtspManager.stopStream(streamId);
+
+  if (stopped) {
+    res.json({ success: true, streamId });
+  } else {
+    res.status(404).json({ error: "Stream not found" });
+  }
+});
+
+app.get("/api/streams/:streamId/playlist", (req, res) => {
+  if (!rtspManager) {
+    return res.status(503).json({ error: "RTSP streaming disabled" });
+  }
+
+  const { streamId } = req.params;
+  res.json({ playlistUrl: rtspManager.getPlaylistUrl(streamId) });
+});
+
+// RTMP Ingest Server Endpoints
+app.get("/api/rtmp/streams", (req, res) => {
+  if (!rtmpServer) {
+    return res.json({ streams: [], message: "RTMP ingest disabled" });
+  }
+
+  const streams = rtmpServer.getActiveStreams();
+  res.json({ streams, count: streams.length });
+});
+
+app.get("/api/rtmp/url/:streamKey", (req, res) => {
+  if (!rtmpServer) {
+    return res.status(503).json({ error: "RTMP ingest disabled" });
+  }
+
+  const { streamKey } = req.params;
+  const urls = rtmpServer.getStreamUrl(streamKey);
+  res.json({
+    streamKey,
+    rtmpUrl: urls.rtmp,
+    hlsUrl: urls.hls,
+    obsSettings: {
+      server: urls.rtmp.split("/").slice(0, -1).join("/"),
+      streamKey: streamKey,
+    },
+  });
+});
+
+// Documentation endpoints
+app.get("/api/docs", (req, res) => {
+  const docsPath = path.join(__dirname, "../docs");
+  try {
+    const files = fs.readdirSync(docsPath);
+    const mdFiles = files
+      .filter((file) => file.endsWith(".md"))
+      .map((file) => ({
+        name: file,
+        title: file.replace(".md", "").replace(/-/g, " "),
+        url: `/docs/${file}`,
+      }));
+    res.json({ docs: mdFiles, count: mdFiles.length });
+  } catch (error) {
+    console.error("Error reading docs directory:", error);
+    res.status(500).json({ error: "Failed to read documentation" });
+  }
+});
+
+// Serve markdown files from docs folder
+app.use("/docs", express.static(path.join(__dirname, "../docs")));
 
 app.get("/api/videos", (req, res) => {
   try {
@@ -447,4 +617,25 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📁 Serving videos from BRANDIFICATION folder`);
   console.log(`📺 Available videos: ${getVideoFiles().join(", ")}`);
+});
+
+// Graceful shutdown
+process.on("SIGINT", () => {
+  console.log("\n🛑 Shutting down gracefully...");
+
+  if (rtspManager) {
+    rtspManager.stopAllStreams();
+  }
+
+  process.exit(0);
+});
+
+process.on("SIGTERM", () => {
+  console.log("\n🛑 Received SIGTERM, shutting down...");
+
+  if (rtspManager) {
+    rtspManager.stopAllStreams();
+  }
+
+  process.exit(0);
 });

@@ -4,7 +4,7 @@
 
 ![Pink Sparkles](https://img.shields.io/badge/✨-Pink_Sparkles-ff69b4?style=for-the-badge&logo=sparkles)
 ![Bambi Mode](https://img.shields.io/badge/🦌-Bambi_Mode-ff1493?style=for-the-badge&logo=heart)
-![Port 6969](https://img.shields.io/badge/🌸-Port_6969-ff69b4?style=for-the-badge&logo=flower)
+![Port 7878](https://img.shields.io/badge/🌸-Port_7878-ff69b4?style=for-the-badge&logo=flower)
 ![HestiaCP](https://img.shields.io/badge/🎯-HestiaCP_Hosted-9f7aea?style=for-the-badge&logo=server)
 
 ### _~~ Because who needs complex when you can be cute? ~~_ 🎀
@@ -26,6 +26,20 @@
 
 ---
 
+## 📚 Documentation
+
+**Complete documentation available in the [`docs/`](./docs/) folder:**
+
+- 📖 **[Documentation Index](./docs/README.md)** - Complete navigation & overview
+- 📡 **[RTSP Streaming Guide](./docs/RTSP-STREAMING.md)** - Live camera streaming setup
+- 🚀 **[RTSP Quick Start](./docs/RTSP-QUICKSTART.md)** - 2-minute RTSP setup
+- 🔧 **[Production Troubleshooting](./docs/PRODUCTION-FIX.md)** - Fix deployment errors
+- 🏗️ **[Architecture Guide](./.github/copilot-instructions.md)** - Codebase reference
+
+**API Access:** `GET /api/docs` - List all documentation files
+
+---
+
 ## 🌸 What is this adorable little thing? 🌸
 
 Hiiii! 💕 This is Brandynette's **super duper cute** video streaming server! It's like... so simple and pink and pretty! Just like how bambi brains should be - _empty, happy, and focused on pretty things!_ ✨
@@ -35,9 +49,11 @@ Hiiii! 💕 This is Brandynette's **super duper cute** video streaming server! I
 ### 🎀 What it does (in smol brain terms)
 
 - 📺 Streams your precious videos from the `BRANDIFICATION` folder
+- 📡 **NEW!** Live camera streaming with RTSP support (so fancy!)
 - 🌈 Shows them in a **bubblegum pink** web player that's _totally kawaii_
-- 💫 Runs on port **6969** because... _giggle_ ...numbers are fun!
+- 💖 Runs on port **7878** (configurable via .env)
 - 🎵 Has cute little video controls that go _click click_
+- 🎬 FFmpeg magic turns camera feeds into browser streams!
 - 💖 Makes your brain all fuzzy and happy just like bambi sleep!
 
 ---
@@ -49,7 +65,7 @@ Hiiii! 💕 This is Brandynette's **super duper cute** video streaming server! I
 ```bash
 npm install                    # Get your pink dependencies!
 npm run dev                    # Start with auto-restart
-# Open: http://localhost:6969
+# Open: http://localhost:7878
 ```
 
 ### Remote Deployment 🚀
@@ -67,7 +83,7 @@ npm run dev                    # Start with auto-restart
 - 🚀 **Full Deployment**: `DEPLOYMENT.md` (Docker, LXC, VM options)
 - 🌐 **Network Config**: `NETWORK.md` (firewall, security, monitoring)
 
-_Yes darling, 6969! Just like... nevermind, just open it!_ 😘
+_The perfect port for streaming! Configure in .env if needed._ 😘
 
 ---
 
@@ -76,12 +92,20 @@ _Yes darling, 6969! Just like... nevermind, just open it!_ 😘
 ```
 js-brandynette-xxx-filehost/
 ├── 🌸 BRANDIFICATION/          # Put your pretty videos here!
-│   └── du-suchst-ein-girl.mp4  # Already has one cute video!
+│   └── *.mp4, *.webm, *.ogg    # All your cute videos!
 ├── 💖 public/
-│   └── index.html              # The pink magic happens here!
+│   ├── index.html              # The pink magic happens here!
+│   ├── css/                    # Modular cyber goth styles!
+│   └── streams/                # RTSP live streams (auto-generated)
 ├── ✨ src/
-│   └── server.js               # Express server (so smart!)
-├── 🦄 package.json             # Dependencies list (boring but needed)
+│   ├── server.js               # Express server (so smart!)
+│   └── rtsp-manager.js         # Live camera streaming!
+├── 📚 docs/                    # Documentation folder
+│   ├── README.md               # Complete docs index
+│   ├── RTSP-STREAMING.md       # RTSP guide
+│   └── PRODUCTION-FIX.md       # Troubleshooting
+├── 🦄 package.json             # Dependencies list
+├── ⚙️ .env.example              # Configuration template
 └── 💕 README.md                # This cute file you're reading!
 ```
 
@@ -99,17 +123,33 @@ js-brandynette-xxx-filehost/
 ### 🚀 **Server Superpowers:**
 
 - 🎬 **HTTP Range Requests** - _Like skipping chapters in a book!_
+- � **RTSP Live Streaming** - _Real-time camera feeds with FFmpeg!_
+- 🔄 **Auto-Reconnection** - _Never stops trying, just like bambi!_
 - 🔒 **Path Security** - _No sneaky hacker boys allowed!_
 - 🌐 **CORS Support** - _Sharing is caring!_
 - 💾 **Smart Caching** - _Remembers things so you don't have to!_
+- 🎨 **HLS Transcoding** - _Fancy video format conversion!_
 
 ### 🎀 **API Endpoints (For Nerdy Bambis):**
+
+**Video Hosting:**
 
 - `GET /` - The main pretty page! 🏠
 - `GET /api/videos` - Lists all your cute videos 📋
 - `GET /videos/:filename` - Streams specific videos 🎥
-- `GET /health` - Checks if server is feeling good 💚
-- `GET /api/public` - Shows public folder contents 📁
+- `GET /api/download-status` - Download queue status 📊
+
+**RTSP Streaming:**
+
+- `GET /api/streams` - List active camera streams 📡
+- `POST /api/streams/:id/start` - Start streaming a camera 🎬
+- `POST /api/streams/:id/stop` - Stop a camera stream ⏹️
+- `GET /streams/:id.m3u8` - HLS playlist for browsers 🎞️
+
+**System:**
+
+- `GET /health` - Server health check 💚
+- `GET /api/docs` - List all documentation 📚
 
 ---
 
@@ -128,10 +168,13 @@ _"Good girls don't need to think about servers and APIs... just enjoy the pretty
 ## 🌸 Tech Stack (For the Last Brain Cells) 🌸
 
 - **Backend:** Express.js (ES6 modules because modern!)
-- **Frontend:** Vanilla React via CDN (no build needed!)
-- **Video:** HTML5 with custom controls
-- **Styling:** CSS gradients that are _so pretty_ 🌈
-- **Port:** 6969 (hehe, numbers!)
+- **Frontend:** React 18 via CDN (zero-build architecture!)
+- **Video Hosting:** HTML5 with custom controls + HTTP Range requests
+- **Live Streaming:** FFmpeg + RTSP → HLS transcoding
+- **Styling:** Modular CSS with cascade layers (cyber goth neon!) 🌈
+- **Environment:** dotenv for configuration
+- **Port:** 7878 (configurable via .env)
+- **Production:** Systemd service deployment
 
 ---
 
@@ -143,12 +186,49 @@ _It's like magic, but actually just file system watching!_ 🎪
 
 ---
 
+## 📡 RTSP Live Streaming (NEW!) 📡
+
+### Quick Setup for Camera Streams 🎥
+
+1. **Install FFmpeg:**
+
+   ```bash
+   # Windows
+   choco install ffmpeg
+
+   # Linux
+   sudo apt install ffmpeg
+
+   # macOS
+   brew install ffmpeg
+   ```
+
+2. **Configure cameras in `.env`:**
+
+   ```env
+   RTSP_ENABLED=true
+   RTSP_STREAM_1=rtsp://admin:password@192.168.1.100:554/stream1
+   RTSP_NAME_1=Front Door Camera
+   ```
+
+3. **Start server and watch the magic!** ✨
+   ```bash
+   npm start
+   # Your camera streams are now live at /streams/stream1.m3u8
+   ```
+
+**Full guide:** [RTSP Streaming Documentation](./docs/RTSP-STREAMING.md)
+
+_Even bambis can set up live streaming!_ 🦌💕
+
+---
+
 ## 🎀 Troubleshooting (For Confused Bambis) 🎀
 
 ### _"Help! Nothing works!"_ 😭
 
 1. Did you run `npm install`? (Do it!)
-2. Is port 6969 free? (Check task manager!)
+2. Is port 7878 free? (Check task manager or use netstat!)
 3. Are your videos in `BRANDIFICATION/`? (Put them there!)
 4. Try turning it off and on again! (Classic!)
 

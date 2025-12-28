@@ -1,12 +1,14 @@
 # Production Server Fix Instructions
 
 ## Problems Detected
+
 1. **ENOENT Error**: Server looking for `/dist/index.html` (doesn't exist - zero-build project)
 2. **EADDRINUSE Error**: Port 6969 already in use by zombie process
 
 ## Quick Fix (Run on Server)
 
 ### Option 1: Automated Fix Script
+
 ```bash
 # On the production server (xxx.bambisleep.church)
 cd /home/brandynette/web/brandynette.xxx/nodeapp/js-brandynette-xxx-filehost
@@ -44,7 +46,9 @@ sudo journalctl -u filehost -f
 ## What Was Fixed
 
 ### server.js Changes
+
 **Before** (BROKEN):
+
 ```javascript
 app.get("*", (req, res) => {
   if (process.env.NODE_ENV === "production") {
@@ -56,6 +60,7 @@ app.get("*", (req, res) => {
 ```
 
 **After** (FIXED):
+
 ```javascript
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/index.html")); // ✅ Always public
@@ -67,6 +72,7 @@ app.get("*", (req, res) => {
 ## Verification
 
 After running the fix, you should see:
+
 ```
 🚀 Server running on http://localhost:6969
 📁 Serving videos from BRANDIFICATION folder
@@ -76,6 +82,7 @@ After running the fix, you should see:
 ## Troubleshooting
 
 ### If port still in use:
+
 ```bash
 # Nuclear option - kill ALL node processes
 sudo pkill -9 node
@@ -85,6 +92,7 @@ sudo systemctl start filehost
 ```
 
 ### If public/index.html missing:
+
 ```bash
 # Verify you're on css branch
 git branch
@@ -94,12 +102,15 @@ ls -la public/
 ```
 
 ### Check firewall allows port 6969:
+
 ```bash
 sudo ufw status
 sudo ufw allow 6969/tcp
 ```
 
 ## Production URL
+
 After fix, the site should be accessible at:
+
 - https://brandynette.xxx
 - http://brandynette.xxx:6969 (if no reverse proxy)

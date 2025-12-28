@@ -33,6 +33,16 @@
       margin: 0;
       padding: 0;
     }
+
+    /* Neon Cyber Goth Scrolling Ticker Animation */
+    @keyframes scroll-left {
+      0% {
+        transform: translateX(100%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
   </style>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -1040,8 +1050,35 @@
               letterSpacing: '2px'
             }
           }, '🎬 Brandynette Video Player'),
-          React.createElement('p', { style: { margin: 0, fontSize: '1.1rem', opacity: 0.9 } },
-            `Premium video streaming on port 6969`)
+          React.createElement('div', {
+            style: {
+              margin: '0.5rem 0',
+              overflow: 'hidden',
+              background: 'linear-gradient(90deg, rgba(0,0,0,0.8), rgba(138,43,226,0.3), rgba(0,0,0,0.8))',
+              border: '2px solid var(--glow-purple)',
+              borderRadius: '8px',
+              padding: '0.5rem 0',
+              boxShadow: '0 0 20px rgba(138,43,226,0.6), inset 0 0 20px rgba(255,0,255,0.2)'
+            }
+          },
+            React.createElement('div', {
+              style: {
+                display: 'inline-block',
+                whiteSpace: 'nowrap',
+                animation: 'scroll-left 20s linear infinite',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                fontFamily: 'Audiowide, sans-serif',
+                background: 'linear-gradient(90deg, var(--glow-cyan), var(--glow-pink), var(--glow-purple), var(--glow-cyan))',
+                backgroundSize: '200% 100%',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textShadow: 'none',
+                filter: 'drop-shadow(0 0 8px var(--glow-cyan)) drop-shadow(0 0 12px var(--glow-pink))'
+              }
+            }, '⚡ BREAKING: Premium video streaming NOW LIVE on port 6969 ⚡ Unlimited concurrent viewers ⚡ Browser-cached playback ⚡ Download queue: 3-5 concurrent ⚡ Zero-build CDN architecture ⚡ Cyber goth neon aesthetics ⚡ HTTP Range request support ⚡ Glass morphism UI ⚡ React 18 + Babel transpilation ⚡ ES6 modules ⚡ ')
+          )
         ),
         // Download Status Component
         React.createElement(DownloadStatus),
@@ -1054,12 +1091,42 @@
               React.createElement('h2', { style: { color: '#ffd93d' } }, 'No videos found'),
               React.createElement('p', null, 'Please add video files to the BRANDIFICATION folder')
             )
-            : React.createElement('div', null,
-              videos.length > 1 && React.createElement('div', { style: { marginBottom: '2rem', textAlign: 'center' } },
-                React.createElement('h3', { style: { marginBottom: '1rem' } }, 'Select a video:'),
+            : React.createElement('div', {
+              style: {
+                display: 'flex',
+                gap: '1rem',
+                alignItems: 'flex-start',
+                flexWrap: 'wrap'
+              }
+            },
+              // Left sidebar - Video selection
+              videos.length > 1 && React.createElement('div', {
+                className: 'glass-bubble glow-effect',
+                style: {
+                  flex: '0 0 280px',
+                  padding: '1rem',
+                  maxHeight: '80vh',
+                  overflowY: 'auto',
+                  position: 'sticky',
+                  top: '1rem'
+                }
+              },
+                React.createElement('h3', {
+                  style: {
+                    marginBottom: '1rem',
+                    textAlign: 'center',
+                    color: 'var(--nav-alt)',
+                    fontSize: '1.1rem',
+                    textShadow: '0 0 10px var(--glow-cyan)'
+                  }
+                }, '📁 Select a video:'),
                 React.createElement('div', {
                   className: 'no-spacing',
-                  style: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }
+                  style: {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem'
+                  }
                 },
                   videos.map(video =>
                     React.createElement('button', {
@@ -1070,11 +1137,18 @@
                         fontSize: '0.7rem',
                         display: 'flex',
                         flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '0.2rem'
+                        alignItems: 'flex-start',
+                        gap: '0.2rem',
+                        textAlign: 'left',
+                        width: '100%'
                       }
                     }, 
-                      React.createElement('span', null, video.filename),
+                      React.createElement('span', {
+                        style: {
+                          wordBreak: 'break-word',
+                          width: '100%'
+                        }
+                      }, video.filename),
                       React.createElement('span', {
                         style: {
                           fontSize: '0.6rem',
@@ -1086,11 +1160,19 @@
                   )
                 )
               ),
-              selectedVideo && React.createElement(VideoPlayer, {
-                videoSrc: `/videos/${selectedVideo.filename}?ticket=${ticketId}`,
+              // Right content - Video player
+              React.createElement('div', {
+                style: {
+                  flex: '1 1 600px',
+                  minWidth: 0
+                }
+              },
+                selectedVideo && React.createElement(VideoPlayer, {
+                  videoSrc: `/videos/${selectedVideo.filename}?ticket=${ticketId}`,
                   title: selectedVideo.filename
                 })
               )
+            )
           ),
           React.createElement('footer', {
             className: 'glass-bubble compact-container',
