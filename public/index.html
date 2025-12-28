@@ -5,122 +5,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brandynette Video Player - Port 6969</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+
+  <!-- Modern CSS Architecture - Load in correct cascade layer order -->
+  <link rel="stylesheet" href="/css/layers.css">      <!-- 1. Define cascade layers -->
+  <link rel="stylesheet" href="/css/variables.css">   <!-- 2. Design tokens -->
+  <link rel="stylesheet" href="/css/reset.css">       <!-- 3. CSS reset + base -->
+  <link rel="stylesheet" href="/css/layout.css">      <!-- 4. App layout -->
+  <link rel="stylesheet" href="/css/components.css">  <!-- 5. UI components -->
+  <link rel="stylesheet" href="/css/features.css">    <!-- 6. Feature styles -->
+
   <style>
-    /* BambiSleep Chat Styles */
-    @import url("https://fonts.googleapis.com/css2?family=Audiowide&display=swap");
-
-    :root {
-      --primary-color: #0c2a2aE6;
-      --primary-alt: #15aab5E6;
-      --secondary-color: #40002fE6;
-      --secondary-alt: #cc0174E6;
-      --tertiary-color: #720241e6;
-      --tertiary-alt: #02b893E6;
-      --button-color: #df0471E6;
-      --button-alt: #110000E6;
-      --nav-color: #0a2626E6;
-      --nav-alt: #17dbd8E6;
-      --transparent: #124141E6;
-      --error: #ff3333E6;
-      --glow-pink: #ff00ff;
-      --glow-cyan: #00ffff;
-      --glow-purple: #8a2be2;
-      --glass-bg: rgba(255, 255, 255, 0.08);
-      --glass-border: rgba(255, 255, 255, 0.2);
-      --bubble-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Audiowide', monospace;
-      background: radial-gradient(circle at 20% 80%, var(--primary-color) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, var(--secondary-color) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, var(--tertiary-color) 0%, transparent 50%),
-        linear-gradient(135deg, #000011 0%, #001122 100%);
-      min-height: 100vh;
-      color: white;
-      overflow-x: hidden;
-    }
-
-    .glass-bubble {
-      background: var(--glass-bg);
-      -webkit-backdrop-filter: blur(20px);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      box-shadow: var(--bubble-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .glass-bubble::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-      pointer-events: none;
-    }
-
-    .glow-effect {
-      filter: drop-shadow(0 0 10px var(--glow-cyan))drop-shadow(0 0 20px var(--glow-pink))drop-shadow(0 0 30px var(--glow-purple));
-      animation: pulse-glow 3s ease-in-out infinite alternate;
-    }
-
-    @keyframes pulse-glow {
-      0% {
-        filter: drop-shadow(0 0 5px var(--glow-cyan))drop-shadow(0 0 10px var(--glow-pink));
-      }
-
-      100% {
-        filter: drop-shadow(0 0 15px var(--glow-cyan))drop-shadow(0 0 25px var(--glow-pink))drop-shadow(0 0 35px var(--glow-purple));
-      }
-    }
-
-    .bubble-button {
-      background: linear-gradient(135deg, var(--button-color), var(--secondary-alt));
-      color: white;
-      border: 1px solid var(--glass-border);
-      border-radius: 15px;
-      padding: 0.6rem 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: 'Audiowide', sans-serif;
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
-      position: relative;
-      overflow: hidden;
-      margin: 0.2rem;
-    }
-
-    .bubble-button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
-    }
-
-    .bubble-button:hover::before {
-      left: 100%;
-    }
-
-    .bubble-button:hover {
-      transform: translateY(-2px)scale(1.05);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px var(--glow-pink);
-    }
-
-    .bubble-button.selected {
-      background: linear-gradient(135deg, var(--glow-pink), var(--glow-cyan));
-      box-shadow: 0 0 30px var(--glow-pink), inset 0 2px 10px rgba(255, 255, 255, 0.1);
-    }
-
+    /* Component-specific overrides (minimal inline styles) */
     .video-name {
       font-size: 0.65rem;
       opacity: 0.8;
@@ -133,18 +33,6 @@
       margin: 0;
       padding: 0;
     }
-
-    .compact-container {
-      margin: 0.2rem;
-      padding: 0.5rem;
-    }
-
-    .no-spacing {
-      margin: 0;
-      padding: 0;
-      border: 0;
-      outline: 0;
-    }
   </style>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -154,7 +42,580 @@
 <body>
   <div id="root"></div>
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useRef } = React;
+
+    // Queue Modal Component
+    function QueueModal({ onAccessGranted }) {
+      const [queueState, setQueueState] = useState('initial'); // initial, joining, queued, active, error
+      const [ticketData, setTicketData] = useState(null);
+      const [countdown, setCountdown] = useState(0);
+      const [queueStatus, setQueueStatus] = useState(null);
+      const [error, setError] = useState(null);
+      const ticketIdRef = useRef(null);
+
+      // Join queue on mount
+      useEffect(() => {
+        const joinQueue = async () => {
+          setQueueState('joining');
+          try {
+            console.log('Joining queue...');
+            const response = await fetch('/api/queue/join', { method: 'POST' });
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log('Queue response:', data);
+            
+            ticketIdRef.current = data.ticketId;
+            setTicketData(data);
+            
+            if (data.status === 'granted') {
+              console.log('Access granted immediately');
+              setQueueState('active');
+              setCountdown(0);
+              setTimeout(() => onAccessGranted(data.ticketId), 1000);
+            } else {
+              console.log('Added to queue, position:', data.position);
+              setQueueState('queued');
+              setCountdown(data.waitTime);
+            }
+          } catch (err) {
+            console.error('Error joining queue:', err);
+            setError('Failed to join queue. Please refresh.');
+            setQueueState('error');
+          }
+        };
+
+        joinQueue();
+      }, [onAccessGranted]);
+
+      // Poll ticket status when queued
+      useEffect(() => {
+        if (queueState !== 'queued' || !ticketIdRef.current) return;
+
+        const checkTicket = async () => {
+          try {
+            const response = await fetch(`/api/queue/check/${ticketIdRef.current}`);
+            const data = await response.json();
+            
+            if (data.status === 'active') {
+              setQueueState('active');
+              setCountdown(0);
+              setTimeout(() => onAccessGranted(data.ticketId), 1000);
+            } else if (data.status === 'queued') {
+              setCountdown(data.waitTime);
+              setTicketData(data);
+            } else if (data.status === 'expired') {
+              setError('Ticket expired. Please refresh.');
+              setQueueState('error');
+            }
+          } catch (err) {
+            console.error('Error checking ticket:', err);
+          }
+        };
+
+        const interval = setInterval(checkTicket, 1000);
+        return () => clearInterval(interval);
+      }, [queueState, onAccessGranted]);
+
+      // Countdown timer - decrements every second
+      useEffect(() => {
+        if (queueState !== 'queued' || countdown <= 0) return;
+
+        const timer = setInterval(() => {
+          setCountdown(prev => Math.max(0, prev - 1));
+        }, 1000);
+
+        return () => clearInterval(timer);
+      }, [queueState, countdown]);
+
+      // Fetch queue status for display
+      useEffect(() => {
+        const fetchQueueStatus = async () => {
+          try {
+            const response = await fetch('/api/queue/status');
+            const data = await response.json();
+            setQueueStatus(data);
+          } catch (err) {
+            console.error('Error fetching queue status:', err);
+          }
+        };
+
+        fetchQueueStatus();
+        const interval = setInterval(fetchQueueStatus, 3000);
+        return () => clearInterval(interval);
+      }, []);
+
+      return React.createElement('div', {
+        style: {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.95)',
+          backdropFilter: 'blur(10px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '1rem'
+        }
+      },
+        React.createElement('div', {
+          className: 'glass-bubble glow-effect',
+          style: {
+            maxWidth: '600px',
+            width: '100%',
+            padding: '2rem',
+            textAlign: 'center'
+          }
+        },
+          // Header
+          React.createElement('h1', {
+            style: {
+              color: 'var(--button-color)',
+              marginBottom: '1rem',
+              fontSize: '2rem',
+              textShadow: '0 0 20px var(--glow-pink)'
+            }
+          }, '\ud83c\udfab Queue System'),
+
+          // Loading State
+          queueState === 'joining' && React.createElement('div', null,
+            React.createElement('div', {
+              style: {
+                width: '50px',
+                height: '50px',
+                border: '4px solid var(--glass-border)',
+                borderTop: '4px solid var(--button-color)',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '2rem auto'
+              }
+            }),
+            React.createElement('p', {
+              style: { color: 'var(--primary-alt)', fontSize: '1.2rem' }
+            }, 'Joining queue...')
+          ),
+
+          // Queued State
+          queueState === 'queued' && ticketData && React.createElement('div', null,
+            React.createElement('div', {
+              style: {
+                fontSize: '4rem',
+                color: 'var(--secondary-alt)',
+                marginBottom: '1rem'
+              }
+            }, countdown > 0 ? countdown : '\u23f3'),
+            
+            React.createElement('h2', {
+              style: { color: 'var(--nav-alt)', marginBottom: '1rem' }
+            }, countdown > 0 ? `Wait ${countdown} seconds` : 'Almost ready...'),
+            
+            React.createElement('div', {
+              className: 'glass-bubble',
+              style: {
+                padding: '1rem',
+                marginTop: '1.5rem',
+                background: 'rgba(255, 0, 255, 0.1)'
+              }
+            },
+              React.createElement('p', {
+                style: { color: 'var(--tertiary-alt)', fontSize: '0.9rem', marginBottom: '0.5rem' }
+              }, '\ud83c\udfab Your Ticket'),
+              React.createElement('p', {
+                style: { 
+                  color: 'var(--button-color)', 
+                  fontFamily: 'monospace', 
+                  fontSize: '0.8rem',
+                  wordBreak: 'break-all'
+                }
+              }, ticketData.ticketId),
+              React.createElement('p', {
+                style: { color: 'var(--primary-alt)', fontSize: '1.2rem', marginTop: '1rem' }
+              }, `Position in queue: #${ticketData.position}`)
+            ),
+
+            queueStatus && React.createElement('div', {
+              style: {
+                marginTop: '1.5rem',
+                padding: '1rem',
+                borderTop: '1px solid var(--glass-border)'
+              }
+            },
+              React.createElement('p', {
+                style: { color: 'var(--nav-color)', fontSize: '0.85rem' }
+              }, `\ud83d\udc65 Active viewers: ${queueStatus.active}/${queueStatus.maxConcurrent}`),
+              React.createElement('p', {
+                style: { color: 'var(--nav-color)', fontSize: '0.85rem' }
+              }, `\u23f3 Waiting in queue: ${queueStatus.waiting}`)
+            )
+          ),
+
+          // Active State
+          queueState === 'active' && React.createElement('div', null,
+            React.createElement('div', {
+              style: {
+                fontSize: '4rem',
+                marginBottom: '1rem'
+              }
+            }, '\u2705'),
+            React.createElement('h2', {
+              style: { color: 'var(--tertiary-alt)', marginBottom: '1rem' }
+            }, 'Access Granted!'),
+            React.createElement('p', {
+              style: { color: 'var(--primary-alt)' }
+            }, 'Loading content...')
+          ),
+
+          // Error State
+          queueState === 'error' && React.createElement('div', null,
+            React.createElement('div', {
+              style: {
+                fontSize: '4rem',
+                color: 'var(--error)',
+                marginBottom: '1rem'
+              }
+            }, '\u274c'),
+            React.createElement('h2', {
+              style: { color: 'var(--error)', marginBottom: '1rem' }
+            }, 'Error'),
+            React.createElement('p', {
+              style: { color: 'var(--primary-alt)', marginBottom: '1.5rem' }
+            }, error || 'Something went wrong'),
+            React.createElement('button', {
+              className: 'bubble-button',
+              onClick: () => window.location.reload(),
+              style: { padding: '0.8rem 1.5rem' }
+            }, 'Refresh Page')
+          ),
+
+          // Footer note
+          queueState === 'queued' && React.createElement('div', {
+            style: {
+              marginTop: '2rem',
+              padding: '1rem',
+              borderTop: '1px solid var(--glass-border)',
+              fontSize: '0.75rem',
+              color: 'var(--nav-color)',
+              opacity: 0.7
+            }
+          },
+            React.createElement('p', null, '\ud83d\udca1 Future: Premium members skip the queue'),
+            React.createElement('p', null, 'Stripe \u2022 Patreon \u2022 BambiCloud')
+          )
+        )
+      );
+    }
+
+    // Metronome Component
+    function Metronome() {
+      const [isPlaying, setIsPlaying] = useState(false);
+      const [bpm, setBpm] = useState(60);
+      const [beat, setBeat] = useState(0);
+      const [soundEnabled, setSoundEnabled] = useState(false);
+      const intervalRef = useRef(null);
+      const audioContextRef = useRef(null);
+
+      useEffect(() => {
+        // Initialize Web Audio API
+        if (typeof window !== 'undefined' && window.AudioContext) {
+          audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        return () => {
+          if (audioContextRef.current) {
+            audioContextRef.current.close();
+          }
+        };
+      }, []);
+
+      useEffect(() => {
+        if (isPlaying) {
+          const interval = 60000 / bpm; // Convert BPM to milliseconds
+          intervalRef.current = setInterval(() => {
+            setBeat(prev => (prev + 1) % 4);
+            if (soundEnabled && audioContextRef.current) {
+              playClick();
+            }
+          }, interval);
+        } else {
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+          }
+          setBeat(0);
+        }
+
+        return () => {
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+          }
+        };
+      }, [isPlaying, bpm, soundEnabled]);
+
+      const playClick = () => {
+        const ctx = audioContextRef.current;
+        if (!ctx) return;
+
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        // Higher pitch for beat 0, lower for others
+        oscillator.frequency.value = beat === 0 ? 1000 : 800;
+        oscillator.type = 'sine';
+
+        gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.1);
+      };
+
+      const togglePlay = () => {
+        setIsPlaying(!isPlaying);
+      };
+
+      const handleBpmChange = (e) => {
+        const newBpm = parseInt(e.target.value);
+        setBpm(newBpm);
+      };
+
+      const adjustBpm = (delta) => {
+        setBpm(prev => Math.max(30, Math.min(240, prev + delta)));
+      };
+
+      return React.createElement('div', {
+        className: 'glass-bubble compact-container',
+        style: {
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          padding: '1rem',
+          minWidth: '280px',
+          background: 'linear-gradient(135deg, rgba(23, 219, 216, 0.15), rgba(2, 184, 147, 0.15))',
+          border: '2px solid rgba(23, 219, 216, 0.5)',
+          boxShadow: isPlaying 
+            ? '0 0 30px rgba(23, 219, 216, 0.6), 0 0 60px rgba(0, 255, 255, 0.4)'
+            : '0 0 20px rgba(23, 219, 216, 0.3)',
+          zIndex: 1000,
+          transition: 'all 0.3s ease'
+        }
+      },
+        React.createElement('div', {
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '1rem'
+          }
+        },
+          React.createElement('h3', {
+            style: {
+              margin: 0,
+              fontSize: '1rem',
+              color: 'var(--nav-alt)',
+              textShadow: '0 0 10px var(--glow-cyan)',
+              fontWeight: 'bold'
+            }
+          }, '🎵 Metronome'),
+          React.createElement('div', {
+            style: {
+              display: 'flex',
+              gap: '0.5rem'
+            }
+          },
+            // Visual beat indicators
+            [0, 1, 2, 3].map(i =>
+              React.createElement('div', {
+                key: i,
+                style: {
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  background: beat === i && isPlaying
+                    ? 'var(--glow-cyan)'
+                    : 'rgba(255, 255, 255, 0.2)',
+                  boxShadow: beat === i && isPlaying
+                    ? '0 0 15px var(--glow-cyan), 0 0 30px var(--glow-cyan)'
+                    : 'none',
+                  transition: 'all 0.1s ease',
+                  border: i === 0 ? '2px solid var(--button-color)' : '1px solid rgba(255, 255, 255, 0.3)'
+                }
+              })
+            )
+          )
+        ),
+
+        // BPM Display
+        React.createElement('div', {
+          style: {
+            textAlign: 'center',
+            marginBottom: '1rem'
+          }
+        },
+          React.createElement('div', {
+            style: {
+              fontSize: '2.5rem',
+              fontWeight: 'bold',
+              color: 'var(--glow-cyan)',
+              textShadow: '0 0 20px var(--glow-cyan)',
+              fontFamily: 'monospace',
+              marginBottom: '0.25rem'
+            }
+          }, bpm),
+          React.createElement('div', {
+            style: {
+              fontSize: '0.8rem',
+              color: 'var(--primary-alt)',
+              opacity: 0.9
+            }
+          }, 'BPM')
+        ),
+
+        // BPM Controls
+        React.createElement('div', {
+          style: {
+            display: 'flex',
+            gap: '0.5rem',
+            marginBottom: '1rem',
+            alignItems: 'center'
+          }
+        },
+          React.createElement('button', {
+            onClick: () => adjustBpm(-10),
+            className: 'bubble-button',
+            style: {
+              padding: '0.5rem 0.75rem',
+              fontSize: '1rem',
+              minWidth: 'auto',
+              background: 'rgba(223, 4, 113, 0.3)',
+              border: '1px solid var(--button-color)'
+            }
+          }, '−10'),
+          React.createElement('button', {
+            onClick: () => adjustBpm(-1),
+            className: 'bubble-button',
+            style: {
+              padding: '0.5rem 0.75rem',
+              fontSize: '1rem',
+              minWidth: 'auto',
+              background: 'rgba(223, 4, 113, 0.3)',
+              border: '1px solid var(--button-color)'
+            }
+          }, '−1'),
+          React.createElement('input', {
+            type: 'range',
+            min: '30',
+            max: '240',
+            value: bpm,
+            onChange: handleBpmChange,
+            style: {
+              flex: 1,
+              accentColor: 'var(--glow-cyan)'
+            }
+          }),
+          React.createElement('button', {
+            onClick: () => adjustBpm(1),
+            className: 'bubble-button',
+            style: {
+              padding: '0.5rem 0.75rem',
+              fontSize: '1rem',
+              minWidth: 'auto',
+              background: 'rgba(223, 4, 113, 0.3)',
+              border: '1px solid var(--button-color)'
+            }
+          }, '+1'),
+          React.createElement('button', {
+            onClick: () => adjustBpm(10),
+            className: 'bubble-button',
+            style: {
+              padding: '0.5rem 0.75rem',
+              fontSize: '1rem',
+              minWidth: 'auto',
+              background: 'rgba(223, 4, 113, 0.3)',
+              border: '1px solid var(--button-color)'
+            }
+          }, '+10')
+        ),
+
+        // Play/Stop and Sound Toggle
+        React.createElement('div', {
+          style: {
+            display: 'flex',
+            gap: '0.5rem'
+          }
+        },
+          React.createElement('button', {
+            onClick: togglePlay,
+            className: 'bubble-button',
+            style: {
+              flex: 1,
+              padding: '0.75rem',
+              fontSize: '1rem',
+              fontWeight: 'bold',
+              background: isPlaying 
+                ? 'linear-gradient(135deg, rgba(223, 4, 113, 0.4), rgba(255, 0, 255, 0.4))'
+                : 'linear-gradient(135deg, rgba(2, 184, 147, 0.3), rgba(23, 219, 216, 0.3))',
+              border: isPlaying ? '2px solid var(--button-color)' : '2px solid var(--nav-alt)',
+              boxShadow: isPlaying
+                ? '0 0 20px rgba(223, 4, 113, 0.6)'
+                : '0 0 15px rgba(23, 219, 216, 0.5)'
+            }
+          }, isPlaying ? '⏸ Stop' : '▶ Start'),
+          React.createElement('button', {
+            onClick: () => setSoundEnabled(!soundEnabled),
+            className: 'bubble-button',
+            style: {
+              padding: '0.75rem 1rem',
+              fontSize: '1rem',
+              background: soundEnabled
+                ? 'rgba(138, 43, 226, 0.3)'
+                : 'rgba(0, 0, 0, 0.3)',
+              border: soundEnabled ? '2px solid var(--glow-purple)' : '1px solid rgba(255, 255, 255, 0.3)',
+              boxShadow: soundEnabled ? '0 0 15px rgba(138, 43, 226, 0.5)' : 'none'
+            }
+          }, soundEnabled ? '🔊' : '🔇')
+        ),
+
+        // Tempo presets
+        React.createElement('div', {
+          style: {
+            marginTop: '1rem',
+            display: 'flex',
+            gap: '0.5rem',
+            flexWrap: 'wrap',
+            justifyContent: 'center'
+          }
+        },
+          [
+            { label: 'Slow', value: 60 },
+            { label: 'Med', value: 120 },
+            { label: 'Fast', value: 180 }
+          ].map(preset =>
+            React.createElement('button', {
+              key: preset.label,
+              onClick: () => setBpm(preset.value),
+              className: 'bubble-button',
+              style: {
+                padding: '0.4rem 0.8rem',
+                fontSize: '0.75rem',
+                background: bpm === preset.value
+                  ? 'rgba(138, 43, 226, 0.3)'
+                  : 'rgba(0, 0, 0, 0.2)',
+                border: bpm === preset.value
+                  ? '1px solid var(--glow-purple)'
+                  : '1px solid rgba(255, 255, 255, 0.2)',
+                opacity: bpm === preset.value ? 1 : 0.7
+              }
+            }, preset.label)
+          )
+        )
+      );
+    }
 
     // Download Status Component
     function DownloadStatus() {
@@ -483,10 +944,19 @@
       const [loading, setLoading] = useState(true);
       const [error, setError] = useState(null);
       const [selectedVideo, setSelectedVideo] = useState(null);
+      const [hasAccess, setHasAccess] = useState(false);
+      const [ticketId, setTicketId] = useState(null);
 
       useEffect(() => {
-        fetchData();
-      }, []);
+        if (hasAccess) {
+          fetchData();
+        }
+      }, [hasAccess]);
+
+      const handleAccessGranted = (ticket) => {
+        setTicketId(ticket);
+        setHasAccess(true);
+      };
 
       const fetchData = async () => {
         try {
@@ -516,6 +986,12 @@
         }
       };
 
+      // Show queue modal if no access
+      if (!hasAccess) {
+        return React.createElement(QueueModal, { onAccessGranted: handleAccessGranted });
+      }
+
+      // Show loading after access granted
       if (loading) {
         return React.createElement('div', {
           style: {
@@ -539,38 +1015,7 @@
               marginBottom: '1rem'
             }
           }),
-          React.createElement('p', null, 'Loading...')
-        );
-      }
-
-      if (error) {
-        return React.createElement('div', {
-          style: {
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '100vh',
-            color: 'white',
-            textAlign: 'center'
-          }
-        },
-          React.createElement('h2', { style: { color: '#ff6b6b' } }, 'Oops! Something went wrong'),
-          React.createElement('p', null, error),
-          React.createElement('button', {
-            onClick: fetchData,
-            className: 'theme-button',
-            style: {
-              background: 'var(--button-color)',
-              color: 'white',
-              border: 'var(--border) var(--button-alt)',
-              padding: '1rem 2rem',
-              borderRadius: 'var(--border-radius)',
-              cursor: 'pointer',
-              fontFamily: 'Audiowide, sans-serif',
-              fontSize: '0.9rem'
-            }
-          }, 'Try Again')
+          React.createElement('p', null, 'Loading videos...')
         );
       }
 
@@ -642,89 +1087,237 @@
                 )
               ),
               selectedVideo && React.createElement(VideoPlayer, {
-                videoSrc: `/videos/${selectedVideo.filename}`,
-                title: selectedVideo.filename
-              })
-            ),
-          React.createElement('div', {
-            className: 'glass-bubble glow-effect compact-container',
+                videoSrc: `/videos/${selectedVideo.filename}?ticket=${ticketId}`,
+                  title: selectedVideo.filename
+                })
+              )
+          ),
+          React.createElement('footer', {
+            className: 'glass-bubble compact-container',
             style: {
-              textAlign: 'center'
-            }
-          },
-            React.createElement('h3', {
-              className: 'video-title'
-            }, 'API Endpoints:'),
-            React.createElement('div', {
-              className: 'no-spacing',
-              style: {
-                display: 'grid',
-                maxWidth: '600px',
-                margin: '0 auto'
-              }
-            },
-              React.createElement('p', { className: 'video-name' }, `📺 Videos: ${videos.length} found`),
-              React.createElement('p', { className: 'video-name' }, `📁 Public files: ${publicFiles.length} found`),
-              React.createElement('p', { className: 'video-name' }, '🔗 /api/videos - List videos'),
-              React.createElement('p', { className: 'video-name' }, '🔗 /api/public - List public files'),
-              React.createElement('p', { className: 'video-name' }, '🔗 /api/download-status - Download queue status'),
-              React.createElement('p', { className: 'video-name' }, '🔗 /health - Server health')
-            )
-          )
-        ),
-        React.createElement('footer', {
-          className: 'glass-bubble glow-effect compact-container',
-          style: {
             textAlign: 'center',
-            margin: '0.2rem',
+            margin: '1rem 0.2rem',
             fontSize: '0.9rem',
-            lineHeight: '1.4'
+            lineHeight: '1.6',
+            background: 'linear-gradient(135deg, rgba(223, 4, 113, 0.15), rgba(64, 0, 47, 0.15))',
+            border: '2px solid rgba(223, 4, 113, 0.4)',
+            boxShadow: '0 0 30px rgba(223, 4, 113, 0.3), 0 0 60px rgba(138, 43, 226, 0.2), inset 0 0 20px rgba(255, 0, 255, 0.1)',
+            backdropFilter: 'blur(20px)'
           }
         },
-          React.createElement('div', { style: { marginBottom: '1rem' } },
-            React.createElement('p', null, 'Built with ❤️ using Express & React on port 6969'),
-            React.createElement('p', { style: { fontSize: '0.8rem', opacity: '0.8', margin: '0.5rem 0' } },
+          // Built with section
+          React.createElement('div', { 
+            style: { 
+              marginBottom: '1.5rem',
+              padding: '1rem',
+              background: 'rgba(0, 0, 0, 0.3)',
+              borderRadius: '12px'
+            } 
+          },
+            React.createElement('p', { 
+              style: { 
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                color: 'var(--nav-alt)',
+                textShadow: '0 0 10px var(--glow-cyan), 0 0 20px var(--glow-cyan)',
+                marginBottom: '0.5rem'
+              } 
+            }, '💖 Built with ❤️ using Express & React on port 6969'),
+            React.createElement('p', { 
+              style: { 
+                fontSize: '0.85rem',
+                margin: '0.5rem 0',
+                color: '#ffffff',
+                opacity: '0.9'
+              } 
+            },
               'By ', React.createElement('a', {
                 href: 'https://github.com/HarleyVader',
-                style: { color: 'var(--tertiary-alt)', textDecoration: 'none' },
-                target: '_blank'
+                style: { 
+                  color: 'var(--glow-pink)',
+                  textDecoration: 'none',
+                  fontWeight: 'bold',
+                  textShadow: '0 0 8px var(--glow-pink)',
+                  transition: 'all 0.3s ease'
+                },
+                target: '_blank',
+                onMouseEnter: (e) => e.target.style.textShadow = '0 0 15px var(--glow-pink), 0 0 30px var(--glow-pink)',
+                onMouseLeave: (e) => e.target.style.textShadow = '0 0 8px var(--glow-pink)'
               }, 'HarleyVader'), ' - Creative software, AI & digital storytelling'
             )
           ),
-          React.createElement('div', { style: { borderTop: '1px solid var(--glass-border)', paddingTop: '1rem', marginBottom: '1rem' } },
-            React.createElement('p', { style: { fontSize: '0.8rem', marginBottom: '0.5rem', color: 'var(--primary-alt)' } }, '🙏 Special Thanks To:'),
-            React.createElement('div', { style: { display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' } },
+          
+          // Special Thanks section
+          React.createElement('div', { 
+            style: { 
+              borderTop: '2px solid rgba(21, 170, 181, 0.5)',
+              paddingTop: '1.5rem',
+              marginBottom: '1.5rem',
+              background: 'rgba(21, 170, 181, 0.05)',
+              padding: '1.5rem 1rem',
+              borderRadius: '12px'
+            } 
+          },
+            React.createElement('p', { 
+              style: { 
+                fontSize: '1rem',
+                marginBottom: '1rem',
+                color: 'var(--nav-alt)',
+                fontWeight: 'bold',
+                textShadow: '0 0 10px var(--glow-cyan)',
+                letterSpacing: '1px'
+              } 
+            }, '🙏 Special Thanks To:'),
+            React.createElement('div', { 
+              style: { 
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '2rem',
+                flexWrap: 'wrap'
+              } 
+            },
               React.createElement('a', {
                 href: 'https://bambisleep.info',
-                style: { color: 'var(--secondary-alt)', textDecoration: 'none', fontSize: '0.8rem' },
-                target: '_blank'
+                style: { 
+                  color: 'var(--glow-purple)',
+                  textDecoration: 'none',
+                  fontSize: '0.9rem',
+                  fontWeight: 'bold',
+                  textShadow: '0 0 8px var(--glow-purple)',
+                  transition: 'all 0.3s ease',
+                  padding: '0.5rem 1rem',
+                  border: '1px solid rgba(138, 43, 226, 0.5)',
+                  borderRadius: '8px',
+                  background: 'rgba(138, 43, 226, 0.1)'
+                },
+                target: '_blank',
+                onMouseEnter: (e) => {
+                  e.target.style.textShadow = '0 0 15px var(--glow-purple), 0 0 30px var(--glow-purple)';
+                  e.target.style.background = 'rgba(138, 43, 226, 0.2)';
+                },
+                onMouseLeave: (e) => {
+                  e.target.style.textShadow = '0 0 8px var(--glow-purple)';
+                  e.target.style.background = 'rgba(138, 43, 226, 0.1)';
+                }
               }, '📚 BambiSleep Wiki'),
               React.createElement('a', {
                 href: 'https://bambicloud.com',
-                style: { color: 'var(--secondary-alt)', textDecoration: 'none', fontSize: '0.8rem' },
-                target: '_blank'
+                style: { 
+                  color: 'var(--glow-cyan)',
+                  textDecoration: 'none',
+                  fontSize: '0.9rem',
+                  fontWeight: 'bold',
+                  textShadow: '0 0 8px var(--glow-cyan)',
+                  transition: 'all 0.3s ease',
+                  padding: '0.5rem 1rem',
+                  border: '1px solid rgba(0, 255, 255, 0.5)',
+                  borderRadius: '8px',
+                  background: 'rgba(0, 255, 255, 0.1)'
+                },
+                target: '_blank',
+                onMouseEnter: (e) => {
+                  e.target.style.textShadow = '0 0 15px var(--glow-cyan), 0 0 30px var(--glow-cyan)';
+                  e.target.style.background = 'rgba(0, 255, 255, 0.2)';
+                },
+                onMouseLeave: (e) => {
+                  e.target.style.textShadow = '0 0 8px var(--glow-cyan)';
+                  e.target.style.background = 'rgba(0, 255, 255, 0.1)';
+                }
               }, '☁️ Bambi Cloud')
             )
           ),
-          React.createElement('div', { style: { borderTop: '1px solid var(--glass-border)', paddingTop: '1rem' } },
-            React.createElement('p', { style: { fontSize: '0.8rem', marginBottom: '0.5rem', color: 'var(--tertiary-alt)' } }, '🚀 Main Projects:'),
-            React.createElement('div', { style: { display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' } },
+          
+          // Main Projects section
+          React.createElement('div', { 
+            style: { 
+              borderTop: '2px solid rgba(223, 4, 113, 0.5)',
+              paddingTop: '1.5rem',
+              background: 'rgba(223, 4, 113, 0.08)',
+              padding: '1.5rem 1rem',
+              borderRadius: '12px'
+            } 
+          },
+            React.createElement('p', { 
+              style: { 
+                fontSize: '1rem',
+                marginBottom: '1rem',
+                color: 'var(--button-color)',
+                fontWeight: 'bold',
+                textShadow: '0 0 10px var(--glow-pink), 0 0 20px var(--glow-pink)',
+                letterSpacing: '1px'
+              } 
+            }, '🚀 Main Projects:'),
+            React.createElement('div', { 
+              style: { 
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '1.5rem',
+                flexWrap: 'wrap',
+                marginTop: '1rem'
+              } 
+            },
               React.createElement('a', {
                 href: 'https://bambisleep.chat',
-                style: { color: 'var(--button-color)', textDecoration: 'none', fontSize: '0.8rem' },
-                target: '_blank'
+                style: { 
+                  color: '#ffffff',
+                  textDecoration: 'none',
+                  fontSize: '0.85rem',
+                  fontWeight: 'bold',
+                  padding: '0.75rem 1.5rem',
+                  background: 'linear-gradient(135deg, rgba(223, 4, 113, 0.3), rgba(255, 0, 255, 0.3))',
+                  border: '2px solid var(--button-color)',
+                  borderRadius: '12px',
+                  boxShadow: '0 0 15px rgba(223, 4, 113, 0.5)',
+                  textShadow: '0 0 8px var(--glow-pink)',
+                  transition: 'all 0.3s ease',
+                  display: 'inline-block'
+                },
+                target: '_blank',
+                onMouseEnter: (e) => {
+                  e.target.style.boxShadow = '0 0 25px rgba(223, 4, 113, 0.8), 0 0 50px rgba(255, 0, 255, 0.5)';
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.textShadow = '0 0 15px var(--glow-pink), 0 0 30px var(--glow-pink)';
+                },
+                onMouseLeave: (e) => {
+                  e.target.style.boxShadow = '0 0 15px rgba(223, 4, 113, 0.5)';
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.textShadow = '0 0 8px var(--glow-pink)';
+                }
               }, '🤖 BambiSleep.Chat - AI Hypnotic Girlfriend • Mind Control • Programming • Transformation • NSFW'),
               React.createElement('a', {
                 href: 'https://bambisleep.church',
-                style: { color: 'var(--button-color)', textDecoration: 'none', fontSize: '0.8rem' },
-                target: '_blank'
+                style: { 
+                  color: '#ffffff',
+                  textDecoration: 'none',
+                  fontSize: '0.85rem',
+                  fontWeight: 'bold',
+                  padding: '0.75rem 1.5rem',
+                  background: 'linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(64, 0, 47, 0.3))',
+                  border: '2px solid var(--glow-purple)',
+                  borderRadius: '12px',
+                  boxShadow: '0 0 15px rgba(138, 43, 226, 0.5)',
+                  textShadow: '0 0 8px var(--glow-purple)',
+                  transition: 'all 0.3s ease',
+                  display: 'inline-block'
+                },
+                target: '_blank',
+                onMouseEnter: (e) => {
+                  e.target.style.boxShadow = '0 0 25px rgba(138, 43, 226, 0.8), 0 0 50px rgba(138, 43, 226, 0.5)';
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.textShadow = '0 0 15px var(--glow-purple), 0 0 30px var(--glow-purple)';
+                },
+                onMouseLeave: (e) => {
+                  e.target.style.boxShadow = '0 0 15px rgba(138, 43, 226, 0.5)';
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.textShadow = '0 0 8px var(--glow-purple)';
+                }
               }, '⛪ BambiSleep.Church - Digital Sanctuary')
             )
           )
         )
       );
     }
-
+  
     // Add CSS animation for loading spinner
     const style = document.createElement('style');
     style.textContent = `
