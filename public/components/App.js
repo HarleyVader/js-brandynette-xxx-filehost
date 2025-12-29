@@ -385,6 +385,37 @@ function App() {
                 )
               ),
               selectedVideo &&
+                React.createElement(
+                  "div",
+                  {
+                    className: "glass-bubble",
+                    style: {
+                      margin: "0 0 1rem 0",
+                      padding: "0.75rem 1rem",
+                      background:
+                        "linear-gradient(135deg, rgba(12, 42, 42, 0.5), rgba(64, 0, 47, 0.5))",
+                      border: "2px solid rgba(255, 20, 147, 0.6)",
+                      boxShadow:
+                        "0 0 20px rgba(255, 0, 255, 0.4), 0 0 40px rgba(138, 43, 226, 0.2)",
+                      backdropFilter: "blur(15px)",
+                    },
+                  },
+                  React.createElement(
+                    "h2",
+                    {
+                      style: {
+                        margin: 0,
+                        fontSize: "1.2rem",
+                        fontWeight: "bold",
+                        color: "#FF1493",
+                        textShadow: "0 0 10px #FF00FF, 0 0 20px #FF1493",
+                        textAlign: "center",
+                      },
+                    },
+                    `🎬 ${selectedVideo.filename}`
+                  )
+                ),
+              selectedVideo &&
                 React.createElement(VideoPlayer, {
                   videoSrc: `/videos/${selectedVideo.filename}?ticket=${ticketId}`,
                   title: selectedVideo.filename,
