@@ -24,24 +24,24 @@ function VideoPlayer({ videoSrc, title }) {
     const handlePause = () => setIsPlaying(false);
     const handleEnded = () => setIsPlaying(false);
     const handleError = () => {
-      setError('Failed to load video');
+      setError("Failed to load video");
       setLoading(false);
     };
 
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('play', handlePlay);
-    video.addEventListener('pause', handlePause);
-    video.addEventListener('ended', handleEnded);
-    video.addEventListener('error', handleError);
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("play", handlePlay);
+    video.addEventListener("pause", handlePause);
+    video.addEventListener("ended", handleEnded);
+    video.addEventListener("error", handleError);
 
     return () => {
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('play', handlePlay);
-      video.removeEventListener('pause', handlePause);
-      video.removeEventListener('ended', handleEnded);
-      video.removeEventListener('error', handleError);
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("play", handlePlay);
+      video.removeEventListener("pause", handlePause);
+      video.removeEventListener("ended", handleEnded);
+      video.removeEventListener("error", handleError);
     };
   }, [videoSrc]);
 
@@ -70,100 +70,147 @@ function VideoPlayer({ videoSrc, title }) {
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   if (error) {
-    return React.createElement('div', { style: { color: 'red', padding: '2rem', textAlign: 'center' } }, error);
+    return React.createElement(
+      "div",
+      { style: { color: "red", padding: "2rem", textAlign: "center" } },
+      error
+    );
   }
 
-  return React.createElement('div', {
-    className: 'glass-bubble glow-effect',
-    style: {
-      padding: '0.8rem',
-      margin: '0.4rem'
-    }
-  },
-    React.createElement('div', {
-      className: 'glass-bubble',
-      style: { position: 'relative', background: 'black', overflow: 'hidden', margin: '0.3rem' }
+  return React.createElement(
+    "div",
+    {
+      className: "glass-bubble glow-effect",
+      style: {
+        padding: "0.8rem",
+        margin: "0.4rem",
+      },
     },
-      React.createElement('video', {
+    React.createElement(
+      "div",
+      {
+        className: "glass-bubble",
+        style: {
+          position: "relative",
+          background: "black",
+          overflow: "hidden",
+          margin: "0.3rem",
+        },
+      },
+      React.createElement("video", {
         ref: videoRef,
         src: videoSrc,
-        style: { width: '100%', height: 'auto', maxHeight: '70vh', display: 'block', cursor: 'pointer' },
-        onClick: togglePlay
-      }),
-      loading && React.createElement('div', {
         style: {
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          color: 'white',
-          textAlign: 'center'
-        }
-      }, 'Loading video...')
-    ),
-    React.createElement('div', {
-      className: 'glass-bubble compact-container',
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.3rem',
-        color: 'white'
-      }
-    },
-      React.createElement('button', {
-        onClick: togglePlay,
-        disabled: loading,
-        className: 'bubble-button glow-effect',
-        style: {
-          fontSize: '1.1rem'
-        }
-      }, isPlaying ? '⏸️' : '▶️'),
-      React.createElement('div', {
-        style: {
-          flex: 1,
-          height: '8px',
-          background: 'var(--button-alt)',
-          borderRadius: 'var(--border-radius)',
-          cursor: 'pointer',
-          border: '1px solid var(--nav-alt)'
+          width: "100%",
+          height: "auto",
+          maxHeight: "70vh",
+          display: "block",
+          cursor: "pointer",
         },
-        onClick: handleSeek
+        onClick: togglePlay,
+      }),
+      loading &&
+        React.createElement(
+          "div",
+          {
+            style: {
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              color: "white",
+              textAlign: "center",
+            },
+          },
+          "Loading video..."
+        )
+    ),
+    React.createElement(
+      "div",
+      {
+        className: "glass-bubble compact-container",
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: "0.3rem",
+          color: "white",
+        },
       },
-        React.createElement('div', {
+      React.createElement(
+        "button",
+        {
+          onClick: togglePlay,
+          disabled: loading,
+          className: "bubble-button glow-effect",
           style: {
-            height: '100%',
-            background: 'linear-gradient(90deg, var(--tertiary-alt), var(--primary-alt))',
+            fontSize: "1.1rem",
+          },
+        },
+        isPlaying ? "⏸️" : "▶️"
+      ),
+      React.createElement(
+        "div",
+        {
+          style: {
+            flex: 1,
+            height: "8px",
+            background: "var(--button-alt)",
+            borderRadius: "var(--border-radius)",
+            cursor: "pointer",
+            border: "1px solid var(--nav-alt)",
+          },
+          onClick: handleSeek,
+        },
+        React.createElement("div", {
+          style: {
+            height: "100%",
+            background:
+              "linear-gradient(90deg, var(--tertiary-alt), var(--primary-alt))",
             width: `${(currentTime / duration) * 100}%`,
-            borderRadius: 'var(--border-radius)',
-            transition: 'width 0.1s ease'
-          }
+            borderRadius: "var(--border-radius)",
+            transition: "width 0.1s ease",
+          },
         })
       ),
-      React.createElement('span', { style: { fontSize: '0.9rem', fontFamily: 'monospace', minWidth: '80px' } },
+      React.createElement(
+        "span",
+        {
+          style: {
+            fontSize: "0.9rem",
+            fontFamily: "monospace",
+            minWidth: "80px",
+          },
+        },
         `${formatTime(currentTime)} / ${formatTime(duration)}`
       ),
-      React.createElement('span', null, '🔊'),
-      React.createElement('input', {
-        type: 'range',
-        min: '0',
-        max: '1',
-        step: '0.1',
+      React.createElement("span", null, "🔊"),
+      React.createElement("input", {
+        type: "range",
+        min: "0",
+        max: "1",
+        step: "0.1",
         value: volume,
         onChange: handleVolumeChange,
-        style: { width: '80px' }
+        style: { width: "80px" },
       })
     ),
-    React.createElement('div', {
-      className: 'no-spacing',
-      style: { textAlign: 'center' }
-    },
-      React.createElement('h3', {
-        className: 'video-title glow-effect'
-      }, title)
+    React.createElement(
+      "div",
+      {
+        className: "no-spacing",
+        style: { textAlign: "center" },
+      },
+      React.createElement(
+        "h3",
+        {
+          className: "video-title glow-effect",
+        },
+        title
+      )
     )
   );
 }

@@ -251,42 +251,54 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
 
 // Serve media from BRANDIFICATION subfolders
-app.use("/streams", express.static(path.join(__dirname, "../BRANDIFICATION/streams")));
-app.use("/images", express.static(path.join(__dirname, "../BRANDIFICATION/Images")));
-app.use("/videos-dir", express.static(path.join(__dirname, "../BRANDIFICATION/Videos")));
+app.use(
+  "/streams",
+  express.static(path.join(__dirname, "../BRANDIFICATION/streams"))
+);
+app.use(
+  "/images",
+  express.static(path.join(__dirname, "../BRANDIFICATION/Images"))
+);
+app.use(
+  "/videos-dir",
+  express.static(path.join(__dirname, "../BRANDIFICATION/Videos"))
+);
 
 // Helper function to get video files
 const getVideoFiles = () => {
   const brandificationPath = path.join(__dirname, "../BRANDIFICATION");
   const videosPath = path.join(__dirname, "../BRANDIFICATION/Videos");
   const videoExtensions = [".mp4", ".webm", ".ogg"];
-  
+
   const videos = [];
-  
+
   try {
     // Scan root BRANDIFICATION folder
     const rootFiles = fs.readdirSync(brandificationPath);
-    rootFiles.forEach(file => {
+    rootFiles.forEach((file) => {
       const filePath = path.join(brandificationPath, file);
       const stat = fs.statSync(filePath);
-      if (stat.isFile() && videoExtensions.some(ext => file.toLowerCase().endsWith(ext))) {
-        videos.push({ filename: file, location: 'root' });
+      if (
+        stat.isFile() &&
+        videoExtensions.some((ext) => file.toLowerCase().endsWith(ext))
+      ) {
+        videos.push({ filename: file, location: "root" });
       }
     });
-    
+
     // Scan Videos subfolder
     if (fs.existsSync(videosPath)) {
       const videoFiles = fs.readdirSync(videosPath);
-      videoFiles.forEach(file => {
-        if (videoExtensions.some(ext => file.toLowerCase().endsWith(ext))) {
-          videos.push({ filename: file, location: 'Videos' });
+      videoFiles.forEach((file) => {
+        if (videoExtensions.some((ext) => file.toLowerCase().endsWith(ext))) {
+          videos.push({ filename: file, location: "Videos" });
         }
       });
     }
   } catch (error) {
     console.error("Error reading video directories:", error);
   }
-  
+
   return videos;
 };
 
@@ -294,15 +306,15 @@ const getVideoFiles = () => {
 const getImageFiles = () => {
   const imagesPath = path.join(__dirname, "../BRANDIFICATION/Images");
   const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
-  
+
   try {
     if (!fs.existsSync(imagesPath)) {
       return [];
     }
-    
+
     const files = fs.readdirSync(imagesPath);
-    return files.filter(file => 
-      imageExtensions.some(ext => file.toLowerCase().endsWith(ext))
+    return files.filter((file) =>
+      imageExtensions.some((ext) => file.toLowerCase().endsWith(ext))
     );
   } catch (error) {
     console.error("Error reading Images directory:", error);
@@ -431,9 +443,14 @@ app.get("/api/videos", (req, res) => {
     // Get file sizes for each video
     const videosWithSize = videos.map((videoInfo) => {
       try {
-        const filePath = videoInfo.location === 'root' 
-          ? path.join(brandificationPath, videoInfo.filename)
-          : path.join(brandificationPath, videoInfo.location, videoInfo.filename);
+        const filePath =
+          videoInfo.location === "root"
+            ? path.join(brandificationPath, videoInfo.filename)
+            : path.join(
+                brandificationPath,
+                videoInfo.location,
+                videoInfo.filename
+              );
         const stats = fs.statSync(filePath);
         return {
           filename: videoInfo.filename,
