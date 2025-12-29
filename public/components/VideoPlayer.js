@@ -197,20 +197,6 @@ function VideoPlayer({ videoSrc, title }) {
         onChange: handleVolumeChange,
         style: { width: "80px" },
       })
-    ),
-    React.createElement(
-      "div",
-      {
-        className: "no-spacing",
-        style: { textAlign: "center" },
-      },
-      React.createElement(
-        "h3",
-        {
-          className: "video-title glow-effect",
-        },
-        title
-      )
     )
   );
 }
