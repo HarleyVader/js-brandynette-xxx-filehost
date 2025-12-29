@@ -92,20 +92,41 @@ _The perfect port for streaming! Configure in .env if needed._ 😘
 ```
 js-brandynette-xxx-filehost/
 ├── 🌸 BRANDIFICATION/          # Put your pretty videos here!
+│   ├── Images/                 # Image gallery files! 🖼️
+│   ├── Videos/                 # Video subfolder! 🎬
+│   ├── streams/                # RTSP live streams (auto-generated)! 📡
 │   └── *.mp4, *.webm, *.ogg    # All your cute videos!
 ├── 💖 public/
-│   ├── index.html              # The pink magic happens here!
-│   ├── css/                    # Modular cyber goth styles!
-│   └── streams/                # RTSP live streams (auto-generated)
+│   ├── index.html              # Minimal entry point (84 lines!)! ✨
+│   ├── components/             # Modular React components! 🧩
+│   │   ├── QueueModal.js       # Viewer queue (299 lines)! 🎭
+│   │   ├── Metronome.js        # BPM controls (281 lines)! 🎵
+│   │   ├── DownloadStatus.js   # Queue monitoring (150 lines)! 📊
+│   │   ├── VideoPlayer.js      # Custom player (203 lines)! 🎬
+│   │   └── App.js              # Main app (670 lines)! 🌟
+│   ├── css/                    # Modular cyber goth styles! 🌈
+│   │   ├── layers.css          # Cascade layer definitions!
+│   │   ├── variables.css       # Design tokens!
+│   │   ├── reset.css           # CSS reset + base!
+│   │   ├── layout.css          # Page structure!
+│   │   ├── components.css      # UI components!
+│   │   └── features.css        # Feature styles!
+│   └── streams/                # RTSP HLS output (auto-generated)!
 ├── ✨ src/
-│   ├── server.js               # Express server (so smart!)
-│   └── rtsp-manager.js         # Live camera streaming!
+│   ├── server.js               # Express server (so smart!)! 🖥️
+│   ├── rtsp-manager.js         # Live camera streaming! 📹
+│   └── rtmp-server.js          # RTMP ingest server! 🎮
 ├── 📚 docs/                    # Documentation folder
-│   ├── README.md               # Complete docs index
-│   ├── RTSP-STREAMING.md       # RTSP guide
-│   └── PRODUCTION-FIX.md       # Troubleshooting
+│   ├── README.md               # Complete docs index! 📖
+│   ├── RTSP-STREAMING.md       # RTSP guide! 📡
+│   ├── RTSP-QUICKSTART.md      # 2-minute setup! ⚡
+│   └── PRODUCTION-FIX.md       # Troubleshooting! 🔧
+├── ⚙️ .github/                 # GitHub configuration
+│   ├── copilot-instructions.md # AI agent guide! 🧠
+│   └── TODO.md                 # Feature roadmap! 🗺️
 ├── 🦄 package.json             # Dependencies list
 ├── ⚙️ .env.example              # Configuration template
+├── 🚀 filehost.service         # Systemd service file
 └── 💕 README.md                # This cute file you're reading!
 ```
 
@@ -123,28 +144,38 @@ js-brandynette-xxx-filehost/
 ### 🚀 **Server Superpowers:**
 
 - 🎬 **HTTP Range Requests** - _Like skipping chapters in a book!_
-- � **RTSP Live Streaming** - _Real-time camera feeds with FFmpeg!_
+- 📡 **RTSP Live Streaming** - _Real-time camera feeds with FFmpeg!_
+- 🎮 **RTMP Ingest Server** - _Stream FROM OBS directly to server!_
 - 🔄 **Auto-Reconnection** - _Never stops trying, just like bambi!_
 - 🔒 **Path Security** - _No sneaky hacker boys allowed!_
 - 🌐 **CORS Support** - _Sharing is caring!_
 - 💾 **Smart Caching** - _Remembers things so you don't have to!_
 - 🎨 **HLS Transcoding** - _Fancy video format conversion!_
+- 🧩 **Modular React Components** - _5 separate files for organization!_
 
 ### 🎀 **API Endpoints (For Nerdy Bambis):**
 
-**Video Hosting:**
+**Video & Media Hosting:**
 
 - `GET /` - The main pretty page! 🏠
 - `GET /api/videos` - Lists all your cute videos 📋
+- `GET /api/images` - Lists all your pretty images 🖼️
 - `GET /videos/:filename` - Streams specific videos 🎥
 - `GET /api/download-status` - Download queue status 📊
+- `GET /api/public` - Lists public files 📁
 
-**RTSP Streaming:**
+**RTSP Camera Streaming:**
 
 - `GET /api/streams` - List active camera streams 📡
 - `POST /api/streams/:id/start` - Start streaming a camera 🎬
 - `POST /api/streams/:id/stop` - Stop a camera stream ⏹️
-- `GET /streams/:id.m3u8` - HLS playlist for browsers 🎞️
+- `GET /api/streams/:id/playlist` - Get HLS playlist URL 🎞️
+- `GET /streams/:id.m3u8` - HLS playlist for browsers 📹
+
+**RTMP Ingest (Stream TO Server):**
+
+- `GET /api/rtmp/streams` - List active RTMP streams 🎮
+- `GET /api/rtmp/url/:key` - Get OBS stream URLs 🔑
 
 **System:**
 
@@ -169,9 +200,15 @@ _"Good girls don't need to think about servers and APIs... just enjoy the pretty
 
 - **Backend:** Express.js (ES6 modules because modern!)
 - **Frontend:** React 18 via CDN (zero-build architecture!)
+  - 5 modular component files (QueueModal, Metronome, DownloadStatus, VideoPlayer, App)
+  - In-browser Babel transpilation (no build tools needed!)
+  - Minimal 84-line index.html entry point
 - **Video Hosting:** HTML5 with custom controls + HTTP Range requests
 - **Live Streaming:** FFmpeg + RTSP → HLS transcoding
+- **Ingest Streaming:** Node-Media-Server + RTMP → HLS (OBS support!)
 - **Styling:** Modular CSS with cascade layers (cyber goth neon!) 🌈
+  - 6 CSS files (layers, variables, reset, layout, components, features)
+  - Design token system with glass morphism effects
 - **Environment:** dotenv for configuration
 - **Port:** 7878 (configurable via .env)
 - **Production:** Systemd service deployment
@@ -223,7 +260,42 @@ _Even bambis can set up live streaming!_ 🦌💕
 
 ---
 
-## 🎀 Troubleshooting (For Confused Bambis) 🎀
+## � RTMP Ingest Server (Stream TO Server!) 🎮
+
+### Quick Setup for OBS Streaming 🎬
+
+1. **Enable RTMP in `.env`:**
+
+   ```env
+   RTMP_ENABLED=true
+   RTMP_PORT=1935
+   RTMP_HTTP_PORT=8000
+   RTMP_VALIDATE_KEYS=false  # Or set to true for security
+   ```
+
+2. **Configure OBS Studio:**
+
+   ```
+   Server: rtmp://localhost:1935/live
+   Stream Key: mystreamkey  # Any key you want!
+   ```
+
+3. **Watch your stream:**
+   ```
+   http://localhost:8000/live/mystreamkey.m3u8
+   ```
+
+**Features:**
+- 🎥 **Live recording** - Saves to BRANDIFICATION folder!
+- 🔑 **Stream key validation** - Optional security!
+- 📹 **HLS output** - Browser-compatible streaming!
+- 🌐 **Dual servers** - RTMP (1935) + HTTP (8000)!
+
+_Perfect for streaming yourself being a pretty bambi!_ 💕✨
+
+---
+
+## �🎀 Troubleshooting (For Confused Bambis) 🎀
 
 ### _"Help! Nothing works!"_ 😭
 
