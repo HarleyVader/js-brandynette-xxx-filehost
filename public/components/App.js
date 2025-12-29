@@ -154,6 +154,107 @@ function App() {
         )
       )
     ),
+    // Navigation Bar - Folders
+    React.createElement(
+      "nav",
+      {
+        className: "glass-bubble glow-effect compact-container",
+        style: {
+          margin: "0.5rem auto",
+          maxWidth: "1200px",
+          padding: "0.75rem 1rem",
+          display: "flex",
+          justifyContent: "center",
+          gap: "1rem",
+          flexWrap: "wrap",
+          background: "linear-gradient(135deg, rgba(12, 42, 42, 0.4), rgba(64, 0, 47, 0.4))",
+          border: "2px solid rgba(23, 219, 216, 0.6)",
+          boxShadow: "0 0 30px rgba(0, 255, 255, 0.3), 0 0 60px rgba(138, 43, 226, 0.2)",
+          backdropFilter: "blur(20px)"
+        }
+      },
+      React.createElement(
+        "a",
+        {
+          href: "#images",
+          style: {
+            color: "#00FF7F",
+            textDecoration: "none",
+            fontSize: "0.9rem",
+            fontWeight: "bold",
+            textShadow: "0 0 8px #00FF00",
+            transition: "all 0.3s ease",
+            padding: "0.5rem 1rem",
+            border: "1px solid rgba(0, 255, 127, 0.5)",
+            borderRadius: "8px",
+            background: "rgba(0, 255, 127, 0.1)"
+          },
+          onMouseEnter: (e) => {
+            e.target.style.textShadow = "0 0 15px #00FF00, 0 0 30px #7FFF00";
+            e.target.style.background = "rgba(0, 255, 127, 0.2)";
+          },
+          onMouseLeave: (e) => {
+            e.target.style.textShadow = "0 0 8px #00FF00";
+            e.target.style.background = "rgba(0, 255, 127, 0.1)";
+          }
+        },
+        "🖼️ Images"
+      ),
+      React.createElement(
+        "a",
+        {
+          href: "#streams",
+          style: {
+            color: "var(--glow-cyan)",
+            textDecoration: "none",
+            fontSize: "0.9rem",
+            fontWeight: "bold",
+            textShadow: "0 0 8px var(--glow-cyan)",
+            transition: "all 0.3s ease",
+            padding: "0.5rem 1rem",
+            border: "1px solid rgba(0, 255, 255, 0.5)",
+            borderRadius: "8px",
+            background: "rgba(0, 255, 255, 0.1)"
+          },
+          onMouseEnter: (e) => {
+            e.target.style.textShadow = "0 0 15px var(--glow-cyan), 0 0 30px var(--glow-cyan)";
+            e.target.style.background = "rgba(0, 255, 255, 0.2)";
+          },
+          onMouseLeave: (e) => {
+            e.target.style.textShadow = "0 0 8px var(--glow-cyan)";
+            e.target.style.background = "rgba(0, 255, 255, 0.1)";
+          }
+        },
+        "📡 Streams"
+      ),
+      React.createElement(
+        "a",
+        {
+          href: "#videos",
+          style: {
+            color: "#FF1493",
+            textDecoration: "none",
+            fontSize: "0.9rem",
+            fontWeight: "bold",
+            textShadow: "0 0 8px #FF00FF",
+            transition: "all 0.3s ease",
+            padding: "0.5rem 1rem",
+            border: "1px solid rgba(255, 20, 147, 0.5)",
+            borderRadius: "8px",
+            background: "rgba(255, 20, 147, 0.1)"
+          },
+          onMouseEnter: (e) => {
+            e.target.style.textShadow = "0 0 15px #FF00FF, 0 0 30px #FF1493";
+            e.target.style.background = "rgba(255, 20, 147, 0.2)";
+          },
+          onMouseLeave: (e) => {
+            e.target.style.textShadow = "0 0 8px #FF00FF";
+            e.target.style.background = "rgba(255, 20, 147, 0.1)";
+          }
+        },
+        "🎥 Videos"
+      )
+    ),
     // Download Status Component
     React.createElement(DownloadStatus),
     React.createElement(
