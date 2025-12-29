@@ -112,7 +112,7 @@ function App() {
             letterSpacing: "2.5px",
           },
         },
-        "🎬 Brandynette Video Player"
+        "🎬 Brandynette's FileHost"
       ),
       React.createElement(
         "div",
