@@ -714,7 +714,11 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📁 Serving videos from BRANDIFICATION folder`);
-  console.log(`📺 Available videos: ${getVideoFiles().join(", ")}`);
+  const videos = getVideoFiles();
+  console.log(`📺 Available videos (${videos.length}):`);
+  videos.forEach(v => {
+    console.log(`   📹 ${v.location === 'root' ? '' : v.location + '/'}${v.filename}`);
+  });
 });
 
 // Graceful shutdown
