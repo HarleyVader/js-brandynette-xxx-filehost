@@ -716,8 +716,10 @@ app.listen(PORT, () => {
   console.log(`📁 Serving videos from BRANDIFICATION folder`);
   const videos = getVideoFiles();
   console.log(`📺 Available videos (${videos.length}):`);
-  videos.forEach(v => {
-    console.log(`   📹 ${v.location === 'root' ? '' : v.location + '/'}${v.filename}`);
+  videos.forEach((v) => {
+    console.log(
+      `   📹 ${v.location === "root" ? "" : v.location + "/"}${v.filename}`
+    );
   });
 });
 
