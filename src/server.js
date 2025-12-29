@@ -23,7 +23,7 @@ if (process.env.RTMP_ENABLED === "true") {
     rtmpPort: parseInt(process.env.RTMP_PORT) || 1935,
     httpPort: parseInt(process.env.RTMP_HTTP_PORT) || 8000,
     ffmpegPath: process.env.FFMPEG_PATH || "ffmpeg",
-    mediaRoot: process.env.RTMP_MEDIA_ROOT || "./public",
+    mediaRoot: process.env.RTMP_MEDIA_ROOT || "./BRANDIFICATION",
     validateStreamKey: process.env.RTMP_VALIDATE_KEYS === "true",
     validStreamKeys: process.env.RTMP_VALID_KEYS
       ? process.env.RTMP_VALID_KEYS.split(",")
@@ -40,7 +40,7 @@ let rtspManager = null;
 if (process.env.RTSP_ENABLED === "true") {
   const rtspConfig = {
     ffmpegPath: process.env.FFMPEG_PATH || "ffmpeg",
-    outputDir: process.env.STREAM_OUTPUT_DIR || "./public/streams",
+    outputDir: process.env.STREAM_OUTPUT_DIR || "./BRANDIFICATION/streams",
     videoCodec: process.env.STREAM_VIDEO_CODEC || "libx264",
     audioCodec: process.env.STREAM_AUDIO_CODEC || "aac",
     preset: process.env.FFMPEG_PRESET || "ultrafast",
@@ -249,6 +249,9 @@ app.use(express.json());
 
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, "../public")));
+
+// Serve streams from BRANDIFICATION folder
+app.use("/streams", express.static(path.join(__dirname, "../BRANDIFICATION/streams")));
 
 // Helper function to get video files
 const getVideoFiles = () => {

@@ -1188,48 +1188,6 @@
             backdropFilter: 'blur(25px)'
           }
         },
-          // Built with section
-          React.createElement('div', { 
-            style: { 
-              marginBottom: '1.5rem',
-              padding: '1rem',
-              background: 'rgba(0, 0, 0, 0.3)',
-              borderRadius: '12px'
-            } 
-          },
-            React.createElement('p', { 
-              style: { 
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                color: '#FFD700',
-                textShadow: '0 0 15px #FF8C00, 0 0 30px #FF4500, 0 0 45px #FF1493',
-                marginBottom: '0.5rem'
-              } 
-            }, '💖 Built with ❤️ using Express & React on port 6969'),
-            React.createElement('p', { 
-              style: { 
-                fontSize: '0.85rem',
-                margin: '0.5rem 0',
-                color: '#ffffff',
-                opacity: '0.9'
-              } 
-            },
-              'By ', React.createElement('a', {
-                href: 'https://github.com/HarleyVader',
-                style: { 
-                  color: 'var(--glow-pink)',
-                  textDecoration: 'none',
-                  fontWeight: 'bold',
-                  textShadow: '0 0 8px var(--glow-pink)',
-                  transition: 'all 0.3s ease'
-                },
-                target: '_blank',
-                onMouseEnter: (e) => e.target.style.textShadow = '0 0 15px var(--glow-pink), 0 0 30px var(--glow-pink)',
-                onMouseLeave: (e) => e.target.style.textShadow = '0 0 8px var(--glow-pink)'
-              }, 'HarleyVader'), ' - Creative software, AI & digital storytelling'
-            )
-          ),
-          
           // Special Thanks section
           React.createElement('div', { 
             style: { 
@@ -1396,6 +1354,51 @@
                 }
               }, '⛪ BambiSleep.Church - Digital Sanctuary')
             )
+          )
+        ),
+        
+        // Built with credit - bottom right corner
+        React.createElement('div', {
+          style: {
+            position: 'fixed',
+            bottom: '10px',
+            right: '10px',
+            padding: '0.5rem 0.75rem',
+            background: 'rgba(0, 0, 0, 0.5)',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 215, 0, 0.3)',
+            boxShadow: '0 0 15px rgba(255, 140, 0, 0.3)',
+            backdropFilter: 'blur(10px)',
+            fontSize: '0.7rem',
+            zIndex: 1000
+          }
+        },
+          React.createElement('p', {
+            style: {
+              margin: 0,
+              color: '#FFD700',
+              textShadow: '0 0 8px #FF8C00',
+              fontWeight: 'bold'
+            }
+          }, '💖 Built with ❤️ using Express & React'),
+          React.createElement('p', {
+            style: {
+              margin: '0.25rem 0 0 0',
+              fontSize: '0.65rem',
+              color: '#ffffff',
+              opacity: 0.8
+            }
+          },
+            'By ', React.createElement('a', {
+              href: 'https://github.com/HarleyVader',
+              style: {
+                color: 'var(--glow-pink)',
+                textDecoration: 'none',
+                fontWeight: 'bold',
+                textShadow: '0 0 5px var(--glow-pink)'
+              },
+              target: '_blank'
+            }, 'HarleyVader')
           )
         )
       );
