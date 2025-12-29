@@ -2,12 +2,18 @@
 function App() {
   const { useState, useEffect } = React;
   const [videos, setVideos] = useState([]);
+  const [images, setImages] = useState([]);
+  const [streams, setStreams] = useState([]);
   const [publicFiles, setPublicFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedStream, setSelectedStream] = useState(null);
   const [hasAccess, setHasAccess] = useState(false);
   const [ticketId, setTicketId] = useState(null);
+  const [activeTab, setActiveTab] = useState('videos'); // 'videos', 'images', 'streams'
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (hasAccess) {
@@ -30,15 +36,36 @@ function App() {
       const videosData = await videosResponse.json();
       setVideos(videosData.videos);
 
+      // Fetch images
+      const imagesResponse = await fetch("/api/images");
+      if (!imagesResponse.ok) throw new Error("Failed to fetch images");
+      const imagesData = await imagesResponse.json();
+      setImages(imagesData.images);
+
+      // Fetch streams (RTSP + RTMP)
+      const rtspResponse = await fetch("/api/streams");
+      const rtmpResponse = await fetch("/api/rtmp/streams");
+      if (rtspResponse.ok && rtmpResponse.ok) {
+        const rtspData = await rtspResponse.json();
+        const rtmpData = await rtmpResponse.json();
+        const allStreams = [
+          ...rtspData.streams.map(s => ({...s, type: 'RTSP'})),
+          ...rtmpData.streams.map(s => ({...s, type: 'RTMP'}))
+        ];
+        setStreams(allStreams);
+      }
+
       // Fetch public files
       const publicResponse = await fetch("/api/public");
       if (!publicResponse.ok) throw new Error("Failed to fetch public files");
       const publicData = await publicResponse.json();
       setPublicFiles(publicData.files);
 
-      // Auto-select first video
-      if (videosData.videos.length > 0) {
+      // Auto-select first item based on active tab
+      if (activeTab === 'videos' && videosData.videos.length > 0) {
         setSelectedVideo(videosData.videos[0]);
+      } else if (activeTab === 'images' && imagesData.images.length > 0) {
+        setSelectedImage(imagesData.images[0]);
       }
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -46,6 +73,12 @@ function App() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setTimeout(() => setRefreshing(false), 500);
   };
 
   // Show queue modal if no access
@@ -162,7 +195,120 @@ function App() {
         className: "compact-container",
         style: { maxWidth: "1200px", margin: "0 auto" },
       },
-      videos.length === 0
+      // Tab Navigation Bar - Folders with Refresh
+      React.createElement(
+        "nav",
+        {
+          className: "glass-bubble glow-effect compact-container",
+          style: {
+            margin: "0 0 1rem 0",
+            padding: "0.75rem 1rem",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "1rem",
+            flexWrap: "wrap",
+            background:
+              "linear-gradient(135deg, rgba(12, 42, 42, 0.4), rgba(64, 0, 47, 0.4))",
+            border: "2px solid rgba(23, 219, 216, 0.6)",
+            boxShadow:
+              "0 0 30px rgba(0, 255, 255, 0.3), 0 0 60px rgba(138, 43, 226, 0.2)",
+            backdropFilter: "blur(20px)",
+          },
+        },
+        React.createElement(
+          "div",
+          {
+            style: {
+              display: "flex",
+              gap: "1rem",
+              flexWrap: "wrap",
+              flex: 1,
+              justifyContent: "center",
+            },
+          },
+          React.createElement(
+            "button",
+            {
+              onClick: () => setActiveTab('videos'),
+              className: activeTab === 'videos' ? "bubble-button selected glow-effect" : "bubble-button",
+              style: {
+                color: activeTab === 'videos' ? "#FF1493" : "#FF69B4",
+                fontSize: "0.9rem",
+                fontWeight: "bold",
+                textShadow: activeTab === 'videos' ? "0 0 15px #FF00FF, 0 0 30px #FF1493" : "0 0 8px #FF00FF",
+                transition: "all 0.3s ease",
+                padding: "0.5rem 1rem",
+                border: activeTab === 'videos' ? "2px solid rgba(255, 20, 147, 0.8)" : "1px solid rgba(255, 20, 147, 0.5)",
+                borderRadius: "8px",
+                background: activeTab === 'videos' ? "rgba(255, 20, 147, 0.3)" : "rgba(255, 20, 147, 0.1)",
+              },
+            },
+            `🎥 Videos (${videos.length})`
+          ),
+          React.createElement(
+            "button",
+            {
+              onClick: () => setActiveTab('images'),
+              className: activeTab === 'images' ? "bubble-button selected glow-effect" : "bubble-button",
+              style: {
+                color: activeTab === 'images' ? "#00FF7F" : "#7FFF7F",
+                fontSize: "0.9rem",
+                fontWeight: "bold",
+                textShadow: activeTab === 'images' ? "0 0 15px #00FF00, 0 0 30px #7FFF00" : "0 0 8px #00FF00",
+                transition: "all 0.3s ease",
+                padding: "0.5rem 1rem",
+                border: activeTab === 'images' ? "2px solid rgba(0, 255, 127, 0.8)" : "1px solid rgba(0, 255, 127, 0.5)",
+                borderRadius: "8px",
+                background: activeTab === 'images' ? "rgba(0, 255, 127, 0.3)" : "rgba(0, 255, 127, 0.1)",
+              },
+            },
+            `🖼️ Images (${images.length})`
+          ),
+          React.createElement(
+            "button",
+            {
+              onClick: () => setActiveTab('streams'),
+              className: activeTab === 'streams' ? "bubble-button selected glow-effect" : "bubble-button",
+              style: {
+                color: activeTab === 'streams' ? "var(--glow-cyan)" : "#7FFFFF",
+                fontSize: "0.9rem",
+                fontWeight: "bold",
+                textShadow: activeTab === 'streams' ? "0 0 15px var(--glow-cyan), 0 0 30px var(--glow-cyan)" : "0 0 8px var(--glow-cyan)",
+                transition: "all 0.3s ease",
+                padding: "0.5rem 1rem",
+                border: activeTab === 'streams' ? "2px solid rgba(0, 255, 255, 0.8)" : "1px solid rgba(0, 255, 255, 0.5)",
+                borderRadius: "8px",
+                background: activeTab === 'streams' ? "rgba(0, 255, 255, 0.3)" : "rgba(0, 255, 255, 0.1)",
+              },
+            },
+            `📡 Streams (${streams.length})`
+          )
+        ),
+        React.createElement(
+          "button",
+          {
+            onClick: handleRefresh,
+            disabled: refreshing,
+            className: "bubble-button glow-effect",
+            style: {
+              color: refreshing ? "#888" : "var(--glow-purple)",
+              fontSize: "0.9rem",
+              fontWeight: "bold",
+              textShadow: refreshing ? "none" : "0 0 10px var(--glow-purple)",
+              transition: "all 0.3s ease",
+              padding: "0.5rem 1rem",
+              border: "1px solid rgba(138, 43, 226, 0.5)",
+              borderRadius: "8px",
+              background: refreshing ? "rgba(138, 43, 226, 0.05)" : "rgba(138, 43, 226, 0.2)",
+              cursor: refreshing ? "not-allowed" : "pointer",
+            },
+          },
+          refreshing ? "🔄 Refreshing..." : "🔄 Refresh"
+        )
+      ),
+      // Content based on active tab
+      activeTab === 'videos' && videos.length === 0
         ? React.createElement(
             "div",
             { style: { textAlign: "center", padding: "3rem 1rem" } },
@@ -177,6 +323,36 @@ function App() {
               "Please add video files to the BRANDIFICATION folder"
             )
           )
+        : activeTab === 'images' && images.length === 0
+        ? React.createElement(
+            "div",
+            { style: { textAlign: "center", padding: "3rem 1rem" } },
+            React.createElement(
+              "h2",
+              { style: { color: "#00FF7F" } },
+              "No images found"
+            ),
+            React.createElement(
+              "p",
+              null,
+              "Please add image files to the BRANDIFICATION/Images folder"
+            )
+          )
+        : activeTab === 'streams' && streams.length === 0
+        ? React.createElement(
+            "div",
+            { style: { textAlign: "center", padding: "3rem 1rem" } },
+            React.createElement(
+              "h2",
+              { style: { color: "var(--glow-cyan)" } },
+              "No streams active"
+            ),
+            React.createElement(
+              "p",
+              null,
+              "Configure RTSP cameras or start RTMP streams in .env file"
+            )
+          )
         : React.createElement(
             "div",
             {
@@ -187,90 +363,173 @@ function App() {
                 flexWrap: "wrap",
               },
             },
-            // Left sidebar - Video selection
-            videos.length > 1 &&
+            // Left sidebar - File selection based on active tab
+            React.createElement(
+              "div",
+              {
+                className: "glass-bubble glow-effect",
+                style: {
+                  flex: "0 0 280px",
+                  padding: "1rem",
+                  maxHeight: "80vh",
+                  overflowY: "auto",
+                  position: "sticky",
+                  top: "1rem",
+                },
+              },
+              React.createElement(
+                "h3",
+                {
+                  style: {
+                    marginBottom: "1rem",
+                    textAlign: "center",
+                    color: activeTab === 'videos' ? "var(--glow-pink)" : activeTab === 'images' ? "#00FF7F" : "var(--glow-cyan)",
+                    fontSize: "1.1rem",
+                    textShadow: activeTab === 'videos' ? "0 0 10px var(--glow-pink)" : activeTab === 'images' ? "0 0 10px #00FF00" : "0 0 10px var(--glow-cyan)",
+                  },
+                },
+                activeTab === 'videos' ? "📁 Select a video:" : activeTab === 'images' ? "📁 Select an image:" : "📁 Active streams:"
+              ),
               React.createElement(
                 "div",
                 {
-                  className: "glass-bubble glow-effect",
+                  className: "no-spacing",
                   style: {
-                    flex: "0 0 280px",
-                    padding: "1rem",
-                    maxHeight: "80vh",
-                    overflowY: "auto",
-                    position: "sticky",
-                    top: "1rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.5rem",
                   },
                 },
-                React.createElement(
-                  "h3",
-                  {
-                    style: {
-                      marginBottom: "1rem",
-                      textAlign: "center",
-                      color: "var(--nav-alt)",
-                      fontSize: "1.1rem",
-                      textShadow: "0 0 10px var(--glow-cyan)",
+                activeTab === 'videos' ? videos.map((video) =>
+                  React.createElement(
+                    "button",
+                    {
+                      key: video.filename,
+                      onClick: () => setSelectedVideo(video),
+                      className:
+                        selectedVideo?.filename === video.filename
+                          ? "bubble-button selected glow-effect"
+                          : "bubble-button",
+                      style: {
+                        fontSize: "0.7rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        gap: "0.2rem",
+                        textAlign: "left",
+                        width: "100%",
+                      },
                     },
-                  },
-                  "📁 Select a video:"
-                ),
-                React.createElement(
-                  "div",
-                  {
-                    className: "no-spacing",
-                    style: {
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.5rem",
-                    },
-                  },
-                  videos.map((video) =>
                     React.createElement(
-                      "button",
+                      "span",
                       {
-                        key: video.filename,
-                        onClick: () => setSelectedVideo(video),
-                        className:
-                          selectedVideo?.filename === video.filename
-                            ? "bubble-button selected glow-effect"
-                            : "bubble-button",
                         style: {
-                          fontSize: "0.7rem",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "flex-start",
-                          gap: "0.2rem",
-                          textAlign: "left",
+                          wordBreak: "break-word",
                           width: "100%",
                         },
                       },
-                      React.createElement(
-                        "span",
-                        {
-                          style: {
-                            wordBreak: "break-word",
-                            width: "100%",
-                          },
+                      video.filename
+                    ),
+                    React.createElement(
+                      "span",
+                      {
+                        style: {
+                          fontSize: "0.6rem",
+                          opacity: 0.7,
+                          color: "var(--primary-alt)",
                         },
-                        video.filename
-                      ),
-                      React.createElement(
-                        "span",
-                        {
-                          style: {
-                            fontSize: "0.6rem",
-                            opacity: 0.7,
-                            color: "var(--primary-alt)",
-                          },
+                      },
+                      `${video.sizeMB} MB`
+                    )
+                  )
+                ) : activeTab === 'images' ? images.map((image) =>
+                  React.createElement(
+                    "button",
+                    {
+                      key: image.filename,
+                      onClick: () => setSelectedImage(image),
+                      className:
+                        selectedImage?.filename === image.filename
+                          ? "bubble-button selected glow-effect"
+                          : "bubble-button",
+                      style: {
+                        fontSize: "0.7rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        gap: "0.2rem",
+                        textAlign: "left",
+                        width: "100%",
+                      },
+                    },
+                    React.createElement(
+                      "span",
+                      {
+                        style: {
+                          wordBreak: "break-word",
+                          width: "100%",
                         },
-                        `${video.sizeMB} MB`
-                      )
+                      },
+                      image.filename
+                    ),
+                    React.createElement(
+                      "span",
+                      {
+                        style: {
+                          fontSize: "0.6rem",
+                          opacity: 0.7,
+                          color: "#00FF7F",
+                        },
+                      },
+                      `${image.sizeKB} KB`
+                    )
+                  )
+                ) : streams.map((stream) =>
+                  React.createElement(
+                    "button",
+                    {
+                      key: stream.id || stream.streamKey,
+                      onClick: () => setSelectedStream(stream),
+                      className:
+                        selectedStream?.id === stream.id || selectedStream?.streamKey === stream.streamKey
+                          ? "bubble-button selected glow-effect"
+                          : "bubble-button",
+                      style: {
+                        fontSize: "0.7rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        gap: "0.2rem",
+                        textAlign: "left",
+                        width: "100%",
+                      },
+                    },
+                    React.createElement(
+                      "span",
+                      {
+                        style: {
+                          wordBreak: "break-word",
+                          width: "100%",
+                        },
+                      },
+                      stream.name || stream.streamKey
+                    ),
+                    React.createElement(
+                      "span",
+                      {
+                        style: {
+                          fontSize: "0.6rem",
+                          opacity: 0.7,
+                          color: "var(--glow-cyan)",
+                        },
+                      },
+                      `${stream.type} • ${stream.status || 'LIVE'}`
                     )
                   )
                 )
-              ),
-            // Right content - Video player
+              )
+            ),
+            // Right content - Display based on active tab
             React.createElement(
               "div",
               {
@@ -279,112 +538,7 @@ function App() {
                   minWidth: 0,
                 },
               },
-              // Navigation Bar - Folders
-              React.createElement(
-                "nav",
-                {
-                  className: "glass-bubble glow-effect compact-container",
-                  style: {
-                    margin: "0 0 1rem 0",
-                    padding: "0.75rem 1rem",
-                    display: "flex",
-                    justifyContent: "center",
-                    gap: "1rem",
-                    flexWrap: "wrap",
-                    background:
-                      "linear-gradient(135deg, rgba(12, 42, 42, 0.4), rgba(64, 0, 47, 0.4))",
-                    border: "2px solid rgba(23, 219, 216, 0.6)",
-                    boxShadow:
-                      "0 0 30px rgba(0, 255, 255, 0.3), 0 0 60px rgba(138, 43, 226, 0.2)",
-                    backdropFilter: "blur(20px)",
-                  },
-                },
-                React.createElement(
-                  "a",
-                  {
-                    href: "#images",
-                    style: {
-                      color: "#00FF7F",
-                      textDecoration: "none",
-                      fontSize: "0.9rem",
-                      fontWeight: "bold",
-                      textShadow: "0 0 8px #00FF00",
-                      transition: "all 0.3s ease",
-                      padding: "0.5rem 1rem",
-                      border: "1px solid rgba(0, 255, 127, 0.5)",
-                      borderRadius: "8px",
-                      background: "rgba(0, 255, 127, 0.1)",
-                    },
-                    onMouseEnter: (e) => {
-                      e.target.style.textShadow =
-                        "0 0 15px #00FF00, 0 0 30px #7FFF00";
-                      e.target.style.background = "rgba(0, 255, 127, 0.2)";
-                    },
-                    onMouseLeave: (e) => {
-                      e.target.style.textShadow = "0 0 8px #00FF00";
-                      e.target.style.background = "rgba(0, 255, 127, 0.1)";
-                    },
-                  },
-                  "🖼️ Images"
-                ),
-                React.createElement(
-                  "a",
-                  {
-                    href: "#streams",
-                    style: {
-                      color: "var(--glow-cyan)",
-                      textDecoration: "none",
-                      fontSize: "0.9rem",
-                      fontWeight: "bold",
-                      textShadow: "0 0 8px var(--glow-cyan)",
-                      transition: "all 0.3s ease",
-                      padding: "0.5rem 1rem",
-                      border: "1px solid rgba(0, 255, 255, 0.5)",
-                      borderRadius: "8px",
-                      background: "rgba(0, 255, 255, 0.1)",
-                    },
-                    onMouseEnter: (e) => {
-                      e.target.style.textShadow =
-                        "0 0 15px var(--glow-cyan), 0 0 30px var(--glow-cyan)";
-                      e.target.style.background = "rgba(0, 255, 255, 0.2)";
-                    },
-                    onMouseLeave: (e) => {
-                      e.target.style.textShadow = "0 0 8px var(--glow-cyan)";
-                      e.target.style.background = "rgba(0, 255, 255, 0.1)";
-                    },
-                  },
-                  "📡 Streams"
-                ),
-                React.createElement(
-                  "a",
-                  {
-                    href: "#videos",
-                    style: {
-                      color: "#FF1493",
-                      textDecoration: "none",
-                      fontSize: "0.9rem",
-                      fontWeight: "bold",
-                      textShadow: "0 0 8px #FF00FF",
-                      transition: "all 0.3s ease",
-                      padding: "0.5rem 1rem",
-                      border: "1px solid rgba(255, 20, 147, 0.5)",
-                      borderRadius: "8px",
-                      background: "rgba(255, 20, 147, 0.1)",
-                    },
-                    onMouseEnter: (e) => {
-                      e.target.style.textShadow =
-                        "0 0 15px #FF00FF, 0 0 30px #FF1493";
-                      e.target.style.background = "rgba(255, 20, 147, 0.2)";
-                    },
-                    onMouseLeave: (e) => {
-                      e.target.style.textShadow = "0 0 8px #FF00FF";
-                      e.target.style.background = "rgba(255, 20, 147, 0.1)";
-                    },
-                  },
-                  "🎥 Videos"
-                )
-              ),
-              selectedVideo &&
+              activeTab === 'videos' && selectedVideo &&
                 React.createElement(
                   "div",
                   {
@@ -415,11 +569,94 @@ function App() {
                     `🎬 ${selectedVideo.filename}`
                   )
                 ),
-              selectedVideo &&
+              activeTab === 'videos' && selectedVideo &&
                 React.createElement(VideoPlayer, {
                   videoSrc: `/videos/${selectedVideo.filename}?ticket=${ticketId}`,
                   title: selectedVideo.filename,
-                })
+                }),
+              activeTab === 'images' && selectedImage &&
+                React.createElement(
+                  "div",
+                  {
+                    className: "glass-bubble glow-effect",
+                    style: {
+                      padding: "1.5rem",
+                      textAlign: "center",
+                    },
+                  },
+                  React.createElement(
+                    "h2",
+                    {
+                      style: {
+                        margin: "0 0 1rem 0",
+                        fontSize: "1.2rem",
+                        fontWeight: "bold",
+                        color: "#00FF7F",
+                        textShadow: "0 0 10px #00FF00, 0 0 20px #7FFF00",
+                      },
+                    },
+                    `🖼️ ${selectedImage.filename}`
+                  ),
+                  React.createElement("img", {
+                    src: selectedImage.url,
+                    alt: selectedImage.filename,
+                    style: {
+                      maxWidth: "100%",
+                      height: "auto",
+                      borderRadius: "12px",
+                      border: "2px solid rgba(0, 255, 127, 0.6)",
+                      boxShadow: "0 0 30px rgba(0, 255, 0, 0.4)",
+                    },
+                  })
+                ),
+              activeTab === 'streams' && selectedStream &&
+                React.createElement(
+                  "div",
+                  {
+                    className: "glass-bubble glow-effect",
+                    style: {
+                      padding: "1.5rem",
+                    },
+                  },
+                  React.createElement(
+                    "h2",
+                    {
+                      style: {
+                        margin: "0 0 1rem 0",
+                        fontSize: "1.2rem",
+                        fontWeight: "bold",
+                        color: "var(--glow-cyan)",
+                        textShadow: "0 0 10px var(--glow-cyan), 0 0 20px var(--glow-cyan)",
+                        textAlign: "center",
+                      },
+                    },
+                    `📡 ${selectedStream.name || selectedStream.streamKey} (${selectedStream.type})`
+                  ),
+                  React.createElement("video", {
+                    controls: true,
+                    autoplay: true,
+                    style: {
+                      width: "100%",
+                      borderRadius: "12px",
+                      border: "2px solid rgba(0, 255, 255, 0.6)",
+                      boxShadow: "0 0 30px rgba(0, 255, 255, 0.4)",
+                    },
+                    src: selectedStream.playlistUrl || (selectedStream.type === 'RTSP' ? `/streams/${selectedStream.id}.m3u8` : selectedStream.playlistUrl),
+                  }),
+                  React.createElement(
+                    "div",
+                    {
+                      style: {
+                        marginTop: "1rem",
+                        fontSize: "0.85rem",
+                        opacity: 0.8,
+                        textAlign: "center",
+                      },
+                    },
+                    React.createElement("p", null, `Type: ${selectedStream.type}`),
+                    selectedStream.uptime && React.createElement("p", null, `Uptime: ${Math.floor(selectedStream.uptime / 60)} minutes`)
+                  )
+                )
             )
           )
     ),
