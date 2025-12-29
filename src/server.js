@@ -250,22 +250,62 @@ app.use(express.json());
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, "../public")));
 
-// Serve streams from BRANDIFICATION folder
+// Serve media from BRANDIFICATION subfolders
 app.use("/streams", express.static(path.join(__dirname, "../BRANDIFICATION/streams")));
+app.use("/images", express.static(path.join(__dirname, "../BRANDIFICATION/Images")));
+app.use("/videos-dir", express.static(path.join(__dirname, "../BRANDIFICATION/Videos")));
 
 // Helper function to get video files
 const getVideoFiles = () => {
   const brandificationPath = path.join(__dirname, "../BRANDIFICATION");
+  const videosPath = path.join(__dirname, "../BRANDIFICATION/Videos");
+  const videoExtensions = [".mp4", ".webm", ".ogg"];
+  
+  const videos = [];
+  
   try {
-    const files = fs.readdirSync(brandificationPath);
-    return files.filter(
-      (file) =>
-        file.toLowerCase().endsWith(".mp4") ||
-        file.toLowerCase().endsWith(".webm") ||
-        file.toLowerCase().endsWith(".ogg")
+    // Scan root BRANDIFICATION folder
+    const rootFiles = fs.readdirSync(brandificationPath);
+    rootFiles.forEach(file => {
+      const filePath = path.join(brandificationPath, file);
+      const stat = fs.statSync(filePath);
+      if (stat.isFile() && videoExtensions.some(ext => file.toLowerCase().endsWith(ext))) {
+        videos.push({ filename: file, location: 'root' });
+      }
+    });
+    
+    // Scan Videos subfolder
+    if (fs.existsSync(videosPath)) {
+      const videoFiles = fs.readdirSync(videosPath);
+      videoFiles.forEach(file => {
+        if (videoExtensions.some(ext => file.toLowerCase().endsWith(ext))) {
+          videos.push({ filename: file, location: 'Videos' });
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error reading video directories:", error);
+  }
+  
+  return videos;
+};
+
+// Helper function to get image files
+const getImageFiles = () => {
+  const imagesPath = path.join(__dirname, "../BRANDIFICATION/Images");
+  const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
+  
+  try {
+    if (!fs.existsSync(imagesPath)) {
+      return [];
+    }
+    
+    const files = fs.readdirSync(imagesPath);
+    return files.filter(file => 
+      imageExtensions.some(ext => file.toLowerCase().endsWith(ext))
     );
   } catch (error) {
-    console.error("Error reading BRANDIFICATION directory:", error);
+    console.error("Error reading Images directory:", error);
     return [];
   }
 };
@@ -389,19 +429,23 @@ app.get("/api/videos", (req, res) => {
     const brandificationPath = path.join(__dirname, "../BRANDIFICATION");
 
     // Get file sizes for each video
-    const videosWithSize = videos.map((filename) => {
+    const videosWithSize = videos.map((videoInfo) => {
       try {
-        const filePath = path.join(brandificationPath, filename);
+        const filePath = videoInfo.location === 'root' 
+          ? path.join(brandificationPath, videoInfo.filename)
+          : path.join(brandificationPath, videoInfo.location, videoInfo.filename);
         const stats = fs.statSync(filePath);
         return {
-          filename: filename,
+          filename: videoInfo.filename,
+          location: videoInfo.location,
           size: stats.size,
           sizeMB: (stats.size / (1024 * 1024)).toFixed(2),
         };
       } catch (error) {
-        console.error(`Error getting stats for ${filename}:`, error);
+        console.error(`Error getting stats for ${videoInfo.filename}:`, error);
         return {
-          filename: filename,
+          filename: videoInfo.filename,
+          location: videoInfo.location,
           size: 0,
           sizeMB: "0.00",
         };
@@ -412,6 +456,40 @@ app.get("/api/videos", (req, res) => {
   } catch (error) {
     console.error("Error fetching videos:", error);
     res.status(500).json({ error: "Failed to fetch videos" });
+  }
+});
+
+app.get("/api/images", (req, res) => {
+  try {
+    const images = getImageFiles();
+    const imagesPath = path.join(__dirname, "../BRANDIFICATION/Images");
+
+    // Get file sizes for each image
+    const imagesWithSize = images.map((filename) => {
+      try {
+        const filePath = path.join(imagesPath, filename);
+        const stats = fs.statSync(filePath);
+        return {
+          filename: filename,
+          size: stats.size,
+          sizeKB: (stats.size / 1024).toFixed(2),
+          url: `/images/${filename}`,
+        };
+      } catch (error) {
+        console.error(`Error getting stats for ${filename}:`, error);
+        return {
+          filename: filename,
+          size: 0,
+          sizeKB: "0.00",
+          url: `/images/${filename}`,
+        };
+      }
+    });
+
+    res.json({ images: imagesWithSize, count: imagesWithSize.length });
+  } catch (error) {
+    console.error("Error fetching images:", error);
+    res.status(500).json({ error: "Failed to fetch images" });
   }
 });
 
