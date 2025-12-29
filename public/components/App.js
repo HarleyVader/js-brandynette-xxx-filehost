@@ -109,7 +109,7 @@ function App() {
             fontFamily: "Audiowide, sans-serif",
             color: "var(--nav-alt)",
             textTransform: "uppercase",
-            letterSpacing: "2px",
+            letterSpacing: "2.5px",
           },
         },
         "🎬 Brandynette Video Player"
@@ -328,7 +328,7 @@ function App() {
               fontWeight: "bold",
               textShadow:
                 "0 0 15px #00FF00, 0 0 30px #7FFF00, 0 0 45px #00FFFF",
-              letterSpacing: "1px",
+              letterSpacing: "1.25px",
             },
           },
           "🙏 Special Thanks To:"
@@ -426,7 +426,7 @@ function App() {
               fontWeight: "bold",
               textShadow:
                 "0 0 15px #FF00FF, 0 0 30px #FF1493, 0 0 45px #FF69B4",
-              letterSpacing: "1px",
+              letterSpacing: "1.25px",
             },
           },
           "🚀 Main Projects:"
