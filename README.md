@@ -13,16 +13,20 @@
 
 ---
 
-## 🏠 Deployment Status
+## 🏠 Deployment Options
 
-**HestiaCP Control Panel** (LXC 101 @ 192.168.0.66:38383)
+**Flexible hosting for all your pretty streaming needs!** 💕
 
-- ✅ **Installation:** COMPLETE & OPERATIONAL
-- 🔧 **Services:** NGINX + Apache + PHP-FPM + MariaDB 11.4
-- 🔒 **SSL:** Self-signed (365 days) | [Let's Encrypt Setup Guide](./SSL-LETSENCRYPT-GUIDE.md)
-- 📧 **Mail Server:** bambisleep.church (Exim + Dovecot + SpamAssassin)
-- 📚 **Docs:** [HESTIACP-SETUP.md](./HESTIACP-SETUP.md) | [DEPLOYMENT.md](./DEPLOYMENT.md) | [NETWORK.md](./NETWORK.md)
-- 🔍 **Status:** `.\scripts\quick-status.ps1` | **SSL:** `.\scripts\check-ssl-status.ps1`
+- 🐳 **Docker** - Containerized deployment (so organized!)
+- 🖥️ **Systemd Service** - Linux production server (included: `filehost.service`)
+- ☁️ **Cloud Providers** - AWS, DigitalOcean, Linode (pick your favorite!)
+- 🏠 **Self-Hosted** - Run on your own server (full control!)
+- 📦 **Port:** 7878 (configurable via `.env`)
+- 🔒 **SSL/HTTPS** - Recommended for production (use Let's Encrypt!)
+
+**Deployment Guides:**
+- 📚 [Production Troubleshooting](./docs/PRODUCTION-FIX.md) - Fix deployment errors
+- 🏗️ [Architecture Guide](./.github/copilot-instructions.md) - Codebase reference
 
 ---
 
