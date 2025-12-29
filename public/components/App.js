@@ -544,19 +544,7 @@ function App() {
             fontWeight: "bold",
           },
         },
-        "💖 Built with ❤️ using Express & React"
-      ),
-      React.createElement(
-        "p",
-        {
-          style: {
-            margin: "0.25rem 0 0 0",
-            fontSize: "0.65rem",
-            color: "#ffffff",
-            opacity: 0.8,
-          },
-        },
-        "By ",
+        "💖 Built with ❤️ by ",
         React.createElement(
           "a",
           {
