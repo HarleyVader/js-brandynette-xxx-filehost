@@ -12,12 +12,17 @@ function App() {
   const [selectedStream, setSelectedStream] = useState(null);
   const [hasAccess, setHasAccess] = useState(false);
   const [ticketId, setTicketId] = useState(null);
-  const [activeTab, setActiveTab] = useState('videos'); // 'videos', 'images', 'streams'
+  const [activeTab, setActiveTab] = useState("videos"); // 'videos', 'images', 'streams'
   const [refreshing, setRefreshing] = useState(false);
+  const [workerStatus, setWorkerStatus] = useState(null);
 
   useEffect(() => {
     if (hasAccess) {
       fetchData();
+      fetchWorkerStatus();
+      // Update worker status every 10 seconds
+      const interval = setInterval(fetchWorkerStatus, 10000);
+      return () => clearInterval(interval);
     }
   }, [hasAccess]);
 
@@ -49,8 +54,8 @@ function App() {
         const rtspData = await rtspResponse.json();
         const rtmpData = await rtmpResponse.json();
         const allStreams = [
-          ...rtspData.streams.map(s => ({...s, type: 'RTSP'})),
-          ...rtmpData.streams.map(s => ({...s, type: 'RTMP'}))
+          ...rtspData.streams.map((s) => ({ ...s, type: "RTSP" })),
+          ...rtmpData.streams.map((s) => ({ ...s, type: "RTMP" })),
         ];
         setStreams(allStreams);
       }
@@ -62,9 +67,9 @@ function App() {
       setPublicFiles(publicData.files);
 
       // Auto-select first item based on active tab
-      if (activeTab === 'videos' && videosData.videos.length > 0) {
+      if (activeTab === "videos" && videosData.videos.length > 0) {
         setSelectedVideo(videosData.videos[0]);
-      } else if (activeTab === 'images' && imagesData.images.length > 0) {
+      } else if (activeTab === "images" && imagesData.images.length > 0) {
         setSelectedImage(imagesData.images[0]);
       }
     } catch (err) {
@@ -75,9 +80,21 @@ function App() {
     }
   };
 
+  const fetchWorkerStatus = async () => {
+    try {
+      const response = await fetch("/api/rtmp/worker-status");
+      if (!response.ok) return;
+      const data = await response.json();
+      setWorkerStatus(data);
+    } catch (error) {
+      console.error("Error fetching worker status:", error);
+    }
+  };
+
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchData();
+    await fetchWorkerStatus();
     setTimeout(() => setRefreshing(false), 500);
   };
 
@@ -230,18 +247,30 @@ function App() {
           React.createElement(
             "button",
             {
-              onClick: () => setActiveTab('videos'),
-              className: activeTab === 'videos' ? "bubble-button selected glow-effect" : "bubble-button",
+              onClick: () => setActiveTab("videos"),
+              className:
+                activeTab === "videos"
+                  ? "bubble-button selected glow-effect"
+                  : "bubble-button",
               style: {
-                color: activeTab === 'videos' ? "#FF1493" : "#FF69B4",
+                color: activeTab === "videos" ? "#FF1493" : "#FF69B4",
                 fontSize: "0.9rem",
                 fontWeight: "bold",
-                textShadow: activeTab === 'videos' ? "0 0 15px #FF00FF, 0 0 30px #FF1493" : "0 0 8px #FF00FF",
+                textShadow:
+                  activeTab === "videos"
+                    ? "0 0 15px #FF00FF, 0 0 30px #FF1493"
+                    : "0 0 8px #FF00FF",
                 transition: "all 0.3s ease",
                 padding: "0.5rem 1rem",
-                border: activeTab === 'videos' ? "2px solid rgba(255, 20, 147, 0.8)" : "1px solid rgba(255, 20, 147, 0.5)",
+                border:
+                  activeTab === "videos"
+                    ? "2px solid rgba(255, 20, 147, 0.8)"
+                    : "1px solid rgba(255, 20, 147, 0.5)",
                 borderRadius: "8px",
-                background: activeTab === 'videos' ? "rgba(255, 20, 147, 0.3)" : "rgba(255, 20, 147, 0.1)",
+                background:
+                  activeTab === "videos"
+                    ? "rgba(255, 20, 147, 0.3)"
+                    : "rgba(255, 20, 147, 0.1)",
               },
             },
             `🎥 Videos (${videos.length})`
@@ -249,18 +278,30 @@ function App() {
           React.createElement(
             "button",
             {
-              onClick: () => setActiveTab('images'),
-              className: activeTab === 'images' ? "bubble-button selected glow-effect" : "bubble-button",
+              onClick: () => setActiveTab("images"),
+              className:
+                activeTab === "images"
+                  ? "bubble-button selected glow-effect"
+                  : "bubble-button",
               style: {
-                color: activeTab === 'images' ? "#00FF7F" : "#7FFF7F",
+                color: activeTab === "images" ? "#00FF7F" : "#7FFF7F",
                 fontSize: "0.9rem",
                 fontWeight: "bold",
-                textShadow: activeTab === 'images' ? "0 0 15px #00FF00, 0 0 30px #7FFF00" : "0 0 8px #00FF00",
+                textShadow:
+                  activeTab === "images"
+                    ? "0 0 15px #00FF00, 0 0 30px #7FFF00"
+                    : "0 0 8px #00FF00",
                 transition: "all 0.3s ease",
                 padding: "0.5rem 1rem",
-                border: activeTab === 'images' ? "2px solid rgba(0, 255, 127, 0.8)" : "1px solid rgba(0, 255, 127, 0.5)",
+                border:
+                  activeTab === "images"
+                    ? "2px solid rgba(0, 255, 127, 0.8)"
+                    : "1px solid rgba(0, 255, 127, 0.5)",
                 borderRadius: "8px",
-                background: activeTab === 'images' ? "rgba(0, 255, 127, 0.3)" : "rgba(0, 255, 127, 0.1)",
+                background:
+                  activeTab === "images"
+                    ? "rgba(0, 255, 127, 0.3)"
+                    : "rgba(0, 255, 127, 0.1)",
               },
             },
             `🖼️ Images (${images.length})`
@@ -268,18 +309,30 @@ function App() {
           React.createElement(
             "button",
             {
-              onClick: () => setActiveTab('streams'),
-              className: activeTab === 'streams' ? "bubble-button selected glow-effect" : "bubble-button",
+              onClick: () => setActiveTab("streams"),
+              className:
+                activeTab === "streams"
+                  ? "bubble-button selected glow-effect"
+                  : "bubble-button",
               style: {
-                color: activeTab === 'streams' ? "var(--glow-cyan)" : "#7FFFFF",
+                color: activeTab === "streams" ? "var(--glow-cyan)" : "#7FFFFF",
                 fontSize: "0.9rem",
                 fontWeight: "bold",
-                textShadow: activeTab === 'streams' ? "0 0 15px var(--glow-cyan), 0 0 30px var(--glow-cyan)" : "0 0 8px var(--glow-cyan)",
+                textShadow:
+                  activeTab === "streams"
+                    ? "0 0 15px var(--glow-cyan), 0 0 30px var(--glow-cyan)"
+                    : "0 0 8px var(--glow-cyan)",
                 transition: "all 0.3s ease",
                 padding: "0.5rem 1rem",
-                border: activeTab === 'streams' ? "2px solid rgba(0, 255, 255, 0.8)" : "1px solid rgba(0, 255, 255, 0.5)",
+                border:
+                  activeTab === "streams"
+                    ? "2px solid rgba(0, 255, 255, 0.8)"
+                    : "1px solid rgba(0, 255, 255, 0.5)",
                 borderRadius: "8px",
-                background: activeTab === 'streams' ? "rgba(0, 255, 255, 0.3)" : "rgba(0, 255, 255, 0.1)",
+                background:
+                  activeTab === "streams"
+                    ? "rgba(0, 255, 255, 0.3)"
+                    : "rgba(0, 255, 255, 0.1)",
               },
             },
             `📡 Streams (${streams.length})`
@@ -300,15 +353,73 @@ function App() {
               padding: "0.5rem 1rem",
               border: "1px solid rgba(138, 43, 226, 0.5)",
               borderRadius: "8px",
-              background: refreshing ? "rgba(138, 43, 226, 0.05)" : "rgba(138, 43, 226, 0.2)",
+              background: refreshing
+                ? "rgba(138, 43, 226, 0.05)"
+                : "rgba(138, 43, 226, 0.2)",
               cursor: refreshing ? "not-allowed" : "pointer",
             },
           },
           refreshing ? "🔄 Refreshing..." : "🔄 Refresh"
-        )
+        ),
+        // Worker Thread Status Indicator
+        workerStatus && workerStatus.enabled
+          ? React.createElement(
+              "div",
+              {
+                title: `Worker Thread: ${
+                  workerStatus.status.state
+                }\nActive Streams: ${
+                  workerStatus.status.activeStreams || 0
+                }\nThread ID: ${workerStatus.threadId || "N/A"}`,
+                style: {
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.5rem 1rem",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  borderRadius: "8px",
+                  fontSize: "0.75rem",
+                  color: "var(--glow-cyan)",
+                },
+              },
+              React.createElement("span", {
+                style: {
+                  display: "inline-block",
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  backgroundColor:
+                    workerStatus.status.state === "running"
+                      ? "#00ff00"
+                      : workerStatus.status.state === "error"
+                      ? "#ff0000"
+                      : "#888888",
+                  boxShadow:
+                    workerStatus.status.state === "running"
+                      ? "0 0 8px #00ff00, 0 0 16px #00ff0088"
+                      : workerStatus.status.state === "error"
+                      ? "0 0 8px #ff0000, 0 0 16px #ff000088"
+                      : "none",
+                  animation:
+                    workerStatus.status.state === "running"
+                      ? "pulse 2s ease-in-out infinite"
+                      : "none",
+                },
+              }),
+              React.createElement(
+                "span",
+                null,
+                `🧵 Worker: ${workerStatus.status.state} (${
+                  workerStatus.status.activeStreams || 0
+                })`
+              )
+            )
+          : null
       ),
       // Content based on active tab
-      activeTab === 'videos' && videos.length === 0
+      activeTab === "videos" && videos.length === 0
         ? React.createElement(
             "div",
             { style: { textAlign: "center", padding: "3rem 1rem" } },
@@ -323,7 +434,7 @@ function App() {
               "Please add video files to the BRANDIFICATION folder"
             )
           )
-        : activeTab === 'images' && images.length === 0
+        : activeTab === "images" && images.length === 0
         ? React.createElement(
             "div",
             { style: { textAlign: "center", padding: "3rem 1rem" } },
@@ -338,7 +449,7 @@ function App() {
               "Please add image files to the BRANDIFICATION/Images folder"
             )
           )
-        : activeTab === 'streams' && streams.length === 0
+        : activeTab === "streams" && streams.length === 0
         ? React.createElement(
             "div",
             { style: { textAlign: "center", padding: "3rem 1rem" } },
@@ -383,12 +494,26 @@ function App() {
                   style: {
                     marginBottom: "1rem",
                     textAlign: "center",
-                    color: activeTab === 'videos' ? "var(--glow-pink)" : activeTab === 'images' ? "#00FF7F" : "var(--glow-cyan)",
+                    color:
+                      activeTab === "videos"
+                        ? "var(--glow-pink)"
+                        : activeTab === "images"
+                        ? "#00FF7F"
+                        : "var(--glow-cyan)",
                     fontSize: "1.1rem",
-                    textShadow: activeTab === 'videos' ? "0 0 10px var(--glow-pink)" : activeTab === 'images' ? "0 0 10px #00FF00" : "0 0 10px var(--glow-cyan)",
+                    textShadow:
+                      activeTab === "videos"
+                        ? "0 0 10px var(--glow-pink)"
+                        : activeTab === "images"
+                        ? "0 0 10px #00FF00"
+                        : "0 0 10px var(--glow-cyan)",
                   },
                 },
-                activeTab === 'videos' ? "📁 Select a video:" : activeTab === 'images' ? "📁 Select an image:" : "📁 Active streams:"
+                activeTab === "videos"
+                  ? "📁 Select a video:"
+                  : activeTab === "images"
+                  ? "📁 Select an image:"
+                  : "📁 Active streams:"
               ),
               React.createElement(
                 "div",
@@ -400,133 +525,138 @@ function App() {
                     gap: "0.5rem",
                   },
                 },
-                activeTab === 'videos' ? videos.map((video) =>
-                  React.createElement(
-                    "button",
-                    {
-                      key: video.filename,
-                      onClick: () => setSelectedVideo(video),
-                      className:
-                        selectedVideo?.filename === video.filename
-                          ? "bubble-button selected glow-effect"
-                          : "bubble-button",
-                      style: {
-                        fontSize: "0.7rem",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-start",
-                        gap: "0.2rem",
-                        textAlign: "left",
-                        width: "100%",
-                      },
-                    },
-                    React.createElement(
-                      "span",
-                      {
-                        style: {
-                          wordBreak: "break-word",
-                          width: "100%",
+                activeTab === "videos"
+                  ? videos.map((video) =>
+                      React.createElement(
+                        "button",
+                        {
+                          key: video.filename,
+                          onClick: () => setSelectedVideo(video),
+                          className:
+                            selectedVideo?.filename === video.filename
+                              ? "bubble-button selected glow-effect"
+                              : "bubble-button",
+                          style: {
+                            fontSize: "0.7rem",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "flex-start",
+                            gap: "0.2rem",
+                            textAlign: "left",
+                            width: "100%",
+                          },
                         },
-                      },
-                      video.filename
-                    ),
-                    React.createElement(
-                      "span",
-                      {
-                        style: {
-                          fontSize: "0.6rem",
-                          opacity: 0.7,
-                          color: "var(--primary-alt)",
-                        },
-                      },
-                      `${video.sizeMB} MB`
+                        React.createElement(
+                          "span",
+                          {
+                            style: {
+                              wordBreak: "break-word",
+                              width: "100%",
+                            },
+                          },
+                          video.filename
+                        ),
+                        React.createElement(
+                          "span",
+                          {
+                            style: {
+                              fontSize: "0.6rem",
+                              opacity: 0.7,
+                              color: "var(--primary-alt)",
+                            },
+                          },
+                          `${video.sizeMB} MB`
+                        )
+                      )
                     )
-                  )
-                ) : activeTab === 'images' ? images.map((image) =>
-                  React.createElement(
-                    "button",
-                    {
-                      key: image.filename,
-                      onClick: () => setSelectedImage(image),
-                      className:
-                        selectedImage?.filename === image.filename
-                          ? "bubble-button selected glow-effect"
-                          : "bubble-button",
-                      style: {
-                        fontSize: "0.7rem",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-start",
-                        gap: "0.2rem",
-                        textAlign: "left",
-                        width: "100%",
-                      },
-                    },
-                    React.createElement(
-                      "span",
-                      {
-                        style: {
-                          wordBreak: "break-word",
-                          width: "100%",
+                  : activeTab === "images"
+                  ? images.map((image) =>
+                      React.createElement(
+                        "button",
+                        {
+                          key: image.filename,
+                          onClick: () => setSelectedImage(image),
+                          className:
+                            selectedImage?.filename === image.filename
+                              ? "bubble-button selected glow-effect"
+                              : "bubble-button",
+                          style: {
+                            fontSize: "0.7rem",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "flex-start",
+                            gap: "0.2rem",
+                            textAlign: "left",
+                            width: "100%",
+                          },
                         },
-                      },
-                      image.filename
-                    ),
-                    React.createElement(
-                      "span",
-                      {
-                        style: {
-                          fontSize: "0.6rem",
-                          opacity: 0.7,
-                          color: "#00FF7F",
-                        },
-                      },
-                      `${image.sizeKB} KB`
+                        React.createElement(
+                          "span",
+                          {
+                            style: {
+                              wordBreak: "break-word",
+                              width: "100%",
+                            },
+                          },
+                          image.filename
+                        ),
+                        React.createElement(
+                          "span",
+                          {
+                            style: {
+                              fontSize: "0.6rem",
+                              opacity: 0.7,
+                              color: "#00FF7F",
+                            },
+                          },
+                          `${image.sizeKB} KB`
+                        )
+                      )
                     )
-                  )
-                ) : streams.map((stream) =>
-                  React.createElement(
-                    "button",
-                    {
-                      key: stream.id || stream.streamKey,
-                      onClick: () => setSelectedStream(stream),
-                      className:
-                        selectedStream?.id === stream.id || selectedStream?.streamKey === stream.streamKey
-                          ? "bubble-button selected glow-effect"
-                          : "bubble-button",
-                      style: {
-                        fontSize: "0.7rem",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-start",
-                        gap: "0.2rem",
-                        textAlign: "left",
-                        width: "100%",
-                      },
-                    },
-                    React.createElement(
-                      "span",
-                      {
-                        style: {
-                          wordBreak: "break-word",
-                          width: "100%",
+                  : streams.map((stream) =>
+                      React.createElement(
+                        "button",
+                        {
+                          key: stream.id || stream.streamKey,
+                          onClick: () => setSelectedStream(stream),
+                          className:
+                            selectedStream?.id === stream.id ||
+                            selectedStream?.streamKey === stream.streamKey
+                              ? "bubble-button selected glow-effect"
+                              : "bubble-button",
+                          style: {
+                            fontSize: "0.7rem",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "flex-start",
+                            gap: "0.2rem",
+                            textAlign: "left",
+                            width: "100%",
+                          },
                         },
-                      },
-                      stream.name || stream.streamKey
-                    ),
-                    React.createElement(
-                      "span",
-                      {
-                        style: {
-                          fontSize: "0.6rem",
-                          opacity: 0.7,
-                          color: "var(--glow-cyan)",
-                        },
-                      },
-                      `${stream.type} • ${stream.status || 'LIVE'}`
+                        React.createElement(
+                          "span",
+                          {
+                            style: {
+                              wordBreak: "break-word",
+                              width: "100%",
+                            },
+                          },
+                          stream.name || stream.streamKey
+                        ),
+                        React.createElement(
+                          "span",
+                          {
+                            style: {
+                              fontSize: "0.6rem",
+                              opacity: 0.7,
+                              color: "var(--glow-cyan)",
+                            },
+                          },
+                          `${stream.type} • ${stream.status || "LIVE"}`
+                        )
+                      )
                     )
-                  )
-                )
               )
             ),
             // Right content - Display based on active tab
@@ -538,7 +668,8 @@ function App() {
                   minWidth: 0,
                 },
               },
-              activeTab === 'videos' && selectedVideo &&
+              activeTab === "videos" &&
+                selectedVideo &&
                 React.createElement(
                   "div",
                   {
@@ -569,12 +700,14 @@ function App() {
                     `🎬 ${selectedVideo.filename}`
                   )
                 ),
-              activeTab === 'videos' && selectedVideo &&
+              activeTab === "videos" &&
+                selectedVideo &&
                 React.createElement(VideoPlayer, {
                   videoSrc: `/videos/${selectedVideo.filename}?ticket=${ticketId}`,
                   title: selectedVideo.filename,
                 }),
-              activeTab === 'images' && selectedImage &&
+              activeTab === "images" &&
+                selectedImage &&
                 React.createElement(
                   "div",
                   {
@@ -609,7 +742,8 @@ function App() {
                     },
                   })
                 ),
-              activeTab === 'streams' && selectedStream &&
+              activeTab === "streams" &&
+                selectedStream &&
                 React.createElement(
                   "div",
                   {
@@ -626,11 +760,14 @@ function App() {
                         fontSize: "1.2rem",
                         fontWeight: "bold",
                         color: "var(--glow-cyan)",
-                        textShadow: "0 0 10px var(--glow-cyan), 0 0 20px var(--glow-cyan)",
+                        textShadow:
+                          "0 0 10px var(--glow-cyan), 0 0 20px var(--glow-cyan)",
                         textAlign: "center",
                       },
                     },
-                    `📡 ${selectedStream.name || selectedStream.streamKey} (${selectedStream.type})`
+                    `📡 ${selectedStream.name || selectedStream.streamKey} (${
+                      selectedStream.type
+                    })`
                   ),
                   React.createElement("video", {
                     controls: true,
@@ -641,7 +778,11 @@ function App() {
                       border: "2px solid rgba(0, 255, 255, 0.6)",
                       boxShadow: "0 0 30px rgba(0, 255, 255, 0.4)",
                     },
-                    src: selectedStream.playlistUrl || (selectedStream.type === 'RTSP' ? `/streams/${selectedStream.id}.m3u8` : selectedStream.playlistUrl),
+                    src:
+                      selectedStream.playlistUrl ||
+                      (selectedStream.type === "RTSP"
+                        ? `/streams/${selectedStream.id}.m3u8`
+                        : selectedStream.playlistUrl),
                   }),
                   React.createElement(
                     "div",
@@ -653,8 +794,19 @@ function App() {
                         textAlign: "center",
                       },
                     },
-                    React.createElement("p", null, `Type: ${selectedStream.type}`),
-                    selectedStream.uptime && React.createElement("p", null, `Uptime: ${Math.floor(selectedStream.uptime / 60)} minutes`)
+                    React.createElement(
+                      "p",
+                      null,
+                      `Type: ${selectedStream.type}`
+                    ),
+                    selectedStream.uptime &&
+                      React.createElement(
+                        "p",
+                        null,
+                        `Uptime: ${Math.floor(
+                          selectedStream.uptime / 60
+                        )} minutes`
+                      )
                   )
                 )
             )

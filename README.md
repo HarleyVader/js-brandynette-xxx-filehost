@@ -25,6 +25,7 @@
 - 🔒 **SSL/HTTPS** - Recommended for production (use Let's Encrypt!)
 
 **Deployment Guides:**
+
 - 📚 [Production Troubleshooting](./docs/PRODUCTION-FIX.md) - Fix deployment errors
 - 🏗️ [Architecture Guide](./.github/copilot-instructions.md) - Codebase reference
 
@@ -290,6 +291,7 @@ _Even bambis can set up live streaming!_ 🦌💕
    ```
 
 **Features:**
+
 - 🎥 **Live recording** - Saves to BRANDIFICATION folder!
 - 🔑 **Stream key validation** - Optional security!
 - 📹 **HLS output** - Browser-compatible streaming!

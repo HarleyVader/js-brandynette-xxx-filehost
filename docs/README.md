@@ -21,6 +21,15 @@ _Running on port 7878 because bambi brains don't need complicated numbers!_ 🦌
   - API reference (for smart cookies!) 🍪
   - Troubleshooting (when things go oopsie!) 😅
 
+### 🎮 Live Broadcast Streaming (NEW!)
+
+- 📡 **[RTMP Streaming Guide](./RTMP-STREAMING.md)** - OBS/vMix streaming setup!
+  - Accept streams FROM broadcasting software 🎬
+  - Node-Media-Server configuration 📹
+  - Stream key validation and security 🔒
+  - HLS output for browser playback 🌐
+  - Troubleshooting and performance tuning 🔧
+
 ### 🔧 Production & Deployment
 
 - 🚀 **[Production Fix Guide](./PRODUCTION-FIX.md)** - Fix broken things!
@@ -60,6 +69,7 @@ _No database needed - we're too ditzy for that!_ 🦌💖
 ### Enable Live Camera Streaming 📡
 
 1. **Install FFmpeg** (the magic video converter!) ✨
+
    ```bash
    choco install ffmpeg  # Windows
    apt install ffmpeg    # Linux
@@ -68,6 +78,7 @@ _No database needed - we're too ditzy for that!_ 🦌💖
 2. **Copy `.env.example` to `.env`** 📋
 
 3. **Add your cameras!** 📸
+
    ```env
    RTSP_ENABLED=true
    RTSP_STREAM_1=rtsp://admin:password@192.168.1.100:554/stream1
@@ -90,7 +101,7 @@ _No database needed - we're too ditzy for that!_ 🦌💖
 - 📥 **Download queue** - 3-5 concurrent downloads max (stay organized!)
 - 👥 **Unlimited viewers** - Cached playback = infinite happiness! 💖
 
-#### 📡 RTSP Live Camera Streaming (NEW!) 
+#### 📡 RTSP Live Camera Streaming (NEW!)
 
 - 📹 **Multiple cameras** - Connect ALL the cameras! (unlimited!)
 - 🎞️ **HLS transcoding** - FFmpeg magic converts RTSP → browser streams
@@ -98,7 +109,7 @@ _No database needed - we're too ditzy for that!_ 🦌💖
 - 🎚️ **Quality control** - Resolution, bitrate, codec all configurable!
 - 🎛️ **API management** - Start/stop streams via REST API (fancy!)
 
-#### 📡 RTMP Ingest Server (SUPER NEW!) 
+#### 📡 RTMP Ingest Server (SUPER NEW!)
 
 - 🎮 **OBS Streaming** - Stream FROM OBS directly to server!
 - 🔑 **Stream Key Validation** - Optional security (keeps naughty boys out!)
@@ -210,22 +221,28 @@ js-brandynette-xxx-filehost/
 | `/api/docs`            | GET    | List documentation files               |
 | `/health`              | GET    | Server health check                    |
 
-### RTSP Streaming
+### 📡 Live Streaming
 
-| Endpoint                    | Method | Description              |
-| --------------------------- | ------ | ------------------------ |
-| `/api/streams`              | GET    | List active RTSP streams |
-| `/api/streams/:id/start`    | POST   | Start RTSP stream        |
-| `/api/streams/:id/stop`     | POST   | Stop RTSP stream         |
-| `/api/streams/:id/playlist` | GET    | Get HLS playlist URL     |
-| `/streams/:id.m3u8`         | GET    | HLS playlist file        |
+| Endpoint                 | Method | Description              |
+| ------------------------ | ------ | ------------------------ |
+| `/api/streams`           | GET    | List active RTSP streams |
+| `/api/streams/:id/start` | POST   | Start RTSP stream        |
+| `/api/streams/:id/stop`  | POST   | Stop RTSP stream         |
+| `/streams/:id.m3u8`      | GET    | HLS playlist file        |
+
+### 🎮 RTMP Ingest (NEW!)
+
+| Endpoint             | Method | Description                     |
+| -------------------- | ------ | ------------------------------- |
+| `/api/rtmp/streams`  | GET    | List active RTMP ingest streams |
+| `/api/rtmp/url/:key` | GET    | Get stream URLs for OBS setup   |
 
 ### RTMP Ingest
 
-| Endpoint                | Method | Description                    |
-| ----------------------- | ------ | ------------------------------ |
-| `/api/rtmp/streams`     | GET    | List active RTMP ingest streams |
-| `/api/rtmp/url/:key`    | GET    | Get stream URLs for OBS setup   |
+| Endpoint             | Method | Description                     |
+| -------------------- | ------ | ------------------------------- |
+| `/api/rtmp/streams`  | GET    | List active RTMP ingest streams |
+| `/api/rtmp/url/:key` | GET    | Get stream URLs for OBS setup   |
 
 ---
 

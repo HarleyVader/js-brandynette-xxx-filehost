@@ -3,9 +3,9 @@ import cors from "cors";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { Worker } from "worker_threads";
 import dotenv from "dotenv";
 import RTSPStreamManager from "./rtsp-manager.js";
-import RTMPIngestServer from "./rtmp-server.js";
 
 // Load environment variables
 dotenv.config();
@@ -16,8 +16,15 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 6969;
 
-// Initialize RTMP Ingest Server
-let rtmpServer = null;
+// Initialize RTMP Ingest Server in Worker Thread
+let rtmpWorker = null;
+let rtmpWorkerStatus = {
+  state: "stopped",
+  activeStreams: 0,
+  lastUpdate: null,
+  error: null,
+};
+
 if (process.env.RTMP_ENABLED === "true") {
   const rtmpConfig = {
     rtmpPort: parseInt(process.env.RTMP_PORT) || 1935,
@@ -30,9 +37,70 @@ if (process.env.RTMP_ENABLED === "true") {
       : [],
   };
 
-  rtmpServer = new RTMPIngestServer(rtmpConfig);
-  rtmpServer.start();
-  console.log("📡 RTMP Ingest Server enabled");
+  try {
+    console.log("🧵 Starting RTMP Worker Thread...");
+    rtmpWorker = new Worker(path.join(__dirname, "rtmp-worker.js"), {
+      workerData: rtmpConfig,
+    });
+
+    // Handle messages from RTMP worker
+    rtmpWorker.on("message", (message) => {
+      const { type, data, timestamp } = message;
+
+      switch (type) {
+        case "status":
+          rtmpWorkerStatus.state = data.state;
+          rtmpWorkerStatus.lastUpdate = timestamp;
+          if (data.state === "running") {
+            console.log(`✅ RTMP Worker: ${data.message}`);
+            console.log(`   📡 RTMP Port: ${data.rtmpPort}`);
+            console.log(`   🌐 HTTP Port: ${data.httpPort}`);
+          }
+          break;
+
+        case "stream_status":
+          rtmpWorkerStatus.activeStreams = data.count;
+          rtmpWorkerStatus.lastUpdate = timestamp;
+          break;
+
+        case "error":
+          rtmpWorkerStatus.error = data;
+          console.error(`❌ RTMP Worker Error: ${data.message}`);
+          if (data.stack) console.error(data.stack);
+          break;
+
+        default:
+          console.log(`[RTMP Worker] ${type}:`, data);
+      }
+    });
+
+    // Handle worker errors
+    rtmpWorker.on("error", (error) => {
+      console.error("❌ RTMP Worker error:", error);
+      rtmpWorkerStatus.state = "error";
+      rtmpWorkerStatus.error = { message: error.message, stack: error.stack };
+    });
+
+    // Handle worker exit
+    rtmpWorker.on("exit", (code) => {
+      if (code !== 0) {
+        console.error(`❌ RTMP Worker stopped with exit code ${code}`);
+        rtmpWorkerStatus.state = "stopped";
+      } else {
+        console.log("✅ RTMP Worker exited gracefully");
+        rtmpWorkerStatus.state = "stopped";
+      }
+      rtmpWorker = null;
+    });
+  } catch (error) {
+    console.error("❌ Failed to start RTMP Worker:", error);
+    rtmpWorkerStatus.state = "error";
+    rtmpWorkerStatus.error = { message: error.message };
+  }
+} else {
+  console.log(
+    "⏸️ RTMP Ingest Server disabled (set RTMP_ENABLED=true to enable)"
+  );
 }
 
 // Initialize RTSP Stream Manager
@@ -385,31 +453,96 @@ app.get("/api/streams/:streamId/playlist", (req, res) => {
   res.json({ playlistUrl: rtspManager.getPlaylistUrl(streamId) });
 });
 
-// RTMP Ingest Server Endpoints
-app.get("/api/rtmp/streams", (req, res) => {
-  if (!rtmpServer) {
-    return res.json({ streams: [], message: "RTMP ingest disabled" });
+// RTMP Worker Thread Endpoints
+app.get("/api/rtmp/streams", async (req, res) => {
+  if (!rtmpWorker) {
+    return res.json({
+      streams: [],
+      message: "RTMP ingest disabled",
+      workerStatus: rtmpWorkerStatus,
+    });
   }
 
-  const streams = rtmpServer.getActiveStreams();
-  res.json({ streams, count: streams.length });
+  // Request streams from worker thread
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      resolve(
+        res.status(503).json({
+          error: "Worker timeout",
+          workerStatus: rtmpWorkerStatus,
+        })
+      );
+    }, 5000);
+
+    const messageHandler = (message) => {
+      if (message.type === "streams_list") {
+        clearTimeout(timeout);
+        rtmpWorker.off("message", messageHandler);
+        resolve(
+          res.json({
+            streams: message.data.streams,
+            count: message.data.count,
+            workerStatus: rtmpWorkerStatus,
+          })
+        );
+      }
+    };
+
+    rtmpWorker.on("message", messageHandler);
+    rtmpWorker.postMessage({ command: "get_streams" });
+  });
 });
 
-app.get("/api/rtmp/url/:streamKey", (req, res) => {
-  if (!rtmpServer) {
-    return res.status(503).json({ error: "RTMP ingest disabled" });
+app.get("/api/rtmp/url/:streamKey", async (req, res) => {
+  if (!rtmpWorker) {
+    return res.status(503).json({
+      error: "RTMP ingest disabled",
+      workerStatus: rtmpWorkerStatus,
+    });
   }
 
   const { streamKey } = req.params;
-  const urls = rtmpServer.getStreamUrl(streamKey);
+
+  // Request stream URL from worker thread
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      resolve(res.status(503).json({ error: "Worker timeout" }));
+    }, 5000);
+
+    const messageHandler = (message) => {
+      if (
+        message.type === "stream_url" &&
+        message.data.streamKey === streamKey
+      ) {
+        clearTimeout(timeout);
+        rtmpWorker.off("message", messageHandler);
+        const urls = message.data.urls;
+        resolve(
+          res.json({
+            streamKey,
+            rtmpUrl: urls.rtmp,
+            hlsUrl: urls.hls,
+            obsSettings: {
+              server: urls.rtmp.split("/").slice(0, -1).join("/"),
+              streamKey: streamKey,
+            },
+            workerStatus: rtmpWorkerStatus,
+          })
+        );
+      }
+    };
+
+    rtmpWorker.on("message", messageHandler);
+    rtmpWorker.postMessage({ command: "get_url", data: { streamKey } });
+  });
+});
+
+// Worker status endpoint
+app.get("/api/rtmp/worker-status", (req, res) => {
   res.json({
-    streamKey,
-    rtmpUrl: urls.rtmp,
-    hlsUrl: urls.hls,
-    obsSettings: {
-      server: urls.rtmp.split("/").slice(0, -1).join("/"),
-      streamKey: streamKey,
-    },
+    enabled: rtmpWorker !== null,
+    status: rtmpWorkerStatus,
+    threadId: rtmpWorker ? rtmpWorker.threadId : null,
   });
 });
 
@@ -731,6 +864,14 @@ process.on("SIGINT", () => {
     rtspManager.stopAllStreams();
   }
 
+  if (rtmpWorker) {
+    console.log("🧵 Terminating RTMP Worker...");
+    rtmpWorker.postMessage({ command: "shutdown" });
+    setTimeout(() => {
+      rtmpWorker.terminate();
+    }, 2000);
+  }
+
   process.exit(0);
 });
 
@@ -739,6 +880,14 @@ process.on("SIGTERM", () => {
 
   if (rtspManager) {
     rtspManager.stopAllStreams();
+  }
+
+  if (rtmpWorker) {
+    console.log("🧵 Terminating RTMP Worker...");
+    rtmpWorker.postMessage({ command: "shutdown" });
+    setTimeout(() => {
+      rtmpWorker.terminate();
+    }, 2000);
   }
 
   process.exit(0);
