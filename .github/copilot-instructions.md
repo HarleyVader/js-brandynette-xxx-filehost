@@ -2,18 +2,19 @@
 
 ## 🎯 Project Overview
 
-**Brandynette's Video Streaming Server** - Zero-build ES6 Express server with CDN-based embedded React frontend for streaming videos from the `BRANDIFICATION` folder. Cyber goth aesthetic with neon glass morphism.
+**Brandynette's Video Streaming Server** - Zero-build ES6 Express server with CDN-based React 18 frontend for streaming videos from `BRANDIFICATION/`. Cyber goth neon aesthetic (pink/cyan/purple glass morphism).
 
-**Stack**: Node.js ES6 modules, Express 4, React 18 (CDN), Babel (browser transpilation), Modern CSS Architecture, FFmpeg (RTSP→HLS)  
-**Port**: 7878 (configurable via .env, default in docs is 6969 for legacy compatibility)  
-**Architecture Philosophy**: Self-contained, zero-build, modular CSS, single-file HTML deployment, browser-cached streaming, live RTSP transcoding
+**Stack**: Node.js ES6 modules, Express 4, React 18 (CDN), Babel (browser transpilation), Worker Threads, FFmpeg (RTSP/RTMP→HLS)  
+**Port**: 7878 (configurable via `.env`)  
+**Architecture**: Self-contained zero-build, modular CSS cascade layers, browser-cached streaming
 
 **Production**: Systemd service (`filehost.service`) runs as user `zathras`  
-**Working Directory**: `/home/brandynette/web/bambisleep.chat/nodeapp/js-bambisleep-chat/src/server`  
-**Live URL**: https://brandynette.xxx (if deployed)  
-**Default Port**: 7878 (configurable via .env)
+**Working Directory**: `/home/brandynette/web/bambisleep.chat/nodeapp/js-bambisleep-chat/src/server`
 
-**Streaming Model**: Unlimited concurrent viewers using browser cache, downloads queued (3-5 concurrent) for initial buffering. Frontend notification ("DING!" sound) when videos become viewable.
+**Streaming Model**: 
+- **Video files**: HTTP Range requests with download queue (max 5 concurrent), unlimited cached playback
+- **RTSP**: Pull from IP cameras → HLS (FFmpeg transcoding)
+- **RTMP**: Push from OBS/streaming software → HLS (Worker Thread isolation)
 
 ## 🏗️ Architecture & Critical Patterns
 
@@ -142,6 +143,52 @@ Output URL: http://localhost:8000/live/mystreamkey/index.m3u8
 - **RTMP**: RECEIVE from streaming software (push model)
 - Both output HLS for browser compatibility
 
+### RTMP Worker Thread Pattern (Critical Architecture)
+
+**Isolates RTMP processing in a dedicated Worker Thread** to prevent blocking the main Express server:
+
+```javascript
+// src/server.js - Main thread spawns worker
+import { Worker } from "worker_threads";
+
+const rtmpWorker = new Worker(path.join(__dirname, "rtmp-worker.js"), {
+  workerData: rtmpConfig,
+});
+
+// Handle messages from worker
+rtmpWorker.on("message", (message) => {
+  const { type, data } = message;
+  if (type === "status") rtmpWorkerStatus.state = data.state;
+  if (type === "stream_status") rtmpWorkerStatus.activeStreams = data.count;
+});
+
+// Request data from worker (async pattern)
+rtmpWorker.postMessage({ command: "get_streams" });
+```
+
+```javascript
+// src/rtmp-worker.js - Worker thread
+import { parentPort, workerData } from "worker_threads";
+
+parentPort.on("message", (message) => {
+  const { command, data } = message;
+  if (command === "get_streams") {
+    const streams = rtmpServer.getActiveStreams();
+    parentPort.postMessage({ type: "streams_list", data: { streams } });
+  }
+});
+```
+
+**Why Worker Threads**:
+- **Non-blocking**: RTMP transcoding doesn't freeze HTTP requests
+- **Isolation**: RTMP server crashes don't take down main app
+- **Message passing**: Clean async communication via `postMessage()`
+- **Status monitoring**: Worker reports state every 10 seconds
+
+**API with Worker Communication**:
+- `GET /api/rtmp/worker-status` - Returns worker thread state
+- All `/api/rtmp/*` endpoints communicate via Promise-wrapped message passing
+
 ### Modern CSS Architecture
 
 **Modular CSS with cascade layers** (based on js-bambisleep-chat template):
@@ -187,7 +234,7 @@ Output URL: http://localhost:8000/live/mystreamkey/index.m3u8
 ### Data Flow Architecture
 
 ```
-User Browser → Express (port 6969) → /api/videos → Video list (unlimited viewers)
+User Browser → Express (port 7878) → /api/videos → Video list (unlimited viewers)
      ↓
 Select video → /videos/:filename → Download Queue Check
      ↓                                    ↓
@@ -310,24 +357,25 @@ return React.createElement(
 
 **Main Components** (modular files in `public/components/`):
 
-- `App.js` (702 lines) - Root component managing video list and player state
-  - Manages `hasAccess`, `ticketId`, `selectedVideo` state
-  - Fetches videos from `/api/videos` and public files from `/api/public`
+- `App.js` (1075 lines) - Root component managing video/image/stream tabs
+  - State: `hasAccess`, `ticketId`, `selectedVideo`, `selectedImage`, `selectedStream`, `activeTab`, `workerStatus`
+  - Fetches from `/api/videos`, `/api/images`, `/api/streams`, `/api/rtmp/streams`, `/api/public`
   - Handles queue access via `handleAccessGranted()` callback
-  - Auto-selects first video on load
-- `VideoPlayer.js` (203 lines) - Custom HTML5 video player with controls
+  - Displays RTMP worker thread status (state, active streams)
+  - Tab navigation: Videos, Images, Streams
+- `VideoPlayer.js` (190 lines) - Custom HTML5 video player with controls
   - Leverages browser cache for replay (no re-download)
   - HTTP Range requests for seeking/scrubbing
   - Custom controls: play/pause, seek bar, volume, fullscreen
   - Event handling: loadedmetadata, timeupdate, play, pause, ended, error
-- `DownloadStatus.js` (150 lines) - Real-time download queue monitoring
+- `DownloadStatus.js` (194 lines) - Real-time download queue monitoring
   - Shows active downloads (max 5) and waiting queue
   - Polls `/api/download-status` every 3 seconds
   - **TODO**: Add "DING!" sound notification when download slot becomes available
-- `QueueModal.js` (299 lines) - Viewing queue modal system
+- `QueueModal.js` (344 lines) - Viewing queue modal system
   - **⚠️ TO BE REMOVED**: Not needed per architecture (unlimited viewers via browser cache)
   - Manages ticket generation and queue position display
-- `Metronome.js` (281 lines) - BPM/tempo control component
+- `Metronome.js` (359 lines) - BPM/tempo control component
   - Audio oscillator for rhythm/beat tracking
   - Adjustable tempo controls
   - Integration with video playback timing
@@ -441,35 +489,40 @@ const getVideoFiles = () => {
 ```
 js-brandynette-xxx-filehost/
 ├── src/
-│   ├── server.js              # Express server, API routes, streaming logic, download queue (565 lines)
-│   ├── rtsp-manager.js        # RTSP → HLS transcoding manager (268 lines)
-│   └── rtmp-server.js         # RTMP ingest server (OBS support) (171 lines)
+│   ├── server.js              # Express server, API routes, streaming logic (787 lines)
+│   ├── rtsp-manager.js        # RTSP → HLS transcoding manager (231 lines)
+│   ├── rtmp-server.js         # RTMP ingest server class (327 lines)
+│   └── rtmp-worker.js         # Worker thread for RTMP isolation (168 lines)
 ├── public/
-│   ├── index.html             # Minimal entry point - loads components (84 lines)
-│   ├── components/            # Modular React components (1607 lines total)
-│   │   ├── App.js             # Main app logic and layout (702 lines)
-│   │   ├── VideoPlayer.js     # Custom video controls (203 lines)
-│   │   ├── QueueModal.js      # Viewer queue system (299 lines) ⚠️ TO BE REMOVED
-│   │   ├── Metronome.js       # BPM controls with audio (281 lines)
-│   │   └── DownloadStatus.js  # Real-time queue monitoring (150 lines)
-│   ├── css/                   # Modern CSS Architecture (766 lines total)
-│   │   ├── layers.css         # Cascade layer definitions
-│   │   ├── variables.css      # Design tokens (colors, spacing, typography)
-│   │   ├── reset.css          # Modern CSS reset + base styles
-│   │   ├── layout.css         # Page structure and containers
-│   │   ├── components.css     # UI components (buttons, cards, controls)
-│   │   └── features.css       # Feature-specific styles (video player, queue)
+│   ├── index.html             # Minimal entry point - loads components
+│   ├── components/            # Modular React components (2162 lines total)
+│   │   ├── App.js             # Main app logic and layout (1075 lines)
+│   │   ├── VideoPlayer.js     # Custom video controls (190 lines)
+│   │   ├── QueueModal.js      # Viewer queue system (344 lines) ⚠️ TO BE REMOVED
+│   │   ├── Metronome.js       # BPM controls with audio (359 lines)
+│   │   └── DownloadStatus.js  # Real-time queue monitoring (194 lines)
+│   ├── css/                   # Modern CSS Architecture (773 lines total)
+│   │   ├── layers.css         # Cascade layer definitions (14 lines)
+│   │   ├── variables.css      # Design tokens (137 lines)
+│   │   ├── reset.css          # Modern CSS reset + base (118 lines)
+│   │   ├── layout.css         # Page structure (107 lines)
+│   │   ├── components.css     # UI components (235 lines)
+│   │   └── features.css       # Feature-specific styles (162 lines)
 │   └── streams/               # RTSP/RTMP HLS output (.m3u8 + .ts segments) - auto-generated
-├── BRANDIFICATION/            # Video storage (fs.readdirSync target)
+├── BRANDIFICATION/            # Media storage (fs.readdirSync target)
+│   ├── Images/                # Image gallery files
+│   ├── Streams/               # Live stream output directory
+│   └── Videos/                # Video subfolder
 ├── docs/                      # Documentation system
 │   ├── README.md              # Complete docs index & navigation
+│   ├── DOCS-INTEGRATION.md    # Frontend docs browser guide
 │   ├── RTSP-STREAMING.md      # RTSP integration guide
 │   ├── RTSP-QUICKSTART.md     # 2-minute RTSP setup
-│   └── PRODUCTION-FIX.md      # Deployment troubleshooting
+│   └── RTMP-STREAMING.md      # RTMP/OBS streaming guide
 ├── .github/
 │   ├── copilot-instructions.md # This file
 │   └── TODO.md                # Feature roadmap
-├── .env.example               # Configuration template (PORT=7878, RTSP settings)
+├── .env.example               # Configuration template (PORT=7878, RTSP/RTMP settings)
 ├── filehost.service           # Systemd service file (runs as user zathras)
 ├── package.json               # "type": "module" enables ES6
 └── README.md                  # Kawaii pink-themed user documentation
@@ -525,17 +578,18 @@ js-brandynette-xxx-filehost/
 
 **Core Implementation** (must read for any changes):
 
-- [../src/server.js](../src/server.js) (565 lines) - Express server with streaming logic, HTTP range requests, path security, download queue
-- [../src/rtsp-manager.js](../src/rtsp-manager.js) (268 lines) - RTSP → HLS transcoding with FFmpeg, auto-reconnection, process management
-- [../src/rtmp-server.js](../src/rtmp-server.js) (171 lines) - RTMP ingest server using node-media-server, OBS integration
-- [../public/index.html](../public/index.html) (84 lines) - Minimal entry point loading React components
-- [../public/components/\*.js](../public/components/) (1607 lines total) - Modular React 18 components
-  - `App.js` (702 lines) - Main app state and layout
-  - `VideoPlayer.js` (203 lines) - Custom video controls
-  - `QueueModal.js` (299 lines) - ⚠️ TO BE REMOVED
-  - `Metronome.js` (281 lines) - BPM/tempo controls
-  - `DownloadStatus.js` (150 lines) - Queue monitoring
-- [../public/css/\*.css](../public/css/) (766 lines total) - Modular CSS cascade layers
+- [../src/server.js](../src/server.js) (787 lines) - Express server with streaming logic, HTTP range requests, path security, download queue, RTMP worker management
+- [../src/rtsp-manager.js](../src/rtsp-manager.js) (231 lines) - RTSP → HLS transcoding with FFmpeg, auto-reconnection, process management
+- [../src/rtmp-server.js](../src/rtmp-server.js) (327 lines) - RTMP ingest server class using node-media-server
+- [../src/rtmp-worker.js](../src/rtmp-worker.js) (168 lines) - Worker thread for RTMP isolation (prevents blocking main Express server)
+- [../public/index.html](../public/index.html) - Minimal entry point loading React components via CDN
+- [../public/components/\*.js](../public/components/) (2162 lines total) - Modular React 18 components
+  - `App.js` (1075 lines) - Main app state, tabs, streams UI, worker status display
+  - `VideoPlayer.js` (190 lines) - Custom video controls
+  - `QueueModal.js` (344 lines) - ⚠️ TO BE REMOVED
+  - `Metronome.js` (359 lines) - BPM/tempo controls with audio
+  - `DownloadStatus.js` (194 lines) - Queue monitoring
+- [../public/css/\*.css](../public/css/) (773 lines total) - Modular CSS cascade layers
 - [../package.json](../package.json) - ES6 module configuration (`"type": "module"`)
 - [../.env.example](../.env.example) - Complete configuration reference with RTSP and RTMP settings
 
@@ -552,32 +606,37 @@ js-brandynette-xxx-filehost/
 - [../docs/README.md](../docs/README.md) - Complete documentation index and navigation
 - [../docs/RTSP-STREAMING.md](../docs/RTSP-STREAMING.md) - Full RTSP integration guide
 - [../docs/RTSP-QUICKSTART.md](../docs/RTSP-QUICKSTART.md) - 2-minute RTSP setup
-- [../docs/PRODUCTION-FIX.md](../docs/PRODUCTION-FIX.md) - Deployment troubleshooting
+- [../docs/RTMP-STREAMING.md](../docs/RTMP-STREAMING.md) - RTMP/OBS streaming guide
+- [../docs/DOCS-INTEGRATION.md](../docs/DOCS-INTEGRATION.md) - Frontend docs browser guide
 - [TODO.md](TODO.md) - Feature roadmap (transcoding, HLS, auth, storage, analytics)
 - [copilot-instructions.md](copilot-instructions.md) - This file
 
 ## 📊 Project Stats
 
-- **Backend**: 1004 lines total
-  - `server.js`: 565 lines (Express server, streaming logic, download queue)
-  - `rtsp-manager.js`: 268 lines (RTSP → HLS transcoding)
-  - `rtmp-server.js`: 171 lines (RTMP ingest from OBS)
-- **Frontend**: 1691 lines total
-  - `index.html`: 84 lines (minimal entry point)
-  - `components/*.js`: 1607 lines (5 modular React components)
-- **CSS**: 766 lines across 6 modular files
-- **Total LOC**: ~3461 lines excluding dependencies
+- **Backend**: 1513 lines total
+  - `server.js`: 787 lines (Express server, streaming logic, download queue)
+  - `rtsp-manager.js`: 231 lines (RTSP → HLS transcoding)
+  - `rtmp-server.js`: 327 lines (RTMP ingest server class)
+  - `rtmp-worker.js`: 168 lines (Worker thread for RTMP isolation)
+- **Frontend**: 2162 lines total (components)
+  - `App.js`: 1075 lines (Main app state, tabs, streams UI)
+  - `VideoPlayer.js`: 190 lines (Custom video controls)
+  - `QueueModal.js`: 344 lines (**⚠️ TO BE REMOVED**)
+  - `Metronome.js`: 359 lines (BPM/tempo controls)
+  - `DownloadStatus.js`: 194 lines (Queue monitoring)
+- **CSS**: 773 lines across 6 modular files
+- **Total LOC**: ~4448 lines excluding dependencies
 - **Dependencies**: 5 runtime (express, cors, dotenv, fluent-ffmpeg, node-media-server), 1 dev (nodemon)
-- **API Endpoints**: 11 total routes
-  - 5 core routes (health, videos, images, public, download-status)
+- **API Endpoints**: 15+ routes
+  - 6 core routes (health, videos, images, public, download-status, docs)
   - 4 RTSP routes (list, start, stop, playlist)
-  - 2 RTMP routes (list streams, get URLs)
+  - 3 RTMP routes (list streams, get URLs, worker-status)
   - 3 queue routes (**⚠️ TO BE REMOVED**)
-  - 1 docs route, 1 video streaming route, 1 wildcard route
-- **Documentation**: 6 comprehensive markdown files
-- **Supported Formats**: `.mp4`, `.webm`, `.ogg`
+  - 1 video streaming route, 1 wildcard route
+- **Documentation**: 7 comprehensive markdown files
+- **Supported Formats**: `.mp4`, `.webm`, `.ogg` (video), `.jpg`, `.png`, `.gif`, `.webp` (images)
 - **Concurrent Viewers**: **UNLIMITED** (browser-cached playback)
-- **Concurrent Downloads**: Limited to 3-5 for initial buffering
+- **Concurrent Downloads**: Limited to 5 for initial buffering
 
 **Quick Reference**: Port 7878 • ES6 modules • React 18 CDN • HTTP Range requests • Browser caching • Download queue (3-5 concurrent) • Unlimited viewers • "DING!" notification (TODO) • Modern CSS Architecture • Zero build • Systemd production • RTSP→HLS streaming
 
@@ -590,4 +649,4 @@ js-brandynette-xxx-filehost/
 
 **Feature Roadmap**: See `.github/TODO.md` for prioritized features (transcoding, HLS, auth, storage, analytics)
 
-**Last Updated**: December 29, 2025 (Current state: RTSP/RTMP dual streaming integrated, modular React components, viewing queue still exists but planned for removal)
+**Last Updated**: December 30, 2025 (Current state: RTSP/RTMP dual streaming with Worker Thread isolation, modular React components, RTMP worker status UI, viewing queue still exists but planned for removal)
