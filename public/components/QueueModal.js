@@ -76,7 +76,7 @@ function QueueModal({ onAccessGranted }) {
   // Countdown timer - use server data instead of local decrement
   useEffect(() => {
     if (queueState !== "queued" || !ticketData) return;
-    
+
     // Set countdown from server data when it updates
     setCountdown(ticketData.waitTime || 0);
   }, [queueState, ticketData]);
@@ -183,7 +183,7 @@ function QueueModal({ onAccessGranted }) {
                 marginBottom: "1rem",
               },
             },
-            Math.max(0, countdown)  // Ensure countdown never goes negative
+            Math.max(0, countdown) // Ensure countdown never goes negative
           ),
 
           React.createElement(

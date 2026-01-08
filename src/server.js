@@ -430,13 +430,22 @@ app.post("/api/streams/:streamId/start", (req, res) => {
   }
 
   // Validate streamId - prevent path traversal
-  if (streamId.includes("..") || streamId.includes("/") || streamId.includes("\\")) {
+  if (
+    streamId.includes("..") ||
+    streamId.includes("/") ||
+    streamId.includes("\\")
+  ) {
     return res.status(400).json({ error: "Invalid streamId" });
   }
 
   // Validate URL is RTSP protocol
-  if (!url.toLowerCase().startsWith("rtsp://") && !url.toLowerCase().startsWith("rtsps://")) {
-    return res.status(400).json({ error: "URL must be RTSP or RTSPS protocol" });
+  if (
+    !url.toLowerCase().startsWith("rtsp://") &&
+    !url.toLowerCase().startsWith("rtsps://")
+  ) {
+    return res
+      .status(400)
+      .json({ error: "URL must be RTSP or RTSPS protocol" });
   }
 
   try {
@@ -452,7 +461,9 @@ app.post("/api/streams/:streamId/start", (req, res) => {
     }
   } catch (error) {
     console.error(`Error starting stream ${streamId}:`, error);
-    res.status(500).json({ error: "Failed to start stream", message: error.message });
+    res
+      .status(500)
+      .json({ error: "Failed to start stream", message: error.message });
   }
 });
 
@@ -543,7 +554,7 @@ app.get("/api/rtmp/url/:streamKey", async (req, res) => {
         message.type === "stream_url" &&
         message.data.streamKey === streamKey
       ) {
-        if (isResolved) return;  // Prevent double response
+        if (isResolved) return; // Prevent double response
         isResolved = true;
         clearTimeout(timeout);
         rtmpWorker.off("message", messageHandler);
@@ -564,9 +575,9 @@ app.get("/api/rtmp/url/:streamKey", async (req, res) => {
     };
 
     const timeout = setTimeout(() => {
-      if (isResolved) return;  // Already responded
+      if (isResolved) return; // Already responded
       isResolved = true;
-      rtmpWorker.off("message", messageHandler);  // Clean up listener on timeout
+      rtmpWorker.off("message", messageHandler); // Clean up listener on timeout
       console.warn(`Worker timeout for streamKey: ${streamKey}`);
       resolve(res.status(503).json({ error: "Worker timeout" }));
     }, 5000);
@@ -654,33 +665,39 @@ app.get("/api/images", (req, res) => {
     const imagesPath = path.join(__dirname, "../BRANDIFICATION/Images");
 
     // Get file sizes for each image
-    const imagesWithSize = images.map((filename) => {
-      // Prevent path traversal - ensure filename doesn't contain directory separators
-      if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
-        console.warn(`Suspicious filename ignored: ${filename}`);
-        return null;
-      }
-
-      try {
-        const filePath = path.join(imagesPath, filename);
-        // Verify the resolved path is within imagesPath
-        const realPath = fs.realpathSync(filePath);
-        if (!realPath.startsWith(path.resolve(imagesPath))) {
-          console.warn(`Path traversal attempt blocked: ${filename}`);
+    const imagesWithSize = images
+      .map((filename) => {
+        // Prevent path traversal - ensure filename doesn't contain directory separators
+        if (
+          filename.includes("..") ||
+          filename.includes("/") ||
+          filename.includes("\\")
+        ) {
+          console.warn(`Suspicious filename ignored: ${filename}`);
           return null;
         }
-        const stats = fs.statSync(filePath);
-        return {
-          filename: filename,
-          size: stats.size,
-          sizeKB: (stats.size / 1024).toFixed(2),
-          url: `/images/${encodeURIComponent(filename)}`,
-        };
-      } catch (error) {
-        console.error(`Error getting stats for ${filename}:`, error);
-        return null;
-      }
-    }).filter(img => img !== null);  // Remove any blocked files
+
+        try {
+          const filePath = path.join(imagesPath, filename);
+          // Verify the resolved path is within imagesPath
+          const realPath = fs.realpathSync(filePath);
+          if (!realPath.startsWith(path.resolve(imagesPath))) {
+            console.warn(`Path traversal attempt blocked: ${filename}`);
+            return null;
+          }
+          const stats = fs.statSync(filePath);
+          return {
+            filename: filename,
+            size: stats.size,
+            sizeKB: (stats.size / 1024).toFixed(2),
+            url: `/images/${encodeURIComponent(filename)}`,
+          };
+        } catch (error) {
+          console.error(`Error getting stats for ${filename}:`, error);
+          return null;
+        }
+      })
+      .filter((img) => img !== null); // Remove any blocked files
 
     res.json({ images: imagesWithSize, count: imagesWithSize.length });
   } catch (error) {

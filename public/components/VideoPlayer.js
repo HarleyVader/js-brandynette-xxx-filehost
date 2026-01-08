@@ -65,7 +65,7 @@ function VideoPlayer({ videoSrc, title }) {
 
   const handleSeek = (e) => {
     const video = videoRef.current;
-    if (!video) return;  // Safety check for null ref
+    if (!video) return; // Safety check for null ref
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
     video.currentTime = percent * duration;

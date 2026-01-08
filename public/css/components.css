@@ -8,11 +8,8 @@
      ======================================================================== */
   .glass-bubble {
     background: var(--glass-bg);
-    -webkit-backdrop-filter: var(--blur-lg);
-    backdrop-filter: var(--blur-lg);
     border: var(--border-width-thin) solid var(--glass-border);
     border-radius: var(--radius-xl);
-    box-shadow: var(--bubble-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
   }
@@ -38,10 +35,7 @@
     border-radius: var(--radius-lg);
     padding: var(--space-3) var(--space-5);
     cursor: pointer;
-    transition: all var(--transition-base);
     font-family: var(--font-family-primary);
-    -webkit-backdrop-filter: var(--blur-md);
-    backdrop-filter: var(--blur-md);
     position: relative;
     overflow: hidden;
     margin: var(--space-1);
@@ -59,27 +53,18 @@
     border-radius: var(--radius-full);
     background: rgba(255, 255, 255, 0.2);
     transform: translate(-50%, -50%);
-    transition: width 0.8s, height 0.8s;
-  }
-
-  .bubble-button:hover::before {
-    width: 200px;
-    height: 200px;
   }
 
   .bubble-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(223, 4, 113, 0.2);
     border-color: var(--glow-pink);
   }
 
   .bubble-button:active {
-    transform: translateY(0);
+    opacity: 0.8;
   }
 
   .bubble-button.selected {
     background: linear-gradient(135deg, var(--tertiary-alt), var(--nav-alt));
-    box-shadow: 0 0 20px var(--glow-cyan);
     border-color: var(--glow-cyan);
   }
 
@@ -88,20 +73,14 @@
      ======================================================================== */
   .video-card {
     background: var(--glass-bg);
-    -webkit-backdrop-filter: var(--blur-lg);
-    backdrop-filter: var(--blur-lg);
     border: var(--border-width-thin) solid var(--glass-border);
     border-radius: var(--radius-xl);
     padding: var(--space-4);
     cursor: pointer;
-    transition: all var(--transition-base);
-    box-shadow: var(--bubble-shadow);
   }
 
   .video-card:hover {
-    transform: translateY(-2px);
     border-color: var(--glow-cyan);
-    box-shadow: 0 8px 20px rgba(0, 255, 255, 0.2);
   }
 
   .video-card h3 {
@@ -130,21 +109,17 @@
 
   .control-button {
     background: var(--glass-bg);
-    -webkit-backdrop-filter: var(--blur-md);
-    backdrop-filter: var(--blur-md);
     border: var(--border-width-thin) solid var(--glass-border);
     border-radius: var(--radius-md);
     padding: var(--space-2) var(--space-4);
     color: white;
     cursor: pointer;
-    transition: all var(--transition-fast);
     font-size: var(--text-lg);
   }
 
   .control-button:hover {
     background: var(--button-color);
     border-color: var(--glow-pink);
-    box-shadow: 0 0 10px var(--glow-pink);
   }
 
   /* ========================================================================
@@ -165,8 +140,6 @@
     height: 100%;
     background: linear-gradient(90deg, var(--glow-cyan), var(--glow-pink));
     border-radius: var(--radius-full);
-    transition: width var(--transition-fast);
-    box-shadow: 0 0 6px var(--glow-cyan);
   }
 
   /* ========================================================================
@@ -191,7 +164,6 @@
     background: linear-gradient(135deg, var(--glow-cyan), var(--glow-pink));
     border-radius: var(--radius-full);
     cursor: pointer;
-    box-shadow: 0 0 6px var(--glow-pink);
   }
 
   input[type="range"]::-moz-range-thumb {
@@ -201,7 +173,6 @@
     border-radius: var(--radius-full);
     cursor: pointer;
     border: none;
-    box-shadow: 0 0 6px var(--glow-pink);
   }
 
   /* ========================================================================
@@ -214,11 +185,6 @@
     border: 4px solid rgba(255, 255, 255, 0.15);
     border-top-color: var(--glow-cyan);
     border-radius: var(--radius-full);
-    animation: spin 1.8s linear infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
   }
 
   /* ========================================================================
@@ -226,33 +192,17 @@
      ======================================================================== */
   .error-message {
     background: var(--glass-bg);
-    -webkit-backdrop-filter: var(--blur-md);
-    backdrop-filter: var(--blur-md);
     border: var(--border-width-medium) solid var(--error);
     border-radius: var(--radius-lg);
     padding: var(--space-4);
     color: var(--error);
     text-align: center;
-    box-shadow: 0 0 12px rgba(255, 51, 51, 0.2);
   }
 
   /* ========================================================================
      GLOW EFFECTS
      ======================================================================== */
   .glow-effect {
-    filter: drop-shadow(0 0 6px var(--glow-cyan)) 
-            drop-shadow(0 0 12px var(--glow-pink));
-    animation: pulse-glow 8s ease-in-out infinite alternate;
-  }
-
-  @keyframes pulse-glow {
-    0% {
-      filter: drop-shadow(0 0 4px var(--glow-cyan)) 
-              drop-shadow(0 0 8px var(--glow-pink));
-    }
-    100% {
-      filter: drop-shadow(0 0 8px var(--glow-cyan)) 
-              drop-shadow(0 0 14px var(--glow-pink));
-    }
+    /* Glow effects removed */
   }
 }

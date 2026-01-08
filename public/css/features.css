@@ -40,12 +40,10 @@
   .volume-icon {
     font-size: var(--text-xl);
     cursor: pointer;
-    transition: transform var(--transition-fast);
   }
 
   .volume-icon:hover {
-    transform: scale(1.05);
-    filter: drop-shadow(0 0 3px var(--glow-cyan));
+    opacity: 0.7;
   }
 
   /* ========================================================================
@@ -53,8 +51,6 @@
      ======================================================================== */
   .queue-status {
     background: var(--glass-bg);
-    -webkit-backdrop-filter: var(--blur-lg);
-    backdrop-filter: var(--blur-lg);
     border: var(--border-width-thin) solid var(--glass-border);
     border-radius: var(--radius-lg);
     padding: var(--space-4);
@@ -97,29 +93,14 @@
 
   .status-indicator.active {
     background: var(--tertiary-alt);
-    box-shadow: 0 0 8px var(--tertiary-alt);
-    animation: pulse-status 5s ease-in-out infinite;
   }
 
   .status-indicator.queued {
     background: var(--glow-pink);
-    box-shadow: 0 0 8px var(--glow-pink);
   }
 
   .status-indicator.error {
     background: var(--error);
-    box-shadow: 0 0 8px var(--error);
-  }
-
-  @keyframes pulse-status {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.85;
-      transform: scale(1.1);
-    }
   }
 
   /* ========================================================================
@@ -143,14 +124,11 @@
     top: var(--space-4);
     left: var(--space-4);
     background: var(--glass-bg);
-    -webkit-backdrop-filter: var(--blur-lg);
-    backdrop-filter: var(--blur-lg);
     border: var(--border-width-thin) solid var(--glass-border);
     border-radius: var(--radius-full);
     padding: var(--space-2) var(--space-4);
     color: white;
     cursor: pointer;
-    transition: all var(--transition-base);
     z-index: var(--z-sticky);
     font-size: var(--text-sm);
   }
@@ -158,8 +136,6 @@
   .back-button:hover {
     background: var(--button-color);
     border-color: var(--glow-pink);
-    box-shadow: 0 0 12px var(--glow-pink);
-    transform: translateX(-2px);
   }
 
   /* ========================================================================

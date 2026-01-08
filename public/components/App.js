@@ -84,7 +84,10 @@ function App() {
     try {
       const response = await fetch("/api/rtmp/worker-status");
       if (!response.ok) {
-        console.warn("Worker status fetch failed with status:", response.status);
+        console.warn(
+          "Worker status fetch failed with status:",
+          response.status
+        );
         return;
       }
       const data = await response.json();

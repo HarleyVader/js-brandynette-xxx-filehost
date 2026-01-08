@@ -21,10 +21,7 @@
     padding: var(--space-6) var(--space-4);
     text-align: center;
     background: var(--glass-bg);
-    -webkit-backdrop-filter: var(--blur-lg);
-    backdrop-filter: var(--blur-lg);
     border-bottom: var(--border-width-thin) solid var(--glass-border);
-    box-shadow: var(--shadow-glass);
   }
 
   .app-header h1 {
@@ -33,7 +30,6 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    filter: drop-shadow(0 0 10px var(--glow-cyan));
   }
 
   /* ========================================================================
@@ -74,12 +70,9 @@
      ======================================================================== */
   .player-container {
     background: var(--glass-bg);
-    -webkit-backdrop-filter: var(--blur-lg);
-    backdrop-filter: var(--blur-lg);
     border: var(--border-width-thin) solid var(--glass-border);
     border-radius: var(--radius-xl);
     padding: var(--space-6);
-    box-shadow: var(--shadow-glass);
     margin-bottom: var(--space-6);
   }
 
