@@ -26,7 +26,7 @@ let rtmpWorkerStatus = {
 };
 
 if (process.env.RTMP_ENABLED === "true") {
-  const rtmpConfig = {s
+  const rtmpConfig = {
     rtmpPort: parseInt(process.env.RTMP_PORT),
     httpPort: parseInt(process.env.RTMP_HTTP_PORT),
     ffmpegPath: process.env.FFMPEG_PATH || "ffmpeg",
