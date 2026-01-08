@@ -92,7 +92,6 @@ function QueueModal({ onAccessGranted }) {
         console.error("Error fetching queue status:", err);
       }
     };
-
     // Only fetch while queued, not continuously
     if (queueState !== "queued") return;
 
@@ -100,8 +99,6 @@ function QueueModal({ onAccessGranted }) {
     const interval = setInterval(fetchQueueStatus, 5000);
     return () => clearInterval(interval);
   }, [queueState]);
-    return () => clearInterval(interval);
-  }, []);
 
   return React.createElement(
     "div",
