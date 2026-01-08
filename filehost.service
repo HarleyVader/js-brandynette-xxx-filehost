@@ -6,7 +6,7 @@ Wants=network.target
 [Service]
 Type=simple
 User=zathras
-WorkingDirectory=/home/brandynette/web/bambisleep.chat/nodeapp/js-bambisleep-chat/src/server
+WorkingDirectory=/home/zathras/js-brandynette-xxx-filehost/src
 ExecStart=/bin/bash -c 'source /home/zathras/.nvm/nvm.sh && node server.js'
 Restart=always
 RestartSec=10
