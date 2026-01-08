@@ -14,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 6969;
+const PORT = process.env.PORT;
 
 // Initialize RTMP Ingest Server in Worker Thread
 let rtmpWorker = null;
@@ -26,9 +26,9 @@ let rtmpWorkerStatus = {
 };
 
 if (process.env.RTMP_ENABLED === "true") {
-  const rtmpConfig = {
-    rtmpPort: parseInt(process.env.RTMP_PORT) || 1935,
-    httpPort: parseInt(process.env.RTMP_HTTP_PORT) || 8000,
+  const rtmpConfig = {s
+    rtmpPort: parseInt(process.env.RTMP_PORT),
+    httpPort: parseInt(process.env.RTMP_HTTP_PORT),
     ffmpegPath: process.env.FFMPEG_PATH || "ffmpeg",
     mediaRoot: process.env.RTMP_MEDIA_ROOT || "./BRANDIFICATION",
     validateStreamKey: process.env.RTMP_VALIDATE_KEYS === "true",
