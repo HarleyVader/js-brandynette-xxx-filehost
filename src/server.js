@@ -713,6 +713,7 @@ app.get("/api/download-status", (req, res) => {
 
 app.get("/videos/:filename", (req, res) => {
   const filename = req.params.filename;
+  const location = req.query.location || "root"; // Get location from query param
 
   // Check if ticket is provided and valid
   const ticketId = req.query.ticket;
@@ -756,7 +757,13 @@ app.get("/videos/:filename", (req, res) => {
     return res.status(400).json({ error: "Invalid filename" });
   }
 
-  const videoPath = path.join(__dirname, "../BRANDIFICATION", filename);
+  // Build correct path based on location
+  let videoPath;
+  if (location === "Videos") {
+    videoPath = path.join(__dirname, "../BRANDIFICATION/Videos", filename);
+  } else {
+    videoPath = path.join(__dirname, "../BRANDIFICATION", filename);
+  }
 
   // Check if file exists
   if (!fs.existsSync(videoPath)) {

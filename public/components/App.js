@@ -703,7 +703,7 @@ function App() {
               activeTab === "videos" &&
                 selectedVideo &&
                 React.createElement(VideoPlayer, {
-                  videoSrc: `/videos/${selectedVideo.filename}?ticket=${ticketId}`,
+                  videoSrc: `/videos/${selectedVideo.filename}?location=${selectedVideo.location}&ticket=${ticketId}`,
                   title: selectedVideo.filename,
                 }),
               activeTab === "images" &&
