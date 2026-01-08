@@ -11,10 +11,13 @@ function DownloadStatus() {
         if (response.ok) {
           const data = await response.json();
           setStatus(data);
+          setLoading(false);
+        } else {
+          console.warn("Failed to fetch download status:", response.status);
+          setLoading(false);
         }
       } catch (err) {
         console.error("Error fetching download status:", err);
-      } finally {
         setLoading(false);
       }
     };

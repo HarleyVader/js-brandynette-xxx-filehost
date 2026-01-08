@@ -183,7 +183,7 @@ function QueueModal({ onAccessGranted }) {
                 marginBottom: "1rem",
               },
             },
-            countdown > 0 ? countdown : "⏳"
+            Math.max(0, countdown)  // Ensure countdown never goes negative
           ),
 
           React.createElement(

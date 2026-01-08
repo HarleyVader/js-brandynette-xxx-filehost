@@ -10,6 +10,15 @@ function VideoPlayer({ videoSrc, title }) {
 
   const videoRef = useRef(null);
 
+  // Reset state when video source changes
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    setCurrentTime(0);
+    setDuration(0);
+  }, [videoSrc]);
+
+  // Attach event listeners
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -35,12 +44,6 @@ function VideoPlayer({ videoSrc, title }) {
     video.addEventListener("ended", handleEnded);
     video.addEventListener("error", handleError);
 
-    // Reset state when video source changes
-    setLoading(true);
-    setError(null);
-    setCurrentTime(0);
-    setDuration(0);
-
     return () => {
       video.removeEventListener("loadedmetadata", handleLoadedMetadata);
       video.removeEventListener("timeupdate", handleTimeUpdate);
@@ -49,7 +52,7 @@ function VideoPlayer({ videoSrc, title }) {
       video.removeEventListener("ended", handleEnded);
       video.removeEventListener("error", handleError);
     };
-  }, [videoSrc]);
+  }, [videoRef]);
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -62,6 +65,7 @@ function VideoPlayer({ videoSrc, title }) {
 
   const handleSeek = (e) => {
     const video = videoRef.current;
+    if (!video) return;  // Safety check for null ref
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
     video.currentTime = percent * duration;

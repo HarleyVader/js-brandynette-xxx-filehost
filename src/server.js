@@ -174,10 +174,12 @@ const viewingQueue = {
         joinedAt: new Date(),
         expiresAt: new Date(Date.now() + 30 * 60 * 1000), // 30 min session
       });
+      console.log(`✅ Ticket granted immediately: ${ticketId}`);
       return { status: "granted", ticketId, position: 0, waitTime: 0 };
     } else {
       // Add to waiting queue
       this.waiting.push(ticket);
+      console.log(`⏳ Ticket queued: ${ticketId} at position ${position}`);
       return { status: "queued", ticketId, position, waitTime: estimatedWait };
     }
   },
@@ -247,7 +249,17 @@ const viewingQueue = {
 };
 
 // Process queue every 5 seconds
-setInterval(() => viewingQueue.processQueue(), 5000);
+let processingQueue = false;
+setInterval(() => {
+  // Prevent concurrent processing (atomic operation)
+  if (processingQueue) return;
+  processingQueue = true;
+  try {
+    viewingQueue.processQueue();
+  } finally {
+    processingQueue = false;
+  }
+}, 5000);
 
 const MAX_CONCURRENT_DOWNLOADS = 5;
 const downloadQueue = {
@@ -417,15 +429,30 @@ app.post("/api/streams/:streamId/start", (req, res) => {
     return res.status(400).json({ error: "URL and name required" });
   }
 
-  const started = rtspManager.startStream(streamId, url, name);
-  if (started) {
-    res.json({
-      success: true,
-      streamId,
-      playlistUrl: rtspManager.getPlaylistUrl(streamId),
-    });
-  } else {
-    res.status(409).json({ error: "Stream already running" });
+  // Validate streamId - prevent path traversal
+  if (streamId.includes("..") || streamId.includes("/") || streamId.includes("\\")) {
+    return res.status(400).json({ error: "Invalid streamId" });
+  }
+
+  // Validate URL is RTSP protocol
+  if (!url.toLowerCase().startsWith("rtsp://") && !url.toLowerCase().startsWith("rtsps://")) {
+    return res.status(400).json({ error: "URL must be RTSP or RTSPS protocol" });
+  }
+
+  try {
+    const started = rtspManager.startStream(streamId, url, name);
+    if (started) {
+      res.json({
+        success: true,
+        streamId,
+        playlistUrl: rtspManager.getPlaylistUrl(streamId),
+      });
+    } else {
+      res.status(409).json({ error: "Stream already running" });
+    }
+  } catch (error) {
+    console.error(`Error starting stream ${streamId}:`, error);
+    res.status(500).json({ error: "Failed to start stream", message: error.message });
   }
 });
 
@@ -503,17 +530,21 @@ app.get("/api/rtmp/url/:streamKey", async (req, res) => {
 
   const { streamKey } = req.params;
 
+  // Validate streamKey format to prevent injection
+  if (!streamKey || !/^[a-zA-Z0-9_-]+$/.test(streamKey)) {
+    return res.status(400).json({ error: "Invalid streamKey format" });
+  }
+
   // Request stream URL from worker thread
   return new Promise((resolve) => {
-    const timeout = setTimeout(() => {
-      resolve(res.status(503).json({ error: "Worker timeout" }));
-    }, 5000);
-
+    let isResolved = false;
     const messageHandler = (message) => {
       if (
         message.type === "stream_url" &&
         message.data.streamKey === streamKey
       ) {
+        if (isResolved) return;  // Prevent double response
+        isResolved = true;
         clearTimeout(timeout);
         rtmpWorker.off("message", messageHandler);
         const urls = message.data.urls;
@@ -531,6 +562,14 @@ app.get("/api/rtmp/url/:streamKey", async (req, res) => {
         );
       }
     };
+
+    const timeout = setTimeout(() => {
+      if (isResolved) return;  // Already responded
+      isResolved = true;
+      rtmpWorker.off("message", messageHandler);  // Clean up listener on timeout
+      console.warn(`Worker timeout for streamKey: ${streamKey}`);
+      resolve(res.status(503).json({ error: "Worker timeout" }));
+    }, 5000);
 
     rtmpWorker.on("message", messageHandler);
     rtmpWorker.postMessage({ command: "get_url", data: { streamKey } });
@@ -616,25 +655,32 @@ app.get("/api/images", (req, res) => {
 
     // Get file sizes for each image
     const imagesWithSize = images.map((filename) => {
+      // Prevent path traversal - ensure filename doesn't contain directory separators
+      if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
+        console.warn(`Suspicious filename ignored: ${filename}`);
+        return null;
+      }
+
       try {
         const filePath = path.join(imagesPath, filename);
+        // Verify the resolved path is within imagesPath
+        const realPath = fs.realpathSync(filePath);
+        if (!realPath.startsWith(path.resolve(imagesPath))) {
+          console.warn(`Path traversal attempt blocked: ${filename}`);
+          return null;
+        }
         const stats = fs.statSync(filePath);
         return {
           filename: filename,
           size: stats.size,
           sizeKB: (stats.size / 1024).toFixed(2),
-          url: `/images/${filename}`,
+          url: `/images/${encodeURIComponent(filename)}`,
         };
       } catch (error) {
         console.error(`Error getting stats for ${filename}:`, error);
-        return {
-          filename: filename,
-          size: 0,
-          sizeKB: "0.00",
-          url: `/images/${filename}`,
-        };
+        return null;
       }
-    });
+    }).filter(img => img !== null);  // Remove any blocked files
 
     res.json({ images: imagesWithSize, count: imagesWithSize.length });
   } catch (error) {
@@ -802,9 +848,10 @@ app.get("/videos/:filename", (req, res) => {
     );
   };
 
-  res.on("finish", cleanupDownload);
-  res.on("close", cleanupDownload);
-  res.on("error", cleanupDownload);
+  // Use once() instead of on() to automatically remove listener after first trigger
+  res.once("finish", cleanupDownload);
+  res.once("close", cleanupDownload);
+  res.once("error", cleanupDownload);
 
   console.log(
     `📥 Download started: ${filename} (${sessionId.substring(
@@ -848,7 +895,12 @@ app.get("*", (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error("Server error:", err);
-  res.status(500).json({ error: "Internal server error" });
+  // Don't expose internal error details in production
+  const isDev = process.env.NODE_ENV !== "production";
+  res.status(err.status || 500).json({
+    error: "Internal server error",
+    ...(isDev && { message: err.message, stack: err.stack }),
+  });
 });
 
 app.listen(PORT, () => {
@@ -868,15 +920,23 @@ process.on("SIGINT", () => {
   console.log("\n🛑 Shutting down gracefully...");
 
   if (rtspManager) {
-    rtspManager.stopAllStreams();
+    try {
+      rtspManager.stopAllStreams();
+    } catch (error) {
+      console.error("Error stopping RTSP streams:", error);
+    }
   }
 
   if (rtmpWorker) {
     console.log("🧵 Terminating RTMP Worker...");
-    rtmpWorker.postMessage({ command: "shutdown" });
-    setTimeout(() => {
-      rtmpWorker.terminate();
-    }, 2000);
+    try {
+      rtmpWorker.postMessage({ command: "shutdown" });
+      setTimeout(() => {
+        rtmpWorker.terminate();
+      }, 2000);
+    } catch (error) {
+      console.error("Error terminating worker:", error);
+    }
   }
 
   process.exit(0);
@@ -886,15 +946,23 @@ process.on("SIGTERM", () => {
   console.log("\n🛑 Received SIGTERM, shutting down...");
 
   if (rtspManager) {
-    rtspManager.stopAllStreams();
+    try {
+      rtspManager.stopAllStreams();
+    } catch (error) {
+      console.error("Error stopping RTSP streams:", error);
+    }
   }
 
   if (rtmpWorker) {
     console.log("🧵 Terminating RTMP Worker...");
-    rtmpWorker.postMessage({ command: "shutdown" });
-    setTimeout(() => {
-      rtmpWorker.terminate();
-    }, 2000);
+    try {
+      rtmpWorker.postMessage({ command: "shutdown" });
+      setTimeout(() => {
+        rtmpWorker.terminate();
+      }, 2000);
+    } catch (error) {
+      console.error("Error terminating worker:", error);
+    }
   }
 
   process.exit(0);

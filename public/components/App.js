@@ -24,7 +24,7 @@ function App() {
       const interval = setInterval(fetchWorkerStatus, 15000);
       return () => clearInterval(interval);
     }
-  }, [hasAccess]);
+  }, [hasAccess, fetchData, fetchWorkerStatus]);
 
   const handleAccessGranted = (ticket) => {
     setTicketId(ticket);
@@ -83,11 +83,15 @@ function App() {
   const fetchWorkerStatus = async () => {
     try {
       const response = await fetch("/api/rtmp/worker-status");
-      if (!response.ok) return;
+      if (!response.ok) {
+        console.warn("Worker status fetch failed with status:", response.status);
+        return;
+      }
       const data = await response.json();
       setWorkerStatus(data);
     } catch (error) {
       console.error("Error fetching worker status:", error);
+      // Set error state but keep existing status
     }
   };
 
