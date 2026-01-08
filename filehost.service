@@ -6,8 +6,8 @@ Wants=network.target
 [Service]
 Type=simple
 User=zathras
-WorkingDirectory=/home/brandynette/web/brandynette.xxx/nodeapp/js-brandynette-xxx-filehost/src/
-ExecStart=/bin/bash -c 'source /home/zathras/.nvm/nvm.sh && node server.js'
+WorkingDirectory=/home/brandynette/web/brandynette.xxx/nodeapp/js-brandynette-xxx-filehost/
+ExecStart=/bin/bash -c 'source /home/zathras/.nvm/nvm.sh && node src/server.js'
 Restart=always
 RestartSec=10
 Environment=NODE_ENV=production

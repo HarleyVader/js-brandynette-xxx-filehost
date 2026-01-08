@@ -490,11 +490,11 @@ server {
         proxy_pass http://127.0.0.1:8000/live/;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
-        
+
         # CORS for HLS.js
         add_header Access-Control-Allow-Origin *;
         add_header Access-Control-Allow-Methods 'GET, OPTIONS';
-        
+
         # Cache HLS segments briefly
         proxy_cache_valid 200 1s;
     }
@@ -603,30 +603,30 @@ journalctl -u filehost -f  # Live logs
 
 #### Stream Settings
 
-| Setting | Value |
-|---------|-------|
-| Service | Custom |
-| Server | `rtmp://brandynette.xxx/live` |
-| Stream Key | `brandynette_secret_2025` |
+| Setting    | Value                         |
+| ---------- | ----------------------------- |
+| Service    | Custom                        |
+| Server     | `rtmp://brandynette.xxx/live` |
+| Stream Key | `brandynette_secret_2025`     |
 
 #### Output Settings (Recommended)
 
-| Setting | Value |
-|---------|-------|
-| Output Mode | Advanced |
-| Encoder | x264 or NVENC |
-| Bitrate | 4000-6000 Kbps |
-| Keyframe Interval | 2 seconds |
-| Profile | high |
-| Tune | zerolatency |
+| Setting           | Value          |
+| ----------------- | -------------- |
+| Output Mode       | Advanced       |
+| Encoder           | x264 or NVENC  |
+| Bitrate           | 4000-6000 Kbps |
+| Keyframe Interval | 2 seconds      |
+| Profile           | high           |
+| Tune              | zerolatency    |
 
 #### Video Settings
 
-| Setting | Value |
-|---------|-------|
-| Base Resolution | 1920x1080 |
+| Setting           | Value                 |
+| ----------------- | --------------------- |
+| Base Resolution   | 1920x1080             |
 | Output Resolution | 1920x1080 or 1280x720 |
-| FPS | 30 or 60 |
+| FPS               | 30 or 60              |
 
 ### Step 9: Viewer Access
 
@@ -638,13 +638,13 @@ The stream appears automatically in the **Streams tab** when active.
 
 ### Production URLs Summary
 
-| Purpose | URL |
-|---------|-----|
-| Website | `https://brandynette.xxx` |
-| RTMP Ingest (OBS) | `rtmp://brandynette.xxx/live` |
-| HLS Playback | `https://brandynette.xxx/live/{stream_key}/index.m3u8` |
-| API - Active Streams | `https://brandynette.xxx/api/rtmp/streams` |
-| API - Stream URLs | `https://brandynette.xxx/api/rtmp/url/{stream_key}` |
+| Purpose              | URL                                                    |
+| -------------------- | ------------------------------------------------------ |
+| Website              | `https://brandynette.xxx`                              |
+| RTMP Ingest (OBS)    | `rtmp://brandynette.xxx/live`                          |
+| HLS Playback         | `https://brandynette.xxx/live/{stream_key}/index.m3u8` |
+| API - Active Streams | `https://brandynette.xxx/api/rtmp/streams`             |
+| API - Stream URLs    | `https://brandynette.xxx/api/rtmp/url/{stream_key}`    |
 
 ### Security Checklist
 
@@ -683,6 +683,7 @@ sudo systemctl restart filehost
 ### Troubleshooting Production
 
 **OBS can't connect:**
+
 ```bash
 # Check if RTMP port is listening
 sudo netstat -tlnp | grep 1935
@@ -695,6 +696,7 @@ nginx -V 2>&1 | grep stream
 ```
 
 **Stream not appearing in UI:**
+
 ```bash
 # Check server logs
 journalctl -u filehost -f
@@ -704,6 +706,7 @@ ls -la BRANDIFICATION/live/
 ```
 
 **High latency (>15 seconds):**
+
 - Reduce `hls_time` to 1 second in RTMP config
 - Check server CPU/bandwidth
 - Use hardware encoding in OBS
@@ -755,6 +758,7 @@ v-add-letsencrypt-domain brandynette brandynette.xxx
 ### Step 2: Open RTMP Port in HestiaCP Firewall
 
 **Via Web Panel:**
+
 1. Click **Server** icon (top right) → **Firewall** → **Add Rule**
 2. Action: `ACCEPT`
 3. Protocol: `TCP`
@@ -764,6 +768,7 @@ v-add-letsencrypt-domain brandynette brandynette.xxx
 7. Save
 
 **Via CLI:**
+
 ```bash
 v-add-firewall-rule ACCEPT 0.0.0.0/0 1935 TCP "RTMP Ingest for live streaming"
 v-update-firewall
@@ -774,6 +779,7 @@ v-update-firewall
 HestiaCP templates are in `/usr/local/hestia/data/templates/web/nginx/`
 
 **Create HTTP template** (`nodeapp-rtmp.tpl`):
+
 ```bash
 sudo nano /usr/local/hestia/data/templates/web/nginx/nodeapp-rtmp.tpl
 ```
@@ -782,7 +788,7 @@ sudo nano /usr/local/hestia/data/templates/web/nginx/nodeapp-rtmp.tpl
 server {
     listen      %ip%:%proxy_port%;
     server_name %domain_idn% %alias_idn%;
-    
+
     include %home%/%user%/conf/web/%domain%/nginx.forcessl.conf*;
 
     location / {
@@ -820,6 +826,7 @@ server {
 ```
 
 **Create HTTPS template** (`nodeapp-rtmp.stpl`):
+
 ```bash
 sudo nano /usr/local/hestia/data/templates/web/nginx/nodeapp-rtmp.stpl
 ```
@@ -848,7 +855,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
-        
+
         # Timeouts for streaming
         proxy_connect_timeout 60s;
         proxy_send_timeout 60s;
@@ -859,7 +866,7 @@ server {
     location /live/ {
         proxy_pass http://127.0.0.1:8000/live/;
         proxy_http_version 1.1;
-        
+
         # CORS for HLS.js
         add_header Access-Control-Allow-Origin *;
         add_header Access-Control-Allow-Methods 'GET, OPTIONS';
@@ -888,12 +895,14 @@ server {
 ### Step 4: Apply Template to Domain
 
 **Via Web Panel:**
+
 1. **Web** → **brandynette.xxx** → **Edit**
 2. Scroll to **Proxy Template**
 3. Select: `nodeapp-rtmp`
 4. Save
 
 **Via CLI:**
+
 ```bash
 v-change-web-domain-proxy-tpl brandynette brandynette.xxx nodeapp-rtmp
 v-rebuild-user brandynette
@@ -921,6 +930,7 @@ nano .env
 ```
 
 **Production `.env` for HestiaCP:**
+
 ```env
 PORT=7878
 NODE_ENV=production
@@ -987,13 +997,13 @@ curl https://brandynette.xxx/api/rtmp/streams
 
 ### HestiaCP URLs Summary
 
-| Purpose | URL |
-|---------|-----|
-| HestiaCP Panel | `https://brandynette.xxx:8083` |
-| Website | `https://brandynette.xxx` |
-| RTMP Ingest (OBS) | `rtmp://brandynette.xxx/live` |
-| HLS Playback | `https://brandynette.xxx/live/{stream_key}/index.m3u8` |
-| API Streams | `https://brandynette.xxx/api/rtmp/streams` |
+| Purpose           | URL                                                    |
+| ----------------- | ------------------------------------------------------ |
+| HestiaCP Panel    | `https://brandynette.xxx:8083`                         |
+| Website           | `https://brandynette.xxx`                              |
+| RTMP Ingest (OBS) | `rtmp://brandynette.xxx/live`                          |
+| HLS Playback      | `https://brandynette.xxx/live/{stream_key}/index.m3u8` |
+| API Streams       | `https://brandynette.xxx/api/rtmp/streams`             |
 
 ### HestiaCP Monitoring Commands
 
