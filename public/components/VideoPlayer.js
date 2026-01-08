@@ -35,6 +35,12 @@ function VideoPlayer({ videoSrc, title }) {
     video.addEventListener("ended", handleEnded);
     video.addEventListener("error", handleError);
 
+    // Reset state when video source changes
+    setLoading(true);
+    setError(null);
+    setCurrentTime(0);
+    setDuration(0);
+
     return () => {
       video.removeEventListener("loadedmetadata", handleLoadedMetadata);
       video.removeEventListener("timeupdate", handleTimeUpdate);

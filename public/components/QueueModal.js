@@ -58,7 +58,7 @@ function QueueModal({ onAccessGranted }) {
           setCountdown(0);
           setTimeout(() => onAccessGranted(data.ticketId), 1000);
         } else if (data.status === "queued") {
-          setCountdown(data.waitTime);
+          // Only update countdown from server, don't override with local timer
           setTicketData(data);
         } else if (data.status === "expired") {
           setError("Ticket expired. Please refresh.");
@@ -69,20 +69,17 @@ function QueueModal({ onAccessGranted }) {
       }
     };
 
-    const interval = setInterval(checkTicket, 1000);
+    const interval = setInterval(checkTicket, 2000);
     return () => clearInterval(interval);
   }, [queueState, onAccessGranted]);
 
-  // Countdown timer - decrements every second
+  // Countdown timer - use server data instead of local decrement
   useEffect(() => {
-    if (queueState !== "queued" || countdown <= 0) return;
-
-    const timer = setInterval(() => {
-      setCountdown((prev) => Math.max(0, prev - 1));
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [queueState, countdown]);
+    if (queueState !== "queued" || !ticketData) return;
+    
+    // Set countdown from server data when it updates
+    setCountdown(ticketData.waitTime || 0);
+  }, [queueState, ticketData]);
 
   // Fetch queue status for display
   useEffect(() => {
@@ -96,8 +93,13 @@ function QueueModal({ onAccessGranted }) {
       }
     };
 
+    // Only fetch while queued, not continuously
+    if (queueState !== "queued") return;
+
     fetchQueueStatus();
-    const interval = setInterval(fetchQueueStatus, 3000);
+    const interval = setInterval(fetchQueueStatus, 5000);
+    return () => clearInterval(interval);
+  }, [queueState]);
     return () => clearInterval(interval);
   }, []);
 

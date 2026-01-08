@@ -20,8 +20,8 @@ function App() {
     if (hasAccess) {
       fetchData();
       fetchWorkerStatus();
-      // Update worker status every 10 seconds
-      const interval = setInterval(fetchWorkerStatus, 10000);
+      // Update worker status every 15 seconds (reduced from 10s)
+      const interval = setInterval(fetchWorkerStatus, 15000);
       return () => clearInterval(interval);
     }
   }, [hasAccess]);

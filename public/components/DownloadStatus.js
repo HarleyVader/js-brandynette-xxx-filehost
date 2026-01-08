@@ -22,8 +22,8 @@ function DownloadStatus() {
     // Initial fetch
     fetchStatus();
 
-    // Poll every 2 seconds for updates
-    const interval = setInterval(fetchStatus, 2000);
+    // Poll every 3 seconds for updates (reduced from 2s to reduce polling overhead)
+    const interval = setInterval(fetchStatus, 3000);
 
     return () => clearInterval(interval);
   }, []);
