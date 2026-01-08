@@ -240,21 +240,19 @@
      GLOW EFFECTS
      ======================================================================== */
   .glow-effect {
-    filter: drop-shadow(0 0 10px var(--glow-cyan)) 
-            drop-shadow(0 0 20px var(--glow-pink)) 
-            drop-shadow(0 0 30px var(--glow-purple));
-    animation: pulse-glow 3s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 6px var(--glow-cyan)) 
+            drop-shadow(0 0 12px var(--glow-pink));
+    animation: pulse-glow 8s ease-in-out infinite alternate;
   }
 
   @keyframes pulse-glow {
     0% {
-      filter: drop-shadow(0 0 5px var(--glow-cyan)) 
-              drop-shadow(0 0 10px var(--glow-pink));
+      filter: drop-shadow(0 0 4px var(--glow-cyan)) 
+              drop-shadow(0 0 8px var(--glow-pink));
     }
     100% {
-      filter: drop-shadow(0 0 15px var(--glow-cyan)) 
-              drop-shadow(0 0 25px var(--glow-pink)) 
-              drop-shadow(0 0 35px var(--glow-purple));
+      filter: drop-shadow(0 0 8px var(--glow-cyan)) 
+              drop-shadow(0 0 14px var(--glow-pink));
     }
   }
 }
